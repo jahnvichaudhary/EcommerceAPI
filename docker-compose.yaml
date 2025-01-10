@@ -1,0 +1,10 @@
+
+
+services:
+  account:
+  product:
+  order:
+  gateway:
+  accountDb:
+  productDb:
+  orderDb:
