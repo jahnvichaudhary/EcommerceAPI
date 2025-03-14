@@ -26,7 +26,6 @@ func ListenGRPC(s Service, port int) error {
 		service:                           s})
 	reflection.Register(serv)
 	return serv.Serve(lis)
-
 }
 
 func (s *grpcServer) PostAccount(ctx context.Context, r *pb.PostAccountRequest) (*pb.PostAccountResponse, error) {
