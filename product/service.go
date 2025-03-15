@@ -35,7 +35,7 @@ func (p productService) PostProduct(ctx context.Context, name, description strin
 		ksuid.New().String(),
 		name,
 		description,
-		Float64ToStr(price),
+		FloatToString(price),
 	}
 
 	err := p.repo.PutProduct(ctx, product)
@@ -67,7 +67,7 @@ func (p productService) UpdateProduct(ctx context.Context, id, name, description
 		id,
 		name,
 		description,
-		Float64ToStr(price),
+		FloatToString(price),
 	}
 	err := p.repo.UpdateProduct(ctx, updatedProduct)
 	if err != nil {
