@@ -20,7 +20,7 @@ type grpcServer struct {
 	productClient *product.Client
 }
 
-func ListenGRPC(s Service, accountURL, productURL string, port int) error {
+func ListenGRPC(s Service, accountURL string, productURL string, port int) error {
 	accountClient, err := account.NewClient(accountURL)
 	if err != nil {
 		return err

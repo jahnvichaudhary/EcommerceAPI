@@ -1,10 +1,73 @@
-
-
 services:
   account:
+    build:
+      context: .
+      dockerfile: ./account/app.dockerfile
+    depends_on:
+      - account_db
+    environment:
+      DATABASE_URL: postgres://rasadov:123456@account_db/rasadov?sslmode=disable
+    restart: on-failure
+
   product:
+    build:
+      context: .
+      dockerfile: ./product/app.dockerfile
+    depends_on:
+      - product_db
+    environment:
+      DATABASE_URL: http://product_db:9200
+    restart: on-failure
+
   order:
-  gateway:
-  accountDb:
-  productDb:
-  orderDb:
+    build:
+      context: .
+      dockerfile: ./order/app.dockerfile
+    depends_on:
+      - order_db
+    environment:
+      DATABASE_URL: postgres://rasadov:123456@order_db/rasadov?sslmode=disable
+      ACCOUNT_SERVICE_URL: account:8080
+      PRODUCT_SERVICE_URL: product:8080
+    restart: on-failure
+
+  graphql:
+    build:
+      context: .
+      dockerfile: ./graphql/app.dockerfile
+    ports:
+      - 8080:8080
+    depends_on:
+      - account
+      - product
+    environment:
+      ACCOUNT_SERVICE_URL: account:8080
+      PRODUCT_SERVICE_URL: product:8080
+      ORDER_SERVICE_URL: order:8080
+    restart: on-failure
+
+  account_db:
+    build:
+      context: ./account
+      dockerfile: ./db.dockerfile
+    environment:
+      POSTGRES_DB: rasadov
+      POSTGRES_USER: rasadov
+      POSTGRES_PASSWORD: 123456
+    restart: unless-stopped
+
+  product_db:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+    environment:
+      ES_JAVA_OPTS: -Xms1g -Xmx1g
+      discovery.type: single-node
+
+  order_db:
+    build:
+      context: ./order
+      dockerfile: ./db.dockerfile
+    environment:
+      POSTGRES_DB: rasadov
+      POSTGRES_USER: rasadov
+      POSTGRES_PASSWORD: 123456
+    restart: unless-stopped
