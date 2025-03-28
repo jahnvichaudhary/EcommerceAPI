@@ -5,6 +5,7 @@ import (
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"log"
 )
 
 type Repository interface {
@@ -20,21 +21,23 @@ type postgresRepository struct {
 
 func NewPostgresRepository(databaseURL string) (Repository, error) {
 	db, err := gorm.Open(postgres.Open(databaseURL), &gorm.Config{})
-
 	if err != nil {
 		return nil, err
 	}
 
 	sqlDB, err := db.DB()
-
 	if err != nil {
 		return nil, err
 	}
 
 	err = sqlDB.Ping()
-
 	if err != nil {
 		return nil, err
+	}
+
+	err = db.AutoMigrate(&Account{})
+	if err != nil {
+		log.Println("Error during migrations:", err)
 	}
 
 	return &postgresRepository{db}, nil

@@ -2,7 +2,6 @@ package product
 
 import (
 	"context"
-	"github.com/segmentio/ksuid"
 )
 
 type Service interface {
@@ -32,10 +31,9 @@ func NewProductService(repository Repository) Service {
 
 func (p productService) PostProduct(ctx context.Context, name, description string, price float64) (*Product, error) {
 	product := Product{
-		ksuid.New().String(),
-		name,
-		description,
-		FloatToString(price),
+		Name:        name,
+		Description: description,
+		Price:       FloatToString(price),
 	}
 
 	err := p.repo.PutProduct(ctx, product)

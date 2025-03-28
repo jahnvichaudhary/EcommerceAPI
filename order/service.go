@@ -24,6 +24,10 @@ type Product struct {
 	Quantity  int
 }
 
+func (Product) TableName() string {
+	return "order_products"
+}
+
 type OrderedProduct struct {
 	ID          uint
 	Name        string

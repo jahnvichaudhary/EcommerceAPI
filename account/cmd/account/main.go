@@ -12,14 +12,17 @@ type Config struct {
 	DatabaseURL string `envconfig:"DATABASE_URL" default:"postgres://user:password@localhost/dbname?sslmode=disable"`
 }
 
+var (
+	cfg Config
+	r   account.Repository
+)
+
 func main() {
-	var cfg Config
 	err := envconfig.Process("", &cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var r account.Repository
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
 		r, err = account.NewPostgresRepository(cfg.DatabaseURL)
 		if err != nil {

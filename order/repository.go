@@ -18,22 +18,22 @@ type postgresRepository struct {
 
 func NewPostgresRepository(databaseURl string) (Repository, error) {
 	db, err := gorm.Open(postgres.Open(databaseURl), &gorm.Config{})
-
 	if err != nil {
 		return nil, err
 	}
 
 	sqlDB, err := db.DB()
-
 	if err != nil {
 		return nil, err
 	}
 
 	err = sqlDB.Ping()
-
 	if err != nil {
 		return nil, err
 	}
+
+	err = db.AutoMigrate(&Order{}, &Product{})
+
 	return &postgresRepository{db}, nil
 }
 
