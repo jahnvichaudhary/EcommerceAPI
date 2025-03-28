@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/rasadov/EcommerceMicroservices/order"
 	"github.com/rasadov/EcommerceMicroservices/product"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -28,7 +30,7 @@ func (r *mutationResolver) CreateAccount(ctx context.Context, in AccountInput) (
 	}
 
 	return &Account{
-		ID:   a.ID,
+		ID:   strconv.Itoa(int(a.ID)),
 		Name: a.Name,
 	}, nil
 }
@@ -60,8 +62,13 @@ func (r *mutationResolver) CreateOrder(ctx context.Context, in OrderInput) (*Ord
 		if p.Quantity <= 0 {
 			return nil, ErrInvalidParameter
 		}
+		u, err := strconv.ParseUint(p.ID, 10, 32)
+		if err != nil {
+			fmt.Println("Error:", err)
+			return nil, err
+		}
 		products = append(products, order.OrderedProduct{
-			ID:       p.ID,
+			ID:       uint(u),
 			Quantity: uint32(p.Quantity),
 		})
 	}
@@ -72,7 +79,7 @@ func (r *mutationResolver) CreateOrder(ctx context.Context, in OrderInput) (*Ord
 	}
 
 	return &Order{
-		ID:         o.ID,
+		ID:         strconv.Itoa(int(o.ID)),
 		CreatedAt:  o.CreatedAt,
 		TotalPrice: o.TotalPrice,
 	}, nil

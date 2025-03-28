@@ -5,6 +5,7 @@ import (
 	"github.com/rasadov/EcommerceMicroservices/order/pb"
 	"google.golang.org/grpc"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -34,7 +35,7 @@ func (c *Client) PostOrder(
 	var protoProducts []*pb.PostOrderRequest_OrderProduct
 	for _, p := range products {
 		protoProducts = append(protoProducts, &pb.PostOrderRequest_OrderProduct{
-			ProductId: p.ID,
+			ProductId: strconv.Itoa(int(p.ID)),
 			Quantity:  p.Quantity,
 		})
 	}
@@ -55,7 +56,6 @@ func (c *Client) PostOrder(
 	newOrderCreatedAt.UnmarshalBinary(newOrder.CreatedAt)
 
 	return &Order{
-		ID:         newOrder.Id,
 		CreatedAt:  newOrderCreatedAt,
 		TotalPrice: newOrder.TotalPrice,
 		AccountID:  newOrder.AccountId,
@@ -75,8 +75,9 @@ func (c *Client) GetOrdersForAccount(ctx context.Context, accountID string) ([]O
 	// Create response orders
 	orders := []Order{}
 	for _, orderProto := range r.Orders {
+		orderId, _ := strconv.ParseInt(orderProto.Id, 10, 64)
 		newOrder := Order{
-			ID:         orderProto.Id,
+			ID:         uint(orderId),
 			TotalPrice: orderProto.TotalPrice,
 			AccountID:  orderProto.AccountId,
 		}
@@ -85,8 +86,9 @@ func (c *Client) GetOrdersForAccount(ctx context.Context, accountID string) ([]O
 
 		var products []OrderedProduct
 		for _, p := range orderProto.Products {
+			productId, _ := strconv.ParseInt(p.Id, 10, 64)
 			products = append(products, OrderedProduct{
-				ID:          p.Id,
+				ID:          uint(productId),
 				Quantity:    p.Quantity,
 				Name:        p.Name,
 				Description: p.Description,

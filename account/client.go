@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/rasadov/EcommerceMicroservices/account/pb"
 	"google.golang.org/grpc"
+	"strconv"
 )
 
 type Client struct {
@@ -33,8 +34,9 @@ func (c *Client) PostAccount(ctx context.Context, name string) (*Account, error)
 	if err != nil {
 		return nil, err
 	}
+	accountId, _ := strconv.ParseInt(r.Account.GetId(), 10, 64)
 	return &Account{
-		ID:   r.Account.GetId(),
+		ID:   uint(accountId),
 		Name: r.Account.GetName(),
 	}, nil
 }
@@ -47,8 +49,9 @@ func (c *Client) GetAccount(ctx context.Context, Id string) (*Account, error) {
 	if err != nil {
 		return nil, err
 	}
+	accountId, _ := strconv.ParseInt(r.Account.GetId(), 10, 64)
 	return &Account{
-		ID:   r.Account.GetId(),
+		ID:   uint(accountId),
 		Name: r.Account.GetName(),
 	}, nil
 }
@@ -63,8 +66,9 @@ func (c *Client) GetAccounts(ctx context.Context, skip, take uint64) ([]Account,
 	}
 	var accounts []Account
 	for _, a := range r.Accounts {
+		accountId, _ := strconv.ParseInt(a.GetId(), 10, 64)
 		accounts = append(accounts, Account{
-			ID:   a.GetId(),
+			ID:   uint(accountId),
 			Name: a.GetName(),
 		})
 	}

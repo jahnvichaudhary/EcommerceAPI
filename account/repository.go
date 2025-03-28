@@ -2,9 +2,9 @@ package account
 
 import (
 	"context"
-	"database/sql"
-
 	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type Repository interface {
@@ -15,17 +15,24 @@ type Repository interface {
 }
 
 type postgresRepository struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
-func NewPostgresRepository(url string) (Repository, error) {
-	db, err := sql.Open("postgres", url)
+func NewPostgresRepository(databaseURL string) (Repository, error) {
+	db, err := gorm.Open(postgres.Open(databaseURL), &gorm.Config{})
 
 	if err != nil {
 		return nil, err
 	}
 
-	err = db.Ping()
+	sqlDB, err := db.DB()
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = sqlDB.Ping()
+
 	if err != nil {
 		return nil, err
 	}
@@ -34,51 +41,35 @@ func NewPostgresRepository(url string) (Repository, error) {
 }
 
 func (r *postgresRepository) Close() {
-	r.db.Close()
+	sqlDB, err := r.db.DB()
+	if err == nil {
+		sqlDB.Close()
+	}
 }
 
-func (r *postgresRepository) Ping() {
-	r.db.Ping()
+func (r *postgresRepository) Ping() error {
+	sqlDB, err := r.db.DB()
+	if err != nil {
+		return err
+	}
+	return sqlDB.Ping()
 }
 
 func (r *postgresRepository) PutAccount(ctx context.Context, a Account) error {
-	_, err := r.db.ExecContext(ctx,
-		"INSERT INTO accounts(id, name) VALUES($1, $2)",
-		a.ID, a.Name)
-	return err
+	return r.db.WithContext(ctx).Create(&a).Error
 }
 
 func (r *postgresRepository) GetAccountByID(ctx context.Context, id string) (*Account, error) {
-	row := r.db.QueryRowContext(
-		ctx,
-		"SELECT id, name FROM account WHERE id = $1",
-		id)
-	a := &Account{}
-	if err := row.Scan(&a.ID, &a.Name); err != nil {
+	var account Account
+	if err := r.db.WithContext(ctx).First(&account, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
-	return a, nil
+	return &account, nil
 }
 
 func (r *postgresRepository) ListAccounts(ctx context.Context, skip uint64, take uint64) ([]Account, error) {
-	rows, err := r.db.QueryContext(
-		ctx,
-		"SELECT id, name FROM accounts ORDER BY id DESC OFFSET $1 LIMIT $2",
-		skip,
-		take,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	accounts := []Account{}
-	for rows.Next() {
-		a := &Account{}
-		if err = rows.Scan(&a.ID, &a.Name); err != nil {
-			accounts = append(accounts, *a)
-		}
-	}
-	if err = rows.Err(); err != nil {
+	var accounts []Account
+	if err := r.db.WithContext(ctx).Offset(int(skip)).Limit(int(take)).Find(&accounts).Error; err != nil {
 		return nil, err
 	}
 	return accounts, nil

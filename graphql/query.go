@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/rasadov/EcommerceMicroservices/product"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -22,7 +23,7 @@ func (r *queryResolver) Accounts(ctx context.Context, pagination *PaginationInpu
 			return nil, err
 		}
 		return []*Account{{
-			ID:   res.ID,
+			ID:   strconv.Itoa(int(res.ID)),
 			Name: res.Name,
 		}}, nil
 	}
@@ -41,7 +42,7 @@ func (r *queryResolver) Accounts(ctx context.Context, pagination *PaginationInpu
 	var accounts []*Account
 	for _, a := range accountList {
 		account := &Account{
-			ID:   a.ID,
+			ID:   strconv.Itoa(int(a.ID)),
 			Name: a.Name,
 		}
 		accounts = append(accounts, account)

@@ -2,7 +2,6 @@ package account
 
 import (
 	"context"
-	"github.com/segmentio/ksuid"
 )
 
 type Service interface {
@@ -12,7 +11,7 @@ type Service interface {
 }
 
 type Account struct {
-	ID   string `json:"id"`
+	ID   uint   `gorm:"primaryKey;autoIncrement"`
 	Name string `json:"name"`
 }
 
@@ -27,7 +26,6 @@ func NewService(r Repository) Service {
 func (service accountService) PostAccount(ctx context.Context, name string) (*Account, error) {
 	acc := Account{
 		Name: name,
-		ID:   ksuid.New().String(),
 	}
 	err := service.repository.PutAccount(ctx, acc)
 	if err != nil {

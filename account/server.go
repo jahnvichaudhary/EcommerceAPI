@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"net"
+	"strconv"
 )
 
 type grpcServer struct {
@@ -34,7 +35,7 @@ func (s *grpcServer) PostAccount(ctx context.Context, r *pb.PostAccountRequest) 
 		return nil, err
 	}
 	return &pb.PostAccountResponse{Account: &pb.Account{
-		Id:   a.ID,
+		Id:   strconv.Itoa(int(a.ID)),
 		Name: a.Name,
 	}}, nil
 }
@@ -45,7 +46,7 @@ func (s *grpcServer) GetAccount(ctx context.Context, r *pb.GetAccountRequest) (*
 		return nil, err
 	}
 	return &pb.GetAccountResponse{Account: &pb.Account{
-		Id:   a.ID,
+		Id:   strconv.Itoa(int(a.ID)),
 		Name: a.Name,
 	}}, nil
 }
@@ -58,7 +59,7 @@ func (s *grpcServer) GetAccounts(ctx context.Context, r *pb.GetAccountsRequest) 
 	var accounts []*pb.Account
 	for _, p := range res {
 		accounts = append(accounts, &pb.Account{
-			Id:   p.ID,
+			Id:   strconv.Itoa(int(p.ID)),
 			Name: p.Name,
 		},
 		)

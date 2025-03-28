@@ -2,7 +2,6 @@ package order
 
 import (
 	"context"
-	"github.com/segmentio/ksuid"
 	"time"
 )
 
@@ -12,15 +11,21 @@ type Service interface {
 }
 
 type Order struct {
-	ID         string
+	ID         uint `gorm:"primaryKey;autoIncrement"`
 	CreatedAt  time.Time
 	TotalPrice float64
 	AccountID  string
 	Products   []OrderedProduct
 }
 
+type Product struct {
+	OrderID   uint
+	ProductID uint
+	Quantity  int
+}
+
 type OrderedProduct struct {
-	ID          string
+	ID          uint
 	Name        string
 	Description string
 	Price       float64
@@ -37,11 +42,10 @@ func NewOrderService(r Repository) Service {
 
 func (o orderService) PostOrder(ctx context.Context, accountID string, products []OrderedProduct) (*Order, error) {
 	order := Order{
-		ID:         ksuid.New().String(),
-		CreatedAt:  time.Now().UTC(),
 		AccountID:  accountID,
 		TotalPrice: 0.0,
 		Products:   products,
+		CreatedAt:  time.Now().UTC(),
 	}
 	for _, product := range products {
 		order.TotalPrice += product.Price

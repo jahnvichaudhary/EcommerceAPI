@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc/reflection"
 	"log"
 	"net"
+	"strconv"
 )
 
 type grpcServer struct {
@@ -70,8 +71,9 @@ func (s *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRequest
 	var products []OrderedProduct
 
 	for _, p := range orderedProducts {
+		productId, _ := strconv.ParseInt(p.ID, 10, 64)
 		productObj := OrderedProduct{
-			ID:          p.ID,
+			ID:          uint(productId),
 			Name:        p.Name,
 			Description: p.Description,
 			Price:       product.StringToFloat(p.Price),
@@ -96,7 +98,7 @@ func (s *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRequest
 	}
 
 	orderProto := &pb.Order{
-		Id:         order.ID,
+		Id:         strconv.Itoa(int(order.ID)),
 		AccountId:  order.AccountID,
 		TotalPrice: order.TotalPrice,
 		Products:   []*pb.Order_OrderProduct{},
@@ -104,7 +106,7 @@ func (s *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRequest
 	orderProto.CreatedAt, _ = order.CreatedAt.MarshalBinary()
 	for _, p := range order.Products {
 		orderProto.Products = append(orderProto.Products, &pb.Order_OrderProduct{
-			Id:          p.ID,
+			Id:          strconv.Itoa(int(p.ID)),
 			Name:        p.Name,
 			Description: p.Description,
 			Price:       p.Price,
@@ -127,7 +129,7 @@ func (s *grpcServer) GetOrdersForAccount(ctx context.Context, request *pb.GetOrd
 	productIDsSet := mapset.NewSet[string]()
 	for _, o := range accountOrders {
 		for _, p := range o.Products {
-			productIDsSet.Add(p.ID)
+			productIDsSet.Add(strconv.Itoa(int(p.ID)))
 		}
 	}
 
@@ -146,7 +148,7 @@ func (s *grpcServer) GetOrdersForAccount(ctx context.Context, request *pb.GetOrd
 		// Encode order
 		op := &pb.Order{
 			AccountId:  o.AccountID,
-			Id:         o.ID,
+			Id:         strconv.Itoa(int(o.ID)),
 			TotalPrice: o.TotalPrice,
 			Products:   []*pb.Order_OrderProduct{},
 		}
@@ -156,7 +158,7 @@ func (s *grpcServer) GetOrdersForAccount(ctx context.Context, request *pb.GetOrd
 		for _, orderedProduct := range o.Products {
 			// Populate product fields
 			for _, p := range products {
-				if p.ID == orderedProduct.ID {
+				if p.ID == strconv.Itoa(int(orderedProduct.ID)) {
 					orderedProduct.Name = p.Name
 					orderedProduct.Description = p.Description
 					orderedProduct.Price = product.StringToFloat(p.Price)
@@ -165,7 +167,7 @@ func (s *grpcServer) GetOrdersForAccount(ctx context.Context, request *pb.GetOrd
 			}
 
 			op.Products = append(op.Products, &pb.Order_OrderProduct{
-				Id:          orderedProduct.ID,
+				Id:          strconv.Itoa(int(orderedProduct.ID)),
 				Name:        orderedProduct.Name,
 				Description: orderedProduct.Description,
 				Price:       orderedProduct.Price,

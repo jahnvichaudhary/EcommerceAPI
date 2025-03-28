@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -25,7 +26,7 @@ func (r *accountResolver) Orders(ctx context.Context, obj *Account) ([]*Order, e
 		var products []*OrderedProduct
 		for _, p := range o.Products {
 			products = append(products, &OrderedProduct{
-				ID:          p.ID,
+				ID:          strconv.Itoa(int(p.ID)),
 				Name:        p.Name,
 				Description: p.Description,
 				Price:       p.Price,
@@ -33,7 +34,7 @@ func (r *accountResolver) Orders(ctx context.Context, obj *Account) ([]*Order, e
 			})
 		}
 		orders = append(orders, &Order{
-			ID:         o.ID,
+			ID:         strconv.Itoa(int(o.ID)),
 			CreatedAt:  o.CreatedAt,
 			TotalPrice: o.TotalPrice,
 			Products:   products,
