@@ -25,20 +25,27 @@ func (c *Client) Close() {
 	c.conn.Close()
 }
 
-func (c *Client) PostAccount(ctx context.Context, name string) (*Account, error) {
-	r, err := c.service.PostAccount(
-		ctx,
-		&pb.PostAccountRequest{Name: name},
-	)
-
+func (c *Client) Register(ctx context.Context, name, email, password string) (string, error) {
+	response, err := c.service.RegisterAccount(ctx, &pb.RegisterRequest{
+		Name:     name,
+		Email:    email,
+		Password: password,
+	})
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	accountId, _ := strconv.ParseInt(r.Account.GetId(), 10, 64)
-	return &Account{
-		ID:   uint(accountId),
-		Name: r.Account.GetName(),
-	}, nil
+	return response.Token, nil
+}
+
+func (c *Client) Login(ctx context.Context, email, password string) (string, error) {
+	response, err := c.service.LoginAccount(ctx, &pb.LoginRequest{
+		Email:    email,
+		Password: password,
+	})
+	if err != nil {
+		return "", err
+	}
+	return response.Token, nil
 }
 
 func (c *Client) GetAccount(ctx context.Context, Id string) (*Account, error) {
@@ -51,8 +58,9 @@ func (c *Client) GetAccount(ctx context.Context, Id string) (*Account, error) {
 	}
 	accountId, _ := strconv.ParseInt(r.Account.GetId(), 10, 64)
 	return &Account{
-		ID:   uint(accountId),
-		Name: r.Account.GetName(),
+		ID:    uint(accountId),
+		Name:  r.Account.GetName(),
+		Email: r.Account.GetEmail(),
 	}, nil
 }
 
@@ -68,8 +76,9 @@ func (c *Client) GetAccounts(ctx context.Context, skip, take uint64) ([]Account,
 	for _, a := range r.Accounts {
 		accountId, _ := strconv.ParseInt(a.GetId(), 10, 64)
 		accounts = append(accounts, Account{
-			ID:   uint(accountId),
-			Name: a.GetName(),
+			ID:    uint(accountId),
+			Name:  a.GetName(),
+			Email: a.GetEmail(),
 		})
 	}
 	return accounts, nil

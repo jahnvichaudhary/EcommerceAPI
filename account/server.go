@@ -29,23 +29,32 @@ func ListenGRPC(s Service, port int) error {
 	return serv.Serve(lis)
 }
 
-func (s *grpcServer) PostAccount(ctx context.Context, r *pb.PostAccountRequest) (*pb.PostAccountResponse, error) {
-	a, err := s.service.PostAccount(ctx, r.Name)
+func (s *grpcServer) Register(ctx context.Context, request *pb.RegisterRequest) (*pb.AuthResponse, error) {
+	token, err := s.service.Register(ctx, request.Name, request.Email, request.Password)
 	if err != nil {
 		return nil, err
 	}
-	return &pb.PostAccountResponse{Account: &pb.Account{
-		Id:   strconv.Itoa(int(a.ID)),
-		Name: a.Name,
-	}}, nil
+	return &pb.AuthResponse{
+		Token: token,
+	}, nil
 }
 
-func (s *grpcServer) GetAccount(ctx context.Context, r *pb.GetAccountRequest) (*pb.GetAccountResponse, error) {
+func (s *grpcServer) Login(ctx context.Context, request *pb.LoginRequest) (*pb.AuthResponse, error) {
+	token, err := s.service.Login(ctx, request.Email, request.Password)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.AuthResponse{
+		Token: token,
+	}, nil
+}
+
+func (s *grpcServer) GetAccount(ctx context.Context, r *pb.GetAccountRequest) (*pb.AccountResponse, error) {
 	a, err := s.service.GetAccount(ctx, r.Id)
 	if err != nil {
 		return nil, err
 	}
-	return &pb.GetAccountResponse{Account: &pb.Account{
+	return &pb.AccountResponse{Account: &pb.Account{
 		Id:   strconv.Itoa(int(a.ID)),
 		Name: a.Name,
 	}}, nil

@@ -10,6 +10,8 @@ import (
 
 type Config struct {
 	DatabaseURL string `envconfig:"DATABASE_URL" default:"postgres://user:password@localhost/dbname?sslmode=disable"`
+	SecretKey   string `envconfig:"SECRET_KEY"`
+	Issuer      string `envconfig:"ISSUER"`
 }
 
 var (
@@ -31,7 +33,8 @@ func main() {
 		return
 	})
 	defer r.Close()
+	jwtService := account.NewJwtService(cfg.SecretKey, cfg.Issuer)
 	log.Println("Listening on port 8080...")
-	s := account.NewService(r)
+	s := account.NewService(r, jwtService)
 	log.Fatal(account.ListenGRPC(s, 8080))
 }
