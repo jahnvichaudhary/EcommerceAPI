@@ -12,7 +12,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type JwtService interface {
+type AuthService interface {
 	GenerateToken(userID string) (string, error)
 	ValidateToken(token string) (*jwt.Token, error)
 	GetSecretKey() string
@@ -28,7 +28,7 @@ type jwtService struct {
 	issuer    string
 }
 
-func NewJwtService(secretKey, issuer string) JwtService {
+func NewJwtService(secretKey, issuer string) AuthService {
 	return &jwtService{
 		secretKey: secretKey,
 		issuer:    issuer,

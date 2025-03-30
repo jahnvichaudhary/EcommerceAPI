@@ -6,7 +6,7 @@ RUN go mod download
 COPY account account
 COPY product product
 COPY order order
-RUN GO111MODULE=on go build -mod vendor -o /go/bin/app ./order/cmd/order
+RUN GO111MODULE=on go build -mod mod -o /go/bin/app ./order/cmd/order
 
 FROM alpine:3.20
 WORKDIR /usr/bin

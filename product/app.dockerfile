@@ -4,7 +4,7 @@ WORKDIR /go/src/github.com/rasadov/EcommerenceMicroservices
 COPY go.mod go.sum ./
 RUN go mod download
 COPY product product
-RUN GO111MODULE=on go build -mod vendor -o /go/bin/app ./product/cmd/product
+RUN GO111MODULE=on go build -mod mod -o /go/bin/app ./product/cmd/product
 
 FROM alpine:3.20
 WORKDIR /usr/bin

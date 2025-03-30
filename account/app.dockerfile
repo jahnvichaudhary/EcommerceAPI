@@ -4,7 +4,7 @@ WORKDIR /go/src/github.com/rasadov/EcommerenceMicroservices
 COPY go.mod go.sum ./
 RUN go mod download
 COPY account account
-RUN GO111MODULE=on go build -mod vendor -o /go/bin/app ./account/cmd/account
+RUN GO111MODULE=on go build -mod mod -o /go/bin/app ./account/cmd/account
 
 FROM alpine:3.20
 WORKDIR /usr/bin

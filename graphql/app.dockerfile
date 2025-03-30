@@ -7,7 +7,7 @@ COPY account account
 COPY product product
 COPY order order
 COPY graphql graphql
-RUN GO111MODULE=on go build -mod vendor -o /go/bin/app ./graphql
+RUN GO111MODULE=on go build -mod mod -o /go/bin/app ./graphql
 
 FROM alpine:3.20
 WORKDIR /usr/bin

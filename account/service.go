@@ -21,10 +21,10 @@ type Account struct {
 
 type accountService struct {
 	repository  Repository
-	authService jwtService
+	authService AuthService
 }
 
-func NewService(r Repository, j jwtService) Service {
+func NewService(r Repository, j AuthService) Service {
 	return &accountService{r, j}
 }
 

@@ -5,7 +5,7 @@ import (
 	"github.com/rasadov/EcommerceMicroservices/account"
 )
 
-func AuthorizeJWT(jwtService account.JwtService) gin.HandlerFunc {
+func AuthorizeJWT(jwtService account.AuthService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authCookie, err := c.Cookie("token")
 		if err != nil || authCookie == "" {
