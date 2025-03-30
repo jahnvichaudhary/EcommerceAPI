@@ -6,6 +6,7 @@ import (
 	"github.com/rasadov/EcommerceMicroservices/product/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 	"net"
 )
@@ -29,26 +30,12 @@ func ListenGRPC(s Service, port int) error {
 	return serv.Serve(lis)
 }
 
-func (s *grpcServer) PostProduct(ctx context.Context, r *pb.PostProductRequest) (*pb.PostProductResponse, error) {
-	p, err := s.service.PostProduct(ctx, r.Name, r.Description, StringToFloat(r.Price))
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-	return &pb.PostProductResponse{Product: &pb.Product{
-		Id:          p.ID,
-		Name:        p.Name,
-		Description: p.Description,
-		Price:       StringToFloat(p.Price),
-	}}, nil
-}
-
-func (s *grpcServer) GetProduct(ctx context.Context, r *pb.GetProductRequest) (*pb.GetProductResponse, error) {
+func (s *grpcServer) GetProduct(ctx context.Context, r *pb.ProductByIdRequest) (*pb.ProductResponse, error) {
 	p, err := s.service.GetProduct(ctx, r.Id)
 	if err != nil {
 		return nil, err
 	}
-	return &pb.GetProductResponse{Product: &pb.Product{
+	return &pb.ProductResponse{Product: &pb.Product{
 		Id:          p.ID,
 		Name:        p.Name,
 		Description: p.Description,
@@ -56,7 +43,7 @@ func (s *grpcServer) GetProduct(ctx context.Context, r *pb.GetProductRequest) (*
 	}}, nil
 }
 
-func (s *grpcServer) GetProducts(ctx context.Context, r *pb.GetProductsRequest) (*pb.GetProductsResponse, error) {
+func (s *grpcServer) GetProducts(ctx context.Context, r *pb.GetProductsRequest) (*pb.ProductsResponse, error) {
 	var res []Product
 	var err error
 	if r.Query != "" {
@@ -79,11 +66,42 @@ func (s *grpcServer) GetProducts(ctx context.Context, r *pb.GetProductsRequest) 
 		})
 
 	}
-	return &pb.GetProductsResponse{Products: products}, nil
+	return &pb.ProductsResponse{Products: products}, nil
 }
 
-//func (s *grpcServer) UpdateProduct(ctx context.Context, r *pb.PostProductRequest) *pb.PostProductResponse {
-//
-//}
+func (s *grpcServer) PostProduct(ctx context.Context, r *pb.CreateProductRequest) (*pb.ProductResponse, error) {
+	p, err := s.service.PostProduct(ctx, r.Name, r.Description, StringToFloat(r.Price))
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	return &pb.ProductResponse{Product: &pb.Product{
+		Id:          p.ID,
+		Name:        p.Name,
+		Description: p.Description,
+		Price:       StringToFloat(p.Price),
+	}}, nil
+}
 
-//func (s *grpcServer) DeleteProduct(ctx context.Context, r *pb.PostProductRequest) *pb.PostProductResponse {}
+func (s *grpcServer) UpdateProduct(ctx context.Context, r *pb.UpdateProductRequest) (*pb.ProductResponse, error) {
+	p, err := s.service.UpdateProduct(ctx, r.Id, r.Name, r.Description, StringToFloat(r.Price))
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	return &pb.ProductResponse{Product: &pb.Product{
+		Id:          p.ID,
+		Name:        p.Name,
+		Description: p.Description,
+		Price:       StringToFloat(p.Price),
+	}}, nil
+}
+
+func (s *grpcServer) DeleteProduct(ctx context.Context, r *pb.ProductByIdRequest) (*emptypb.Empty, error) {
+	err := s.service.DeleteProduct(ctx, r.Id)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}

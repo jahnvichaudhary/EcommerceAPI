@@ -24,25 +24,8 @@ func (c *Client) Close() {
 	c.conn.Close()
 }
 
-func (c *Client) PostProduct(ctx context.Context, name, description string, price float64) (*Product, error) {
-	r, err := c.service.PostProduct(ctx, &pb.PostProductRequest{
-		Name:        name,
-		Description: description,
-		Price:       FloatToString(price),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &Product{
-		r.Product.Id,
-		r.Product.Name,
-		r.Product.Description,
-		FloatToString(r.Product.Price),
-	}, nil
-}
-
 func (c *Client) GetProduct(ctx context.Context, id string) (*Product, error) {
-	r, err := c.service.GetProduct(ctx, &pb.GetProductRequest{
+	r, err := c.service.GetProduct(ctx, &pb.ProductByIdRequest{
 		Id: id,
 	})
 	if err != nil {
@@ -76,4 +59,44 @@ func (c *Client) GetProducts(ctx context.Context, skip, take uint64, ids []strin
 		})
 	}
 	return products, nil
+}
+
+func (c *Client) PostProduct(ctx context.Context, name, description string, price float64) (*Product, error) {
+	r, err := c.service.PostProduct(ctx, &pb.CreateProductRequest{
+		Name:        name,
+		Description: description,
+		Price:       FloatToString(price),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &Product{
+		r.Product.Id,
+		r.Product.Name,
+		r.Product.Description,
+		FloatToString(r.Product.Price),
+	}, nil
+}
+
+func (c *Client) UpdateProduct(ctx context.Context, id, name, description, price string) (*Product, error) {
+	res, err := c.service.UpdateProduct(ctx, &pb.UpdateProductRequest{
+		Id:          id,
+		Name:        name,
+		Description: description,
+		Price:       price,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &Product{
+		res.Product.Id,
+		res.Product.Name,
+		res.Product.Description,
+		FloatToString(res.Product.Price),
+	}, nil
+}
+
+func (c *Client) DeleteProduct(ctx context.Context, id string) error {
+	_, err := c.service.DeleteProduct(ctx, &pb.ProductByIdRequest{Id: id})
+	return err
 }
