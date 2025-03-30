@@ -1,8 +1,9 @@
 scalar Time
 
 type Account {
-    id: String!
+    id: Int!
     name: String!
+    email: String!
     orders: [Order!]!
 }
 
@@ -11,6 +12,7 @@ type Product {
     name: String!
     description: String!
     price: Float!
+    accountId: Int!
 }
 
 type Order {
@@ -28,13 +30,24 @@ type OrderedProduct {
     quantity: Int!
 }
 
+type AuthResponse {
+    token: String!
+}
+
 input PaginationInput {
     skip: Int!
     take: Int!
 }
 
-input AccountInput {
+input RegisterInput {
     name: String!
+    email: String!
+    password: String!
+}
+
+input LoginInput {
+    email: String!
+    password: String!
 }
 
 input ProductInput {
@@ -49,12 +62,12 @@ input OrderedProductInput {
 }
 
 input OrderInput {
-    accountId: String!
     products: [OrderedProductInput]!
 }
 
 type Mutation {
-    createAccount(account: AccountInput!): Account
+    Register(account: RegisterInput!): AuthResponse
+    Login(account: LoginInput!): AuthResponse
     createProduct(product: ProductInput!): Product
     createOrder(order: OrderInput!): Order
 }

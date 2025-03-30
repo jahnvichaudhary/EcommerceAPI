@@ -11,6 +11,11 @@ type accountResolver struct {
 	server *Server
 }
 
+func (r *accountResolver) ID(ctx context.Context, obj *Account) (int, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (r *accountResolver) Orders(ctx context.Context, obj *Account) ([]*Order, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()

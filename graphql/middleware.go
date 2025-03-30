@@ -1,56 +1,35 @@
 package main
 
 import (
-	"net/http"
-	"strings"
-
 	"github.com/gin-gonic/gin"
 	"github.com/rasadov/EcommerceMicroservices/account"
 )
 
-// AuthorizeJWT is a Gin middleware that checks for a valid JWT in the "Authorization" header.
-// Usage (for example):
-//
-//	router.GET("/protected", AuthorizeJWT(jwtService), protectedHandler)
 func AuthorizeJWT(jwtService account.JwtService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": "authorization header not provided",
-			})
+		authCookie, err := c.Cookie("token")
+		if err != nil || authCookie == "" {
+			c.Set("userID", "")
+			c.Next()
 			return
 		}
 
-		// Typically: "Authorization: Bearer <token>"
-		splitToken := strings.Split(authHeader, " ")
-		if len(splitToken) != 2 || strings.ToLower(splitToken[0]) != "bearer" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": "invalid authorization header format",
-			})
-			return
-		}
-
-		tokenString := splitToken[1]
-		token, err := jwtService.ValidateToken(tokenString)
+		token, err := jwtService.ValidateToken(authCookie)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": err.Error(),
-			})
+			// Token is invalid => treat as anonymous or invalid user
+			c.Set("userID", "")
+			c.Next()
 			return
 		}
 
-		// Token is valid, extract our custom claims
+		// Token is valid => set user info
 		if claims, ok := token.Claims.(*account.JWTCustomClaims); ok && token.Valid {
-			// Put user ID into context for subsequent handlers
 			c.Set("userID", claims.UserID)
 		} else {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": "invalid token claims",
-			})
-			return
+			c.Set("userID", "")
 		}
 
+		// Continue the request
 		c.Next()
 	}
 }

@@ -42,8 +42,9 @@ func (r *queryResolver) Accounts(ctx context.Context, pagination *PaginationInpu
 	var accounts []*Account
 	for _, a := range accountList {
 		account := &Account{
-			ID:   strconv.Itoa(int(a.ID)),
-			Name: a.Name,
+			ID:    strconv.Itoa(int(a.ID)),
+			Name:  a.Name,
+			Email: a.Email,
 		}
 		accounts = append(accounts, account)
 	}

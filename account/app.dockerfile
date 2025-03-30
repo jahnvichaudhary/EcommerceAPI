@@ -2,8 +2,7 @@ FROM golang:1.23-alpine3.20 AS build
 RUN apk --no-cache add gcc g++ make ca-certificates
 WORKDIR /go/src/github.com/rasadov/EcommerenceMicroservices
 COPY go.mod go.sum ./
-RUN go mod vendor
-COPY vendor vendor
+RUN go mod download
 COPY account account
 RUN GO111MODULE=on go build -mod vendor -o /go/bin/app ./account/cmd/account
 

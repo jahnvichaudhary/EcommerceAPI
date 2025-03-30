@@ -6,8 +6,13 @@ import (
 	"time"
 )
 
-type AccountInput struct {
-	Name string `json:"name"`
+type AuthResponse struct {
+	Token string `json:"token"`
+}
+
+type LoginInput struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type Mutation struct {
@@ -21,8 +26,7 @@ type Order struct {
 }
 
 type OrderInput struct {
-	AccountID string                 `json:"accountId"`
-	Products  []*OrderedProductInput `json:"products"`
+	Products []*OrderedProductInput `json:"products"`
 }
 
 type OrderedProduct struct {
@@ -48,6 +52,7 @@ type Product struct {
 	Name        string  `json:"name"`
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
+	AccountID   int     `json:"accountId"`
 }
 
 type ProductInput struct {
@@ -57,4 +62,10 @@ type ProductInput struct {
 }
 
 type Query struct {
+}
+
+type RegisterInput struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
