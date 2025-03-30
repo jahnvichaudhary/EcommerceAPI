@@ -36,6 +36,7 @@ func (c *Client) GetProduct(ctx context.Context, id string) (*Product, error) {
 		r.Product.Name,
 		r.Product.Description,
 		FloatToString(r.Product.Price),
+		int(r.Product.GetAccountId()),
 	}, nil
 }
 
@@ -56,6 +57,7 @@ func (c *Client) GetProducts(ctx context.Context, skip, take uint64, ids []strin
 			Name:        p.Name,
 			Description: p.Description,
 			Price:       FloatToString(p.Price),
+			AccountID:   int(p.AccountId),
 		})
 	}
 	return products, nil
@@ -75,6 +77,7 @@ func (c *Client) PostProduct(ctx context.Context, name, description string, pric
 		r.Product.Name,
 		r.Product.Description,
 		FloatToString(r.Product.Price),
+		int(r.Product.GetAccountId()),
 	}, nil
 }
 
@@ -93,10 +96,11 @@ func (c *Client) UpdateProduct(ctx context.Context, id, name, description, price
 		res.Product.Name,
 		res.Product.Description,
 		FloatToString(res.Product.Price),
+		int(res.Product.GetAccountId()),
 	}, nil
 }
 
-func (c *Client) DeleteProduct(ctx context.Context, id string) error {
-	_, err := c.service.DeleteProduct(ctx, &pb.ProductByIdRequest{Id: id})
+func (c *Client) DeleteProduct(ctx context.Context, productId string, accountId int) error {
+	_, err := c.service.DeleteProduct(ctx, &pb.DeleteProductRequest{ProductId: productId, AccountId: int64(accountId)})
 	return err
 }

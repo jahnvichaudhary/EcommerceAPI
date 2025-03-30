@@ -70,7 +70,7 @@ func (s *grpcServer) GetProducts(ctx context.Context, r *pb.GetProductsRequest) 
 }
 
 func (s *grpcServer) PostProduct(ctx context.Context, r *pb.CreateProductRequest) (*pb.ProductResponse, error) {
-	p, err := s.service.PostProduct(ctx, r.Name, r.Description, StringToFloat(r.Price))
+	p, err := s.service.PostProduct(ctx, r.GetName(), r.GetDescription(), StringToFloat(r.Price), int(r.GetAccountId()))
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -84,7 +84,7 @@ func (s *grpcServer) PostProduct(ctx context.Context, r *pb.CreateProductRequest
 }
 
 func (s *grpcServer) UpdateProduct(ctx context.Context, r *pb.UpdateProductRequest) (*pb.ProductResponse, error) {
-	p, err := s.service.UpdateProduct(ctx, r.Id, r.Name, r.Description, StringToFloat(r.Price))
+	p, err := s.service.UpdateProduct(ctx, r.GetId(), r.GetName(), r.GetDescription(), StringToFloat(r.Price), int(r.GetAccountId()))
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -97,8 +97,8 @@ func (s *grpcServer) UpdateProduct(ctx context.Context, r *pb.UpdateProductReque
 	}}, nil
 }
 
-func (s *grpcServer) DeleteProduct(ctx context.Context, r *pb.ProductByIdRequest) (*emptypb.Empty, error) {
-	err := s.service.DeleteProduct(ctx, r.Id)
+func (s *grpcServer) DeleteProduct(ctx context.Context, r *pb.DeleteProductRequest) (*emptypb.Empty, error) {
+	err := s.service.DeleteProduct(ctx, r.GetProductId(), int(r.GetAccountId()))
 	if err != nil {
 		log.Println(err)
 		return nil, err
