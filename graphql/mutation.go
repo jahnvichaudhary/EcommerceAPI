@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rasadov/EcommerceMicroservices/account"
 	"github.com/rasadov/EcommerceMicroservices/order"
-	"github.com/rasadov/EcommerceMicroservices/product"
 	"log"
 	"strconv"
 	"time"
@@ -21,11 +20,11 @@ type mutationResolver struct {
 	server *Server
 }
 
-func (r *mutationResolver) Register(ctx context.Context, in RegisterInput) (*AuthResponse, error) {
+func (resolver *mutationResolver) Register(ctx context.Context, in RegisterInput) (*AuthResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	token, err := r.server.accountClient.Register(ctx, in.Name, in.Email, in.Password)
+	token, err := resolver.server.accountClient.Register(ctx, in.Name, in.Email, in.Password)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -40,11 +39,11 @@ func (r *mutationResolver) Register(ctx context.Context, in RegisterInput) (*Aut
 	return &AuthResponse{Token: token}, nil
 }
 
-func (r *mutationResolver) Login(ctx context.Context, in LoginInput) (*AuthResponse, error) {
+func (resolver *mutationResolver) Login(ctx context.Context, in LoginInput) (*AuthResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	token, err := r.server.accountClient.Login(ctx, in.Email, in.Password)
+	token, err := resolver.server.accountClient.Login(ctx, in.Email, in.Password)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -59,18 +58,18 @@ func (r *mutationResolver) Login(ctx context.Context, in LoginInput) (*AuthRespo
 	return &AuthResponse{Token: token}, nil
 }
 
-func (r *mutationResolver) CreateProduct(ctx context.Context, in ProductInput) (*Product, error) {
+func (resolver *mutationResolver) CreateProduct(ctx context.Context, in CreateProductInput) (*Product, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
-
-	postProduct, err := r.server.productClient.PostProduct(ctx, in.Name, in.Description, in.Price)
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
 
 	accountId, err := account.GetUserIdInt(ctx, true)
 	if err != nil {
+		return nil, err
+	}
+
+	postProduct, err := resolver.server.productClient.PostProduct(ctx, in.Name, in.Description, in.Price, int64(accountId))
+	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
@@ -78,12 +77,51 @@ func (r *mutationResolver) CreateProduct(ctx context.Context, in ProductInput) (
 		ID:          postProduct.ID,
 		Name:        postProduct.Name,
 		Description: postProduct.Description,
-		Price:       product.StringToFloat(postProduct.Price),
+		Price:       postProduct.Price,
 		AccountID:   accountId,
 	}, nil
 }
 
-func (r *mutationResolver) CreateOrder(ctx context.Context, in OrderInput) (*Order, error) {
+func (resolver *mutationResolver) UpdateProduct(ctx context.Context, in UpdateProductInput) (*Product, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	accountId, err := account.GetUserIdInt(ctx, true)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedProduct, err := resolver.server.productClient.UpdateProduct(ctx, in.ID, in.Name, in.Description, in.Price, int64(accountId))
+	if err != nil {
+		return nil, err
+	}
+	return &Product{
+		ID:          updatedProduct.ID,
+		Name:        updatedProduct.Name,
+		Description: updatedProduct.Description,
+		Price:       updatedProduct.Price,
+		AccountID:   accountId,
+	}, nil
+}
+
+func (resolver *mutationResolver) DeleteProduct(ctx context.Context, id string) (bool, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	accountId, err := account.GetUserIdInt(ctx, true)
+	if err != nil {
+		return false, err
+	}
+
+	err = resolver.server.productClient.DeleteProduct(ctx, id, int64(accountId))
+	if err != nil {
+		log.Println(err)
+		return false, err
+	}
+	return true, nil
+}
+
+func (resolver *mutationResolver) CreateOrder(ctx context.Context, in OrderInput) (*Order, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
@@ -108,7 +146,7 @@ func (r *mutationResolver) CreateOrder(ctx context.Context, in OrderInput) (*Ord
 		return nil, errors.New("unauthorized")
 	}
 
-	o, err := r.server.orderClient.PostOrder(ctx, accountId, products)
+	o, err := resolver.server.orderClient.PostOrder(ctx, accountId, products)
 	if err != nil {
 		log.Println(err)
 		return nil, err

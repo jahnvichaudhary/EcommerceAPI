@@ -16,11 +16,11 @@ type Service interface {
 }
 
 type Product struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Price       string `json:"price"`
-	AccountID   int    `json:"accountID"`
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+	AccountID   int     `json:"accountID"`
 }
 
 type productService struct {
@@ -35,7 +35,7 @@ func (p productService) PostProduct(ctx context.Context, name, description strin
 	product := Product{
 		Name:        name,
 		Description: description,
-		Price:       FloatToString(price),
+		Price:       price,
 		AccountID:   accountId,
 	}
 
@@ -76,7 +76,7 @@ func (p productService) UpdateProduct(ctx context.Context, id, name, description
 		id,
 		name,
 		description,
-		FloatToString(price),
+		price,
 		accountId,
 	}
 	err = p.repo.UpdateProduct(ctx, updatedProduct)

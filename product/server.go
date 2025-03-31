@@ -39,7 +39,7 @@ func (s *grpcServer) GetProduct(ctx context.Context, r *pb.ProductByIdRequest) (
 		Id:          p.ID,
 		Name:        p.Name,
 		Description: p.Description,
-		Price:       StringToFloat(p.Price),
+		Price:       p.Price,
 	}}, nil
 }
 
@@ -62,7 +62,7 @@ func (s *grpcServer) GetProducts(ctx context.Context, r *pb.GetProductsRequest) 
 			Id:          p.ID,
 			Name:        p.Name,
 			Description: p.Description,
-			Price:       StringToFloat(p.Price),
+			Price:       p.Price,
 		})
 
 	}
@@ -70,7 +70,7 @@ func (s *grpcServer) GetProducts(ctx context.Context, r *pb.GetProductsRequest) 
 }
 
 func (s *grpcServer) PostProduct(ctx context.Context, r *pb.CreateProductRequest) (*pb.ProductResponse, error) {
-	p, err := s.service.PostProduct(ctx, r.GetName(), r.GetDescription(), StringToFloat(r.Price), int(r.GetAccountId()))
+	p, err := s.service.PostProduct(ctx, r.GetName(), r.GetDescription(), r.Price, int(r.GetAccountId()))
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -79,12 +79,12 @@ func (s *grpcServer) PostProduct(ctx context.Context, r *pb.CreateProductRequest
 		Id:          p.ID,
 		Name:        p.Name,
 		Description: p.Description,
-		Price:       StringToFloat(p.Price),
+		Price:       p.Price,
 	}}, nil
 }
 
 func (s *grpcServer) UpdateProduct(ctx context.Context, r *pb.UpdateProductRequest) (*pb.ProductResponse, error) {
-	p, err := s.service.UpdateProduct(ctx, r.GetId(), r.GetName(), r.GetDescription(), StringToFloat(r.Price), int(r.GetAccountId()))
+	p, err := s.service.UpdateProduct(ctx, r.GetId(), r.GetName(), r.GetDescription(), r.Price, int(r.GetAccountId()))
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -93,7 +93,7 @@ func (s *grpcServer) UpdateProduct(ctx context.Context, r *pb.UpdateProductReque
 		Id:          p.ID,
 		Name:        p.Name,
 		Description: p.Description,
-		Price:       StringToFloat(p.Price),
+		Price:       p.Price,
 	}}, nil
 }
 

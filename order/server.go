@@ -76,7 +76,7 @@ func (s *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRequest
 			ID:          uint(productId),
 			Name:        p.Name,
 			Description: p.Description,
-			Price:       product.StringToFloat(p.Price),
+			Price:       p.Price,
 			Quantity:    0,
 		}
 		for _, requestProduct := range request.Products {
@@ -161,7 +161,7 @@ func (s *grpcServer) GetOrdersForAccount(ctx context.Context, request *pb.GetOrd
 				if p.ID == strconv.Itoa(int(orderedProduct.ID)) {
 					orderedProduct.Name = p.Name
 					orderedProduct.Description = p.Description
-					orderedProduct.Price = product.StringToFloat(p.Price)
+					orderedProduct.Price = p.Price
 					break
 				}
 			}

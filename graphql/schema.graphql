@@ -1,7 +1,7 @@
 scalar Time
 
 type Account {
-    id: Int!
+    id: String!
     name: String!
     email: String!
     orders: [Order!]!
@@ -50,7 +50,14 @@ input LoginInput {
     password: String!
 }
 
-input ProductInput {
+input CreateProductInput {
+    name: String!
+    description: String!
+    price: Float!
+}
+
+input UpdateProductInput {
+    id: String!
     name: String!
     description: String!
     price: Float!
@@ -68,7 +75,8 @@ input OrderInput {
 type Mutation {
     Register(account: RegisterInput!): AuthResponse
     Login(account: LoginInput!): AuthResponse
-    createProduct(product: ProductInput!): Product
+    createProduct(product: CreateProductInput!): Product
+    updateProduct(product: UpdateProductInput!): Product
     createOrder(order: OrderInput!): Order
 }
 

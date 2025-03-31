@@ -35,7 +35,7 @@ func (c *Client) GetProduct(ctx context.Context, id string) (*Product, error) {
 		r.Product.Id,
 		r.Product.Name,
 		r.Product.Description,
-		FloatToString(r.Product.Price),
+		r.Product.Price,
 		int(r.Product.GetAccountId()),
 	}, nil
 }
@@ -56,18 +56,19 @@ func (c *Client) GetProducts(ctx context.Context, skip, take uint64, ids []strin
 			ID:          p.Id,
 			Name:        p.Name,
 			Description: p.Description,
-			Price:       FloatToString(p.Price),
+			Price:       p.Price,
 			AccountID:   int(p.AccountId),
 		})
 	}
 	return products, nil
 }
 
-func (c *Client) PostProduct(ctx context.Context, name, description string, price float64) (*Product, error) {
+func (c *Client) PostProduct(ctx context.Context, name, description string, price float64, accountId int64) (*Product, error) {
 	r, err := c.service.PostProduct(ctx, &pb.CreateProductRequest{
 		Name:        name,
 		Description: description,
-		Price:       FloatToString(price),
+		Price:       price,
+		AccountId:   accountId,
 	})
 	if err != nil {
 		return nil, err
@@ -76,17 +77,18 @@ func (c *Client) PostProduct(ctx context.Context, name, description string, pric
 		r.Product.Id,
 		r.Product.Name,
 		r.Product.Description,
-		FloatToString(r.Product.Price),
+		r.Product.Price,
 		int(r.Product.GetAccountId()),
 	}, nil
 }
 
-func (c *Client) UpdateProduct(ctx context.Context, id, name, description, price string) (*Product, error) {
+func (c *Client) UpdateProduct(ctx context.Context, id, name, description string, price float64, accountId int64) (*Product, error) {
 	res, err := c.service.UpdateProduct(ctx, &pb.UpdateProductRequest{
 		Id:          id,
 		Name:        name,
 		Description: description,
 		Price:       price,
+		AccountId:   accountId,
 	})
 	if err != nil {
 		return nil, err
@@ -95,12 +97,12 @@ func (c *Client) UpdateProduct(ctx context.Context, id, name, description, price
 		res.Product.Id,
 		res.Product.Name,
 		res.Product.Description,
-		FloatToString(res.Product.Price),
+		res.Product.Price,
 		int(res.Product.GetAccountId()),
 	}, nil
 }
 
-func (c *Client) DeleteProduct(ctx context.Context, productId string, accountId int) error {
-	_, err := c.service.DeleteProduct(ctx, &pb.DeleteProductRequest{ProductId: productId, AccountId: int64(accountId)})
+func (c *Client) DeleteProduct(ctx context.Context, productId string, accountId int64) error {
+	_, err := c.service.DeleteProduct(ctx, &pb.DeleteProductRequest{ProductId: productId, AccountId: accountId})
 	return err
 }

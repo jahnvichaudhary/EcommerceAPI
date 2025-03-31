@@ -11,37 +11,32 @@ type accountResolver struct {
 	server *Server
 }
 
-func (r *accountResolver) ID(ctx context.Context, obj *Account) (int, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r *accountResolver) Orders(ctx context.Context, obj *Account) ([]*Order, error) {
+func (resolver *accountResolver) Orders(ctx context.Context, obj *Account) ([]*Order, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	orderList, err := r.server.orderClient.GetOrdersForAccount(ctx, obj.ID)
+	orderList, err := resolver.server.orderClient.GetOrdersForAccount(ctx, obj.ID)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
 	var orders []*Order
-	for _, o := range orderList {
+	for _, order := range orderList {
 		var products []*OrderedProduct
-		for _, p := range o.Products {
+		for _, orderedProduct := range order.Products {
 			products = append(products, &OrderedProduct{
-				ID:          strconv.Itoa(int(p.ID)),
-				Name:        p.Name,
-				Description: p.Description,
-				Price:       p.Price,
-				Quantity:    int(p.Quantity),
+				ID:          strconv.Itoa(int(orderedProduct.ID)),
+				Name:        orderedProduct.Name,
+				Description: orderedProduct.Description,
+				Price:       orderedProduct.Price,
+				Quantity:    int(orderedProduct.Quantity),
 			})
 		}
 		orders = append(orders, &Order{
-			ID:         strconv.Itoa(int(o.ID)),
-			CreatedAt:  o.CreatedAt,
-			TotalPrice: o.TotalPrice,
+			ID:         strconv.Itoa(int(order.ID)),
+			CreatedAt:  order.CreatedAt,
+			TotalPrice: order.TotalPrice,
 			Products:   products,
 		})
 	}

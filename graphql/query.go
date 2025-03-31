@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/rasadov/EcommerceMicroservices/product"
 	"log"
 	"strconv"
 	"time"
@@ -12,12 +11,12 @@ type queryResolver struct {
 	server *Server
 }
 
-func (r *queryResolver) Accounts(ctx context.Context, pagination *PaginationInput, id *string) ([]*Account, error) {
+func (resolver *queryResolver) Accounts(ctx context.Context, pagination *PaginationInput, id *string) ([]*Account, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
 	if id != nil {
-		res, err := r.server.accountClient.GetAccount(ctx, *id)
+		res, err := resolver.server.accountClient.GetAccount(ctx, *id)
 		if err != nil {
 			log.Println(err)
 			return nil, err
@@ -33,7 +32,7 @@ func (r *queryResolver) Accounts(ctx context.Context, pagination *PaginationInpu
 		skip, take = pagination.bounds()
 	}
 
-	accountList, err := r.server.accountClient.GetAccounts(ctx, skip, take)
+	accountList, err := resolver.server.accountClient.GetAccounts(ctx, skip, take)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -52,22 +51,22 @@ func (r *queryResolver) Accounts(ctx context.Context, pagination *PaginationInpu
 	return accounts, nil
 }
 
-func (r *queryResolver) Product(ctx context.Context, pagination *PaginationInput, query, id *string) ([]*Product, error) {
+func (resolver *queryResolver) Product(ctx context.Context, pagination *PaginationInput, query, id *string) ([]*Product, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
 	// Get single
 	if id != nil {
-		r, err := r.server.productClient.GetProduct(ctx, *id)
+		res, err := resolver.server.productClient.GetProduct(ctx, *id)
 		if err != nil {
 			log.Println(err)
 			return nil, err
 		}
 		return []*Product{{
-			ID:          r.ID,
-			Name:        r.Name,
-			Description: r.Description,
-			Price:       product.StringToFloat(r.Price),
+			ID:          res.ID,
+			Name:        res.Name,
+			Description: res.Description,
+			Price:       res.Price,
 		}}, nil
 	}
 	skip, take := uint64(0), uint64(0)
@@ -79,20 +78,20 @@ func (r *queryResolver) Product(ctx context.Context, pagination *PaginationInput
 	if query != nil {
 		q = *query
 	}
-	productList, err := r.server.productClient.GetProducts(ctx, skip, take, nil, q)
+	productList, err := resolver.server.productClient.GetProducts(ctx, skip, take, nil, q)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
 	var products []*Product
-	for _, a := range productList {
+	for _, product := range productList {
 		products = append(products,
 			&Product{
-				ID:          a.ID,
-				Name:        a.Name,
-				Description: a.Description,
-				Price:       product.StringToFloat(a.Price),
+				ID:          product.ID,
+				Name:        product.Name,
+				Description: product.Description,
+				Price:       product.Price,
 			},
 		)
 	}

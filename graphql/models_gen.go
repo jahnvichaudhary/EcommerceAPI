@@ -10,6 +10,12 @@ type AuthResponse struct {
 	Token string `json:"token"`
 }
 
+type CreateProductInput struct {
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+}
+
 type LoginInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -55,12 +61,6 @@ type Product struct {
 	AccountID   int     `json:"accountId"`
 }
 
-type ProductInput struct {
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-}
-
 type Query struct {
 }
 
@@ -68,4 +68,11 @@ type RegisterInput struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type UpdateProductInput struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
 }
