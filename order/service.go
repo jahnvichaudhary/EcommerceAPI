@@ -46,20 +46,20 @@ func NewOrderService(r Repository) Service {
 	return &orderService{r}
 }
 
-func (o orderService) PostOrder(ctx context.Context, accountID string, totalPrice float64, products []OrderedProduct) (*Order, error) {
+func (service orderService) PostOrder(ctx context.Context, accountID string, totalPrice float64, products []OrderedProduct) (*Order, error) {
 	order := Order{
 		AccountID:  accountID,
 		TotalPrice: totalPrice,
 		Products:   products,
 		CreatedAt:  time.Now().UTC(),
 	}
-	err := o.repository.PutOrder(ctx, order)
+	err := service.repository.PutOrder(ctx, order)
 	if err != nil {
 		return nil, err
 	}
 	return &order, nil
 }
 
-func (o orderService) GetOrdersForAccount(ctx context.Context, accountID string) ([]Order, error) {
-	return o.repository.GetOrdersForAccount(ctx, accountID)
+func (service orderService) GetOrdersForAccount(ctx context.Context, accountID string) ([]Order, error) {
+	return service.repository.GetOrdersForAccount(ctx, accountID)
 }

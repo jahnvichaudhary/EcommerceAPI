@@ -37,15 +37,15 @@ func NewPostgresRepository(databaseURl string) (Repository, error) {
 	return &postgresRepository{db}, nil
 }
 
-func (r *postgresRepository) Close() {
-	sqlDB, err := r.db.DB()
+func (repository *postgresRepository) Close() {
+	sqlDB, err := repository.db.DB()
 	if err == nil {
 		sqlDB.Close()
 	}
 }
 
-func (r *postgresRepository) PutOrder(ctx context.Context, order Order) error {
-	tx := r.db.WithContext(ctx).Begin()
+func (repository *postgresRepository) PutOrder(ctx context.Context, order Order) error {
+	tx := repository.db.WithContext(ctx).Begin()
 
 	err := tx.WithContext(ctx).Create(&order).Error
 
@@ -69,9 +69,9 @@ func (r *postgresRepository) PutOrder(ctx context.Context, order Order) error {
 	return nil
 }
 
-func (r *postgresRepository) GetOrdersForAccount(ctx context.Context, accountId string) ([]Order, error) {
+func (repository *postgresRepository) GetOrdersForAccount(ctx context.Context, accountId string) ([]Order, error) {
 	var orders []Order
-	err := r.db.WithContext(ctx).
+	err := repository.db.WithContext(ctx).
 		Table("orders o").
 		Select("o.id, o.created_at, o.account_id, o.total_price::money::numeric::float8, op.product_id, op.quantity").
 		Joins("JOIN order_products op on o.id = op.order_id").

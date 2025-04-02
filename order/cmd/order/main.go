@@ -21,17 +21,17 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var r order.Repository
+	var repository order.Repository
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
-		r, err = order.NewPostgresRepository(cfg.DatabaseUrl)
+		repository, err = order.NewPostgresRepository(cfg.DatabaseUrl)
 		if err != nil {
 			log.Println(err)
 		}
 		return
 	})
-	defer r.Close()
+	defer repository.Close()
 
 	log.Println("Listening on port 8080...")
-	s := order.NewOrderService(r)
-	log.Fatal(order.ListenGRPC(s, cfg.AccountUrl, cfg.ProductUrl, 8080))
+	service := order.NewOrderService(repository)
+	log.Fatal(order.ListenGRPC(service, cfg.AccountUrl, cfg.ProductUrl, 8080))
 }

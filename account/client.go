@@ -21,12 +21,12 @@ func NewClient(url string) (*Client, error) {
 	return &Client{conn, C}, nil
 }
 
-func (c *Client) Close() {
-	c.conn.Close()
+func (client *Client) Close() {
+	client.conn.Close()
 }
 
-func (c *Client) Register(ctx context.Context, name, email, password string) (string, error) {
-	response, err := c.service.RegisterAccount(ctx, &pb.RegisterRequest{
+func (client *Client) Register(ctx context.Context, name, email, password string) (string, error) {
+	response, err := client.service.RegisterAccount(ctx, &pb.RegisterRequest{
 		Name:     name,
 		Email:    email,
 		Password: password,
@@ -37,8 +37,8 @@ func (c *Client) Register(ctx context.Context, name, email, password string) (st
 	return response.Token, nil
 }
 
-func (c *Client) Login(ctx context.Context, email, password string) (string, error) {
-	response, err := c.service.LoginAccount(ctx, &pb.LoginRequest{
+func (client *Client) Login(ctx context.Context, email, password string) (string, error) {
+	response, err := client.service.LoginAccount(ctx, &pb.LoginRequest{
 		Email:    email,
 		Password: password,
 	})
@@ -48,8 +48,8 @@ func (c *Client) Login(ctx context.Context, email, password string) (string, err
 	return response.Token, nil
 }
 
-func (c *Client) GetAccount(ctx context.Context, Id string) (*Account, error) {
-	r, err := c.service.GetAccount(
+func (client *Client) GetAccount(ctx context.Context, Id string) (*Account, error) {
+	r, err := client.service.GetAccount(
 		ctx,
 		&pb.GetAccountRequest{Id: Id},
 	)
@@ -64,8 +64,8 @@ func (c *Client) GetAccount(ctx context.Context, Id string) (*Account, error) {
 	}, nil
 }
 
-func (c *Client) GetAccounts(ctx context.Context, skip, take uint64) ([]Account, error) {
-	r, err := c.service.GetAccounts(
+func (client *Client) GetAccounts(ctx context.Context, skip, take uint64) ([]Account, error) {
+	r, err := client.service.GetAccounts(
 		ctx,
 		&pb.GetAccountsRequest{Take: take, Skip: skip},
 	)

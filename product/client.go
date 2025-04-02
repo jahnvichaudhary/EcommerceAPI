@@ -16,32 +16,32 @@ func NewClient(url string) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	c := pb.NewProductServiceClient(conn)
-	return &Client{conn, c}, nil
+	client := pb.NewProductServiceClient(conn)
+	return &Client{conn, client}, nil
 }
 
-func (c *Client) Close() {
-	c.conn.Close()
+func (client *Client) Close() {
+	client.conn.Close()
 }
 
-func (c *Client) GetProduct(ctx context.Context, id string) (*Product, error) {
-	r, err := c.service.GetProduct(ctx, &pb.ProductByIdRequest{
+func (client *Client) GetProduct(ctx context.Context, id string) (*Product, error) {
+	res, err := client.service.GetProduct(ctx, &pb.ProductByIdRequest{
 		Id: id,
 	})
 	if err != nil {
 		return nil, err
 	}
 	return &Product{
-		r.Product.Id,
-		r.Product.Name,
-		r.Product.Description,
-		r.Product.Price,
-		int(r.Product.GetAccountId()),
+		res.Product.Id,
+		res.Product.Name,
+		res.Product.Description,
+		res.Product.Price,
+		int(res.Product.GetAccountId()),
 	}, nil
 }
 
-func (c *Client) GetProducts(ctx context.Context, skip, take uint64, ids []string, query string) ([]Product, error) {
-	r, err := c.service.GetProducts(ctx, &pb.GetProductsRequest{
+func (client *Client) GetProducts(ctx context.Context, skip, take uint64, ids []string, query string) ([]Product, error) {
+	res, err := client.service.GetProducts(ctx, &pb.GetProductsRequest{
 		Skip:  skip,
 		Take:  take,
 		Ids:   ids,
@@ -51,7 +51,7 @@ func (c *Client) GetProducts(ctx context.Context, skip, take uint64, ids []strin
 		return nil, err
 	}
 	var products []Product
-	for _, p := range r.Products {
+	for _, p := range res.Products {
 		products = append(products, Product{
 			ID:          p.Id,
 			Name:        p.Name,
@@ -63,8 +63,8 @@ func (c *Client) GetProducts(ctx context.Context, skip, take uint64, ids []strin
 	return products, nil
 }
 
-func (c *Client) PostProduct(ctx context.Context, name, description string, price float64, accountId int64) (*Product, error) {
-	r, err := c.service.PostProduct(ctx, &pb.CreateProductRequest{
+func (client *Client) PostProduct(ctx context.Context, name, description string, price float64, accountId int64) (*Product, error) {
+	res, err := client.service.PostProduct(ctx, &pb.CreateProductRequest{
 		Name:        name,
 		Description: description,
 		Price:       price,
@@ -74,16 +74,16 @@ func (c *Client) PostProduct(ctx context.Context, name, description string, pric
 		return nil, err
 	}
 	return &Product{
-		r.Product.Id,
-		r.Product.Name,
-		r.Product.Description,
-		r.Product.Price,
-		int(r.Product.GetAccountId()),
+		res.Product.Id,
+		res.Product.Name,
+		res.Product.Description,
+		res.Product.Price,
+		int(res.Product.GetAccountId()),
 	}, nil
 }
 
-func (c *Client) UpdateProduct(ctx context.Context, id, name, description string, price float64, accountId int64) (*Product, error) {
-	res, err := c.service.UpdateProduct(ctx, &pb.UpdateProductRequest{
+func (client *Client) UpdateProduct(ctx context.Context, id, name, description string, price float64, accountId int64) (*Product, error) {
+	res, err := client.service.UpdateProduct(ctx, &pb.UpdateProductRequest{
 		Id:          id,
 		Name:        name,
 		Description: description,
@@ -102,7 +102,7 @@ func (c *Client) UpdateProduct(ctx context.Context, id, name, description string
 	}, nil
 }
 
-func (c *Client) DeleteProduct(ctx context.Context, productId string, accountId int64) error {
-	_, err := c.service.DeleteProduct(ctx, &pb.DeleteProductRequest{ProductId: productId, AccountId: accountId})
+func (client *Client) DeleteProduct(ctx context.Context, productId string, accountId int64) error {
+	_, err := client.service.DeleteProduct(ctx, &pb.DeleteProductRequest{ProductId: productId, AccountId: accountId})
 	return err
 }

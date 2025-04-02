@@ -19,16 +19,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var r product.Repository
+	var repository product.Repository
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
-		r, err = product.NewElasticRepository(cfg.DatabaseURL)
+		repository, err = product.NewElasticRepository(cfg.DatabaseURL)
 		if err != nil {
 			log.Println(err)
 		}
 		return
 	})
-	defer r.Close()
+	defer repository.Close()
 	log.Println("Listening on port 8080...")
-	s := product.NewProductService(r)
-	log.Fatal(product.ListenGRPC(s, 8080))
+	service := product.NewProductService(repository)
+	log.Fatal(product.ListenGRPC(service, 8080))
 }

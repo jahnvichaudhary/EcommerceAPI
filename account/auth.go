@@ -35,21 +35,21 @@ func NewJwtService(secretKey, issuer string) AuthService {
 	}
 }
 
-func (j *jwtService) GenerateToken(userID string) (string, error) {
+func (service *jwtService) GenerateToken(userID string) (string, error) {
 	claims := &JWTCustomClaims{
 		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    j.issuer,
+			Issuer:    service.issuer,
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(j.secretKey))
+	return token.SignedString([]byte(service.secretKey))
 }
 
-func (j *jwtService) ValidateToken(encodedToken string) (*jwt.Token, error) {
+func (service *jwtService) ValidateToken(encodedToken string) (*jwt.Token, error) {
 	token, err := jwt.ParseWithClaims(
 		encodedToken,
 		&JWTCustomClaims{},
@@ -57,7 +57,7 @@ func (j *jwtService) ValidateToken(encodedToken string) (*jwt.Token, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 			}
-			return []byte(j.secretKey), nil
+			return []byte(service.secretKey), nil
 		},
 	)
 	if err != nil {
@@ -65,7 +65,7 @@ func (j *jwtService) ValidateToken(encodedToken string) (*jwt.Token, error) {
 	}
 
 	if claims, ok := token.Claims.(*JWTCustomClaims); ok && token.Valid {
-		if claims.Issuer != j.issuer {
+		if claims.Issuer != service.issuer {
 			return nil, errors.New("invalid issuer in token")
 		}
 		return token, nil
@@ -74,8 +74,8 @@ func (j *jwtService) ValidateToken(encodedToken string) (*jwt.Token, error) {
 	return nil, errors.New("invalid token claims")
 }
 
-func (j *jwtService) GetSecretKey() string {
-	return j.secretKey
+func (service *jwtService) GetSecretKey() string {
+	return service.secretKey
 }
 
 func GetUserId(ctx context.Context, abort bool) string {

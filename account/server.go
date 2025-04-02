@@ -15,7 +15,7 @@ type grpcServer struct {
 	service Service
 }
 
-func ListenGRPC(s Service, port int) error {
+func ListenGRPC(service Service, port int) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return err
@@ -24,13 +24,13 @@ func ListenGRPC(s Service, port int) error {
 
 	pb.RegisterAccountServiceServer(serv, &grpcServer{
 		UnimplementedAccountServiceServer: pb.UnimplementedAccountServiceServer{},
-		service:                           s})
+		service:                           service})
 	reflection.Register(serv)
 	return serv.Serve(lis)
 }
 
-func (s *grpcServer) Register(ctx context.Context, request *pb.RegisterRequest) (*pb.AuthResponse, error) {
-	token, err := s.service.Register(ctx, request.Name, request.Email, request.Password)
+func (server *grpcServer) Register(ctx context.Context, request *pb.RegisterRequest) (*pb.AuthResponse, error) {
+	token, err := server.service.Register(ctx, request.Name, request.Email, request.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -39,8 +39,8 @@ func (s *grpcServer) Register(ctx context.Context, request *pb.RegisterRequest) 
 	}, nil
 }
 
-func (s *grpcServer) Login(ctx context.Context, request *pb.LoginRequest) (*pb.AuthResponse, error) {
-	token, err := s.service.Login(ctx, request.Email, request.Password)
+func (server *grpcServer) Login(ctx context.Context, request *pb.LoginRequest) (*pb.AuthResponse, error) {
+	token, err := server.service.Login(ctx, request.Email, request.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -49,8 +49,8 @@ func (s *grpcServer) Login(ctx context.Context, request *pb.LoginRequest) (*pb.A
 	}, nil
 }
 
-func (s *grpcServer) GetAccount(ctx context.Context, r *pb.GetAccountRequest) (*pb.AccountResponse, error) {
-	a, err := s.service.GetAccount(ctx, r.Id)
+func (server *grpcServer) GetAccount(ctx context.Context, r *pb.GetAccountRequest) (*pb.AccountResponse, error) {
+	a, err := server.service.GetAccount(ctx, r.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -60,8 +60,8 @@ func (s *grpcServer) GetAccount(ctx context.Context, r *pb.GetAccountRequest) (*
 	}}, nil
 }
 
-func (s *grpcServer) GetAccounts(ctx context.Context, r *pb.GetAccountsRequest) (*pb.GetAccountsResponse, error) {
-	res, err := s.service.GetAccounts(ctx, r.Skip, r.Take)
+func (server *grpcServer) GetAccounts(ctx context.Context, r *pb.GetAccountsRequest) (*pb.GetAccountsResponse, error) {
+	res, err := server.service.GetAccounts(ctx, r.Skip, r.Take)
 	if err != nil {
 		return nil, err
 	}

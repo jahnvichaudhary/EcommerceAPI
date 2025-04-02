@@ -23,23 +23,23 @@ func NewClient(url string) (*Client, error) {
 	return &Client{conn, c}, nil
 }
 
-func (c *Client) Close() {
-	c.conn.Close()
+func (client *Client) Close() {
+	client.conn.Close()
 }
 
-func (c *Client) PostOrder(
+func (client *Client) PostOrder(
 	ctx context.Context,
 	accountID string,
 	products []OrderedProduct,
 ) (*Order, error) {
-	var protoProducts []*pb.PostOrderRequest_OrderProduct
+	var protoProducts []*pb.OrderProduct
 	for _, p := range products {
-		protoProducts = append(protoProducts, &pb.PostOrderRequest_OrderProduct{
-			ProductId: strconv.Itoa(int(p.ID)),
-			Quantity:  p.Quantity,
+		protoProducts = append(protoProducts, &pb.OrderProduct{
+			Id:       strconv.Itoa(int(p.ID)),
+			Quantity: p.Quantity,
 		})
 	}
-	r, err := c.service.PostOrder(
+	r, err := client.service.PostOrder(
 		ctx,
 		&pb.PostOrderRequest{
 			AccountId: accountID,
@@ -63,8 +63,8 @@ func (c *Client) PostOrder(
 	}, nil
 }
 
-func (c *Client) GetOrdersForAccount(ctx context.Context, accountID string) ([]Order, error) {
-	r, err := c.service.GetOrdersForAccount(ctx, &pb.GetOrdersForAccountRequest{
+func (client *Client) GetOrdersForAccount(ctx context.Context, accountID string) ([]Order, error) {
+	r, err := client.service.GetOrdersForAccount(ctx, &pb.GetOrdersForAccountRequest{
 		AccountId: accountID,
 	})
 	if err != nil {
@@ -73,7 +73,7 @@ func (c *Client) GetOrdersForAccount(ctx context.Context, accountID string) ([]O
 	}
 
 	// Create response orders
-	orders := []Order{}
+	var orders []Order
 	for _, orderProto := range r.Orders {
 		orderId, _ := strconv.ParseInt(orderProto.Id, 10, 64)
 		newOrder := Order{

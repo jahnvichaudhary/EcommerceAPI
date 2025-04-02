@@ -39,26 +39,26 @@ func NewGraphQLServer(
 	}, nil
 }
 
-func (s *Server) Mutation() MutationResolver {
+func (server *Server) Mutation() MutationResolver {
 	return &mutationResolver{
-		server: s,
+		server: server,
 	}
 }
 
-func (s *Server) Query() QueryResolver {
+func (server *Server) Query() QueryResolver {
 	return &queryResolver{
-		server: s,
+		server: server,
 	}
 }
 
-func (s *Server) Account() AccountResolver {
+func (server *Server) Account() AccountResolver {
 	return &accountResolver{
-		server: s,
+		server: server,
 	}
 }
 
-func (s *Server) toExecutableSchema() graphql.ExecutableSchema {
+func (server *Server) toExecutableSchema() graphql.ExecutableSchema {
 	return NewExecutableSchema(Config{
-		Resolvers: s,
+		Resolvers: server,
 	})
 }

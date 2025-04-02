@@ -44,47 +44,47 @@ func NewPostgresRepository(databaseURL string) (Repository, error) {
 	return &postgresRepository{db}, nil
 }
 
-func (r *postgresRepository) Close() {
-	sqlDB, err := r.db.DB()
+func (repository *postgresRepository) Close() {
+	sqlDB, err := repository.db.DB()
 	if err == nil {
 		sqlDB.Close()
 	}
 }
 
-func (r *postgresRepository) Ping() error {
-	sqlDB, err := r.db.DB()
+func (repository *postgresRepository) Ping() error {
+	sqlDB, err := repository.db.DB()
 	if err != nil {
 		return err
 	}
 	return sqlDB.Ping()
 }
 
-func (r *postgresRepository) PutAccount(ctx context.Context, a Account) (*Account, error) {
-	if err := r.db.WithContext(ctx).Create(&a).Error; err != nil {
+func (repository *postgresRepository) PutAccount(ctx context.Context, a Account) (*Account, error) {
+	if err := repository.db.WithContext(ctx).Create(&a).Error; err != nil {
 		return nil, err
 	}
 	return &a, nil
 }
 
-func (r *postgresRepository) GetAccountByEmail(ctx context.Context, email string) (*Account, error) {
+func (repository *postgresRepository) GetAccountByEmail(ctx context.Context, email string) (*Account, error) {
 	var account Account
-	if err := r.db.WithContext(ctx).First(&account, "email = ?", email).Error; err != nil {
+	if err := repository.db.WithContext(ctx).First(&account, "email = ?", email).Error; err != nil {
 		return nil, err
 	}
 	return &account, nil
 }
 
-func (r *postgresRepository) GetAccountByID(ctx context.Context, id string) (*Account, error) {
+func (repository *postgresRepository) GetAccountByID(ctx context.Context, id string) (*Account, error) {
 	var account Account
-	if err := r.db.WithContext(ctx).First(&account, "id = ?", id).Error; err != nil {
+	if err := repository.db.WithContext(ctx).First(&account, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
 	return &account, nil
 }
 
-func (r *postgresRepository) ListAccounts(ctx context.Context, skip uint64, take uint64) ([]Account, error) {
+func (repository *postgresRepository) ListAccounts(ctx context.Context, skip uint64, take uint64) ([]Account, error) {
 	var accounts []Account
-	if err := r.db.WithContext(ctx).Offset(int(skip)).Limit(int(take)).Find(&accounts).Error; err != nil {
+	if err := repository.db.WithContext(ctx).Offset(int(skip)).Limit(int(take)).Find(&accounts).Error; err != nil {
 		return nil, err
 	}
 	return accounts, nil

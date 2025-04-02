@@ -15,8 +15,8 @@ type Config struct {
 }
 
 var (
-	cfg Config
-	r   account.Repository
+	cfg        Config
+	repository account.Repository
 )
 
 func main() {
@@ -26,15 +26,15 @@ func main() {
 	}
 
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
-		r, err = account.NewPostgresRepository(cfg.DatabaseURL)
+		repository, err = account.NewPostgresRepository(cfg.DatabaseURL)
 		if err != nil {
 			log.Println(err)
 		}
 		return
 	})
-	defer r.Close()
+	defer repository.Close()
 	jwtService := account.NewJwtService(cfg.SecretKey, cfg.Issuer)
 	log.Println("Listening on port 8080...")
-	s := account.NewService(r, jwtService)
-	log.Fatal(account.ListenGRPC(s, 8080))
+	service := account.NewService(repository, jwtService)
+	log.Fatal(account.ListenGRPC(service, 8080))
 }
