@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,7 +20,6 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	RecommenderService_GetRecommendations_FullMethodName = "/pb.RecommenderService/GetRecommendations"
-	RecommenderService_RecordInteraction_FullMethodName  = "/pb.RecommenderService/RecordInteraction"
 )
 
 // RecommenderServiceClient is the client API for RecommenderService service.
@@ -29,7 +27,6 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RecommenderServiceClient interface {
 	GetRecommendations(ctx context.Context, in *RecommendationRequest, opts ...grpc.CallOption) (*RecommendationResponse, error)
-	RecordInteraction(ctx context.Context, in *ProductInteraction, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type recommenderServiceClient struct {
@@ -50,22 +47,11 @@ func (c *recommenderServiceClient) GetRecommendations(ctx context.Context, in *R
 	return out, nil
 }
 
-func (c *recommenderServiceClient) RecordInteraction(ctx context.Context, in *ProductInteraction, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, RecommenderService_RecordInteraction_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // RecommenderServiceServer is the server API for RecommenderService service.
 // All implementations must embed UnimplementedRecommenderServiceServer
 // for forward compatibility.
 type RecommenderServiceServer interface {
 	GetRecommendations(context.Context, *RecommendationRequest) (*RecommendationResponse, error)
-	RecordInteraction(context.Context, *ProductInteraction) (*emptypb.Empty, error)
 	mustEmbedUnimplementedRecommenderServiceServer()
 }
 
@@ -78,9 +64,6 @@ type UnimplementedRecommenderServiceServer struct{}
 
 func (UnimplementedRecommenderServiceServer) GetRecommendations(context.Context, *RecommendationRequest) (*RecommendationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRecommendations not implemented")
-}
-func (UnimplementedRecommenderServiceServer) RecordInteraction(context.Context, *ProductInteraction) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RecordInteraction not implemented")
 }
 func (UnimplementedRecommenderServiceServer) mustEmbedUnimplementedRecommenderServiceServer() {}
 func (UnimplementedRecommenderServiceServer) testEmbeddedByValue()                            {}
@@ -121,24 +104,6 @@ func _RecommenderService_GetRecommendations_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommenderService_RecordInteraction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ProductInteraction)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RecommenderServiceServer).RecordInteraction(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RecommenderService_RecordInteraction_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommenderServiceServer).RecordInteraction(ctx, req.(*ProductInteraction))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // RecommenderService_ServiceDesc is the grpc.ServiceDesc for RecommenderService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -149,10 +114,6 @@ var RecommenderService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetRecommendations",
 			Handler:    _RecommenderService_GetRecommendations_Handler,
-		},
-		{
-			MethodName: "RecordInteraction",
-			Handler:    _RecommenderService_RecordInteraction_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

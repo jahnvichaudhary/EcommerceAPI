@@ -1,21 +1,11 @@
 syntax = "proto3";
 
-import "google/protobuf/empty.proto";
-
 package pb;
 
 option go_package = "./pb";
 
-
-message ProductInteraction {
-  string user_id = 1;
-  string product_id = 2;
-  string interaction_type = 3;
-}
-
 message RecommendationRequest {
   string user_id = 1;
-  string current_product_id = 2;
 }
 
 message Product {
@@ -31,5 +21,4 @@ message RecommendationResponse {
 
 service RecommenderService {
   rpc GetRecommendations (RecommendationRequest) returns (RecommendationResponse);
-  rpc RecordInteraction (ProductInteraction) returns (google.protobuf.Empty);
 }

@@ -3,8 +3,7 @@
 import grpc
 import warnings
 
-from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
-import recommender_pb2 as recommender__pb2
+from generated.pb import recommender_pb2 as proto_dot_recommender__pb2
 
 GRPC_GENERATED_VERSION = '1.71.0'
 GRPC_VERSION = grpc.__version__
@@ -19,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in recommender_pb2_grpc.py depends on'
+        + f' but the generated code in proto/recommender_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -37,13 +36,8 @@ class RecommenderServiceStub(object):
         """
         self.GetRecommendations = channel.unary_unary(
                 '/pb.RecommenderService/GetRecommendations',
-                request_serializer=recommender__pb2.RecommendationRequest.SerializeToString,
-                response_deserializer=recommender__pb2.RecommendationResponse.FromString,
-                _registered_method=True)
-        self.RecordInteraction = channel.unary_unary(
-                '/pb.RecommenderService/RecordInteraction',
-                request_serializer=recommender__pb2.ProductInteraction.SerializeToString,
-                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                request_serializer=proto_dot_recommender__pb2.RecommendationRequest.SerializeToString,
+                response_deserializer=proto_dot_recommender__pb2.RecommendationResponse.FromString,
                 _registered_method=True)
 
 
@@ -56,24 +50,13 @@ class RecommenderServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def RecordInteraction(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
 
 def add_RecommenderServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetRecommendations': grpc.unary_unary_rpc_method_handler(
                     servicer.GetRecommendations,
-                    request_deserializer=recommender__pb2.RecommendationRequest.FromString,
-                    response_serializer=recommender__pb2.RecommendationResponse.SerializeToString,
-            ),
-            'RecordInteraction': grpc.unary_unary_rpc_method_handler(
-                    servicer.RecordInteraction,
-                    request_deserializer=recommender__pb2.ProductInteraction.FromString,
-                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                    request_deserializer=proto_dot_recommender__pb2.RecommendationRequest.FromString,
+                    response_serializer=proto_dot_recommender__pb2.RecommendationResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -101,35 +84,8 @@ class RecommenderService(object):
             request,
             target,
             '/pb.RecommenderService/GetRecommendations',
-            recommender__pb2.RecommendationRequest.SerializeToString,
-            recommender__pb2.RecommendationResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def RecordInteraction(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/pb.RecommenderService/RecordInteraction',
-            recommender__pb2.ProductInteraction.SerializeToString,
-            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            proto_dot_recommender__pb2.RecommendationRequest.SerializeToString,
+            proto_dot_recommender__pb2.RecommendationResponse.FromString,
             options,
             channel_credentials,
             insecure,
