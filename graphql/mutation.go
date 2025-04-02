@@ -126,18 +126,18 @@ func (resolver *mutationResolver) CreateOrder(ctx context.Context, in OrderInput
 	defer cancel()
 
 	var products []order.OrderedProduct
-	for _, p := range in.Products {
-		if p.Quantity <= 0 {
+	for _, product := range in.Products {
+		if product.Quantity <= 0 {
 			return nil, ErrInvalidParameter
 		}
-		u, err := strconv.ParseUint(p.ID, 10, 32)
+		u, err := strconv.ParseUint(product.ID, 10, 32)
 		if err != nil {
 			fmt.Println("Error:", err)
 			return nil, err
 		}
 		products = append(products, order.OrderedProduct{
 			ID:       uint(u),
-			Quantity: uint32(p.Quantity),
+			Quantity: uint32(product.Quantity),
 		})
 	}
 
@@ -146,15 +146,15 @@ func (resolver *mutationResolver) CreateOrder(ctx context.Context, in OrderInput
 		return nil, errors.New("unauthorized")
 	}
 
-	o, err := resolver.server.orderClient.PostOrder(ctx, accountId, products)
+	postOrder, err := resolver.server.orderClient.PostOrder(ctx, accountId, products)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
 	return &Order{
-		ID:         strconv.Itoa(int(o.ID)),
-		CreatedAt:  o.CreatedAt,
-		TotalPrice: o.TotalPrice,
+		ID:         strconv.Itoa(int(postOrder.ID)),
+		CreatedAt:  postOrder.CreatedAt,
+		TotalPrice: postOrder.TotalPrice,
 	}, nil
 }
