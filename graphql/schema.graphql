@@ -73,8 +73,8 @@ input OrderInput {
 }
 
 type Mutation {
-    Register(account: RegisterInput!): AuthResponse
-    Login(account: LoginInput!): AuthResponse
+    register(account: RegisterInput!): AuthResponse
+    login(account: LoginInput!): AuthResponse
     createProduct(product: CreateProductInput!): Product
     updateProduct(product: UpdateProductInput!): Product
     createOrder(order: OrderInput!): Order

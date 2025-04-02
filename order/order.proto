@@ -2,32 +2,33 @@ syntax = "proto3";
 
 package pb;
 
-option go_package = "./";
+option go_package = "./pb";
+
+message Product {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  uint32 quantity = 5;
+}
 
 message Order {
-  message OrderProduct {
-    string id = 1;
-    string name = 2;
-    string description = 3;
-    double price = 4;
-    uint32 quantity = 5;
-  }
-
   string id = 1;
   bytes createdAt = 2;
   string accountId = 3;
   double totalPrice = 4;
-  repeated OrderProduct products = 5;
+  repeated Product products = 5;
+}
+
+message OrderProduct {
+  string id = 1;
+  uint32 quantity = 2;
 }
 
 message PostOrderRequest {
-  message OrderProduct {
-    string productId = 2;
-    uint32 quantity = 3;
-  }
-
-  string accountId = 2;
-  repeated OrderProduct products = 4;
+  string accountId = 1;
+  double total_price = 2;
+  repeated OrderProduct products = 3;
 }
 
 message PostOrderResponse {

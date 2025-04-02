@@ -60,7 +60,7 @@ func (s *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRequest
 	}
 	var productIDs []string
 	for _, p := range request.Products {
-		productIDs = append(productIDs, p.ProductId)
+		productIDs = append(productIDs, p.Id)
 	}
 	orderedProducts, err := s.productClient.GetProducts(ctx, 0, 0, productIDs, "")
 	if err != nil {
@@ -80,7 +80,7 @@ func (s *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRequest
 			Quantity:    0,
 		}
 		for _, requestProduct := range request.Products {
-			if requestProduct.ProductId == p.ID {
+			if requestProduct.Id == p.ID {
 				productObj.Quantity = requestProduct.Quantity
 				break
 			}
@@ -91,7 +91,7 @@ func (s *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRequest
 		}
 	}
 
-	order, err := s.service.PostOrder(ctx, request.AccountId, products)
+	order, err := s.service.PostOrder(ctx, request.AccountId, request.GetTotalPrice(), products)
 	if err != nil {
 		log.Println("Error posting order", err)
 		return nil, err
@@ -101,11 +101,11 @@ func (s *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRequest
 		Id:         strconv.Itoa(int(order.ID)),
 		AccountId:  order.AccountID,
 		TotalPrice: order.TotalPrice,
-		Products:   []*pb.Order_OrderProduct{},
+		Products:   []*pb.Product{},
 	}
 	orderProto.CreatedAt, _ = order.CreatedAt.MarshalBinary()
 	for _, p := range order.Products {
-		orderProto.Products = append(orderProto.Products, &pb.Order_OrderProduct{
+		orderProto.Products = append(orderProto.Products, &pb.Product{
 			Id:          strconv.Itoa(int(p.ID)),
 			Name:        p.Name,
 			Description: p.Description,
@@ -150,7 +150,7 @@ func (s *grpcServer) GetOrdersForAccount(ctx context.Context, request *pb.GetOrd
 			AccountId:  o.AccountID,
 			Id:         strconv.Itoa(int(o.ID)),
 			TotalPrice: o.TotalPrice,
-			Products:   []*pb.Order_OrderProduct{},
+			Products:   []*pb.Product{},
 		}
 		op.CreatedAt, _ = o.CreatedAt.MarshalBinary()
 
@@ -166,7 +166,7 @@ func (s *grpcServer) GetOrdersForAccount(ctx context.Context, request *pb.GetOrd
 				}
 			}
 
-			op.Products = append(op.Products, &pb.Order_OrderProduct{
+			op.Products = append(op.Products, &pb.Product{
 				Id:          strconv.Itoa(int(orderedProduct.ID)),
 				Name:        orderedProduct.Name,
 				Description: orderedProduct.Description,

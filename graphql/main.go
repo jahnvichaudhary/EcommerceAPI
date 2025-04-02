@@ -25,12 +25,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	s, err := NewGraphQLServer(cfg.AccountUrl, cfg.ProductUrl, cfg.OrderUrl)
+	server, err := NewGraphQLServer(cfg.AccountUrl, cfg.ProductUrl, cfg.OrderUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	srv := handler.New(s.toExecutableSchema())
+	srv := handler.New(server.toExecutableSchema())
 	srv.AddTransport(transport.POST{})
 	srv.AddTransport(transport.MultipartForm{})
 

@@ -32,7 +32,7 @@ func NewPostgresRepository(databaseURl string) (Repository, error) {
 		return nil, err
 	}
 
-	err = db.AutoMigrate(&Order{}, &Product{})
+	err = db.AutoMigrate(&Order{}, &ProductsInfo{})
 
 	return &postgresRepository{db}, nil
 }
@@ -55,7 +55,7 @@ func (r *postgresRepository) PutOrder(ctx context.Context, order Order) error {
 	}
 
 	for _, product := range order.Products {
-		orderedProduct := Product{
+		orderedProduct := ProductsInfo{
 			OrderID:   order.ID,
 			ProductID: product.ID,
 			Quantity:  int(product.Quantity),

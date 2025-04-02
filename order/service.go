@@ -6,25 +6,27 @@ import (
 )
 
 type Service interface {
-	PostOrder(ctx context.Context, accountID string, products []OrderedProduct) (*Order, error)
+	PostOrder(ctx context.Context, accountID string, totalPrice float64, products []OrderedProduct) (*Order, error)
 	GetOrdersForAccount(ctx context.Context, accountID string) ([]Order, error)
 }
 
 type Order struct {
-	ID         uint `gorm:"primaryKey;autoIncrement"`
-	CreatedAt  time.Time
-	TotalPrice float64
-	AccountID  string
-	Products   []OrderedProduct
+	ID            uint `gorm:"primaryKey;autoIncrement"`
+	CreatedAt     time.Time
+	TotalPrice    float64
+	AccountID     string
+	productsInfos []ProductsInfo   `gorm:"foreignKey:OrderID"`
+	Products      []OrderedProduct `gorm:"-"`
 }
 
-type Product struct {
+type ProductsInfo struct {
+	ID        uint `gorm:"primaryKey;autoIncrement"`
 	OrderID   uint
 	ProductID uint
 	Quantity  int
 }
 
-func (Product) TableName() string {
+func (ProductsInfo) TableName() string {
 	return "order_products"
 }
 
@@ -44,15 +46,12 @@ func NewOrderService(r Repository) Service {
 	return &orderService{r}
 }
 
-func (o orderService) PostOrder(ctx context.Context, accountID string, products []OrderedProduct) (*Order, error) {
+func (o orderService) PostOrder(ctx context.Context, accountID string, totalPrice float64, products []OrderedProduct) (*Order, error) {
 	order := Order{
 		AccountID:  accountID,
-		TotalPrice: 0.0,
+		TotalPrice: totalPrice,
 		Products:   products,
 		CreatedAt:  time.Now().UTC(),
-	}
-	for _, product := range products {
-		order.TotalPrice += product.Price
 	}
 	err := o.repository.PutOrder(ctx, order)
 	if err != nil {

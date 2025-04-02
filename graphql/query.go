@@ -39,11 +39,11 @@ func (resolver *queryResolver) Accounts(ctx context.Context, pagination *Paginat
 	}
 
 	var accounts []*Account
-	for _, a := range accountList {
+	for _, account := range accountList {
 		account := &Account{
-			ID:    strconv.Itoa(int(a.ID)),
-			Name:  a.Name,
-			Email: a.Email,
+			ID:    strconv.Itoa(int(account.ID)),
+			Name:  account.Name,
+			Email: account.Email,
 		}
 		accounts = append(accounts, account)
 	}
@@ -99,14 +99,14 @@ func (resolver *queryResolver) Product(ctx context.Context, pagination *Paginati
 	return products, nil
 }
 
-func (p PaginationInput) bounds() (uint64, uint64) {
+func (pagination PaginationInput) bounds() (uint64, uint64) {
 	skipValue := uint64(0)
 	takeValue := uint64(100)
-	if p.Skip != 0 {
-		skipValue = uint64(p.Skip)
+	if pagination.Skip != 0 {
+		skipValue = uint64(pagination.Skip)
 	}
-	if p.Take != 100 {
-		takeValue = uint64(p.Take)
+	if pagination.Take != 100 {
+		takeValue = uint64(pagination.Take)
 	}
 	return skipValue, takeValue
 }
