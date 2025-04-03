@@ -6,7 +6,7 @@ import (
 	"github.com/deckarep/golang-set/v2"
 	"github.com/rasadov/EcommerceMicroservices/account"
 	"github.com/rasadov/EcommerceMicroservices/order/pb"
-	productPackage "github.com/rasadov/EcommerceMicroservices/product"
+	"github.com/rasadov/EcommerceMicroservices/product"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"log"
@@ -18,7 +18,7 @@ type grpcServer struct {
 	pb.UnimplementedOrderServiceServer
 	service       Service
 	accountClient *account.Client
-	productClient *productPackage.Client
+	productClient *product.Client
 }
 
 func ListenGRPC(service Service, accountURL string, productURL string, port int) error {
@@ -27,7 +27,7 @@ func ListenGRPC(service Service, accountURL string, productURL string, port int)
 		return err
 	}
 
-	productClient, err := productPackage.NewClient(productURL)
+	productClient, err := product.NewClient(productURL)
 	if err != nil {
 		accountClient.Close()
 		return err
@@ -101,11 +101,11 @@ func (server *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRe
 		Id:         strconv.Itoa(int(order.ID)),
 		AccountId:  order.AccountID,
 		TotalPrice: order.TotalPrice,
-		Products:   []*pb.Product{},
+		Products:   []*pb.ProductInfo{},
 	}
 	orderProto.CreatedAt, _ = order.CreatedAt.MarshalBinary()
 	for _, p := range order.Products {
-		orderProto.Products = append(orderProto.Products, &pb.Product{
+		orderProto.Products = append(orderProto.Products, &pb.ProductInfo{
 			Id:          strconv.Itoa(int(p.ID)),
 			Name:        p.Name,
 			Description: p.Description,
@@ -150,23 +150,23 @@ func (server *grpcServer) GetOrdersForAccount(ctx context.Context, request *pb.G
 			AccountId:  order.AccountID,
 			Id:         strconv.Itoa(int(order.ID)),
 			TotalPrice: order.TotalPrice,
-			Products:   []*pb.Product{},
+			Products:   []*pb.ProductInfo{},
 		}
 		encodedOrder.CreatedAt, _ = order.CreatedAt.MarshalBinary()
 
 		// Decorate orders with products
 		for _, orderedProduct := range order.Products {
 			// Populate product fields
-			for _, product := range products {
-				if product.ID == strconv.Itoa(int(orderedProduct.ID)) {
-					orderedProduct.Name = product.Name
-					orderedProduct.Description = product.Description
-					orderedProduct.Price = product.Price
+			for _, prod := range products {
+				if prod.ID == strconv.Itoa(int(orderedProduct.ID)) {
+					orderedProduct.Name = prod.Name
+					orderedProduct.Description = prod.Description
+					orderedProduct.Price = prod.Price
 					break
 				}
 			}
 
-			encodedOrder.Products = append(encodedOrder.Products, &pb.Product{
+			encodedOrder.Products = append(encodedOrder.Products, &pb.ProductInfo{
 				Id:          strconv.Itoa(int(orderedProduct.ID)),
 				Name:        orderedProduct.Name,
 				Description: orderedProduct.Description,

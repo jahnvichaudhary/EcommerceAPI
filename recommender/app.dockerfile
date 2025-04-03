@@ -8,3 +8,5 @@ COPY recommender/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY recommender /app
+
+ENV PYTHONPATH="/app:${PYTHONPATH}"

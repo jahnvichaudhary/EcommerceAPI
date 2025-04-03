@@ -4,7 +4,7 @@ package pb;
 
 option go_package = "./pb";
 
-message Product {
+message ProductInfo {
   string id = 1;
   string name = 2;
   string description = 3;
@@ -17,7 +17,7 @@ message Order {
   bytes createdAt = 2;
   string accountId = 3;
   double totalPrice = 4;
-  repeated Product products = 5;
+  repeated ProductInfo products = 5;
 }
 
 message OrderProduct {
