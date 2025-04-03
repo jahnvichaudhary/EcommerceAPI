@@ -6,6 +6,7 @@ RUN go mod download
 COPY account account
 COPY product product
 COPY order order
+COPY recommender recommender
 COPY graphql graphql
 RUN GO111MODULE=on go build -mod mod -o /go/bin/app ./graphql
 

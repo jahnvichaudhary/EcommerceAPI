@@ -25,7 +25,7 @@ class RecommenderServiceServicer(recommender_pb2_grpc.RecommenderServiceServicer
 
                 # Map to gRPC Product messages
                 grpc_products = [
-                    recommender_pb2.Product(
+                    recommender_pb2.ProductReplica(
                         id=product.id,
                         name=product.name,
                         description=product.description,

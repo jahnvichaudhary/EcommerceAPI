@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"errors"
+	"github.com/rasadov/EcommerceMicroservices/account"
 	"log"
 	"strconv"
 	"time"
@@ -51,7 +53,7 @@ func (resolver *queryResolver) Accounts(ctx context.Context, pagination *Paginat
 	return accounts, nil
 }
 
-func (resolver *queryResolver) Product(ctx context.Context, pagination *PaginationInput, query, id *string) ([]*Product, error) {
+func (resolver *queryResolver) Product(ctx context.Context, pagination *PaginationInput, query, id *string, recommended *bool) ([]*Product, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
@@ -72,6 +74,22 @@ func (resolver *queryResolver) Product(ctx context.Context, pagination *Paginati
 	skip, take := uint64(0), uint64(0)
 	if pagination != nil {
 		skip, take = pagination.bounds()
+	}
+
+	// Get recommendations
+	if *recommended == true {
+		accountId := account.GetUserId(ctx, true)
+		if accountId == "" {
+			return nil, errors.New("unauthorized")
+		}
+		res, err := resolver.server.recommenderClient.GetRecommendation(ctx, accountId)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		if res == nil {
+			return nil, nil
+		}
 	}
 
 	q := ""

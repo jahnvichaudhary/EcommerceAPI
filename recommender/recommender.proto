@@ -8,7 +8,7 @@ message RecommendationRequest {
   string user_id = 1;
 }
 
-message Product {
+message ProductReplica {
   string id = 1;
   string name = 2;
   string description = 3;
@@ -16,7 +16,7 @@ message Product {
 }
 
 message RecommendationResponse {
-  repeated Product recommended_products = 1;
+  repeated ProductReplica recommended_products = 1;
 }
 
 service RecommenderService {

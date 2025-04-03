@@ -103,21 +103,23 @@ func (resolver *mutationResolver) UpdateProduct(ctx context.Context, in UpdatePr
 	}, nil
 }
 
-func (resolver *mutationResolver) DeleteProduct(ctx context.Context, id string) (bool, error) {
+func (resolver *mutationResolver) DeleteProduct(ctx context.Context, id string) (*bool, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
 	accountId, err := account.GetUserIdInt(ctx, true)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	err = resolver.server.productClient.DeleteProduct(ctx, id, int64(accountId))
 	if err != nil {
 		log.Println(err)
-		return false, err
+		return nil, err
 	}
-	return true, nil
+
+	success := true
+	return &success, nil
 }
 
 func (resolver *mutationResolver) CreateOrder(ctx context.Context, in OrderInput) (*Order, error) {

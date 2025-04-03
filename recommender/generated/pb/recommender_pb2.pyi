@@ -11,7 +11,7 @@ class RecommendationRequest(_message.Message):
     user_id: str
     def __init__(self, user_id: _Optional[str] = ...) -> None: ...
 
-class Product(_message.Message):
+class ProductReplica(_message.Message):
     __slots__ = ("id", "name", "description", "price")
     ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
@@ -26,5 +26,5 @@ class Product(_message.Message):
 class RecommendationResponse(_message.Message):
     __slots__ = ("recommended_products",)
     RECOMMENDED_PRODUCTS_FIELD_NUMBER: _ClassVar[int]
-    recommended_products: _containers.RepeatedCompositeFieldContainer[Product]
-    def __init__(self, recommended_products: _Optional[_Iterable[_Union[Product, _Mapping]]] = ...) -> None: ...
+    recommended_products: _containers.RepeatedCompositeFieldContainer[ProductReplica]
+    def __init__(self, recommended_products: _Optional[_Iterable[_Union[ProductReplica, _Mapping]]] = ...) -> None: ...

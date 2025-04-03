@@ -4,6 +4,7 @@ go 1.23.4
 
 require (
 	github.com/99designs/gqlgen v0.17.70
+	github.com/IBM/sarama v1.45.1
 	github.com/deckarep/golang-set/v2 v2.8.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/golang-jwt/jwt/v5 v5.2.2
@@ -20,7 +21,6 @@ require (
 )
 
 require (
-	github.com/IBM/sarama v1.45.1 // indirect
 	github.com/agnivade/levenshtein v1.2.1 // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
