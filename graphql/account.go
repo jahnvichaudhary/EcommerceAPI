@@ -26,7 +26,7 @@ func (resolver *accountResolver) Orders(ctx context.Context, obj *Account) ([]*O
 		var products []*OrderedProduct
 		for _, orderedProduct := range order.Products {
 			products = append(products, &OrderedProduct{
-				ID:          strconv.Itoa(int(orderedProduct.ID)),
+				ID:          orderedProduct.ID,
 				Name:        orderedProduct.Name,
 				Description: orderedProduct.Description,
 				Price:       orderedProduct.Price,

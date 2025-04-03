@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/rasadov/EcommerceMicroservices/account"
 	"github.com/rasadov/EcommerceMicroservices/order"
@@ -130,13 +129,8 @@ func (resolver *mutationResolver) CreateOrder(ctx context.Context, in OrderInput
 		if product.Quantity <= 0 {
 			return nil, ErrInvalidParameter
 		}
-		u, err := strconv.ParseUint(product.ID, 10, 32)
-		if err != nil {
-			fmt.Println("Error:", err)
-			return nil, err
-		}
 		products = append(products, order.OrderedProduct{
-			ID:       uint(u),
+			ID:       product.ID,
 			Quantity: uint32(product.Quantity),
 		})
 	}

@@ -71,9 +71,8 @@ func (server *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRe
 	var products []OrderedProduct
 
 	for _, p := range orderedProducts {
-		productId, _ := strconv.ParseInt(p.ID, 10, 64)
 		productObj := OrderedProduct{
-			ID:          uint(productId),
+			ID:          p.ID,
 			Name:        p.Name,
 			Description: p.Description,
 			Price:       p.Price,
@@ -106,7 +105,7 @@ func (server *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRe
 	orderProto.CreatedAt, _ = order.CreatedAt.MarshalBinary()
 	for _, p := range order.Products {
 		orderProto.Products = append(orderProto.Products, &pb.ProductInfo{
-			Id:          strconv.Itoa(int(p.ID)),
+			Id:          p.ID,
 			Name:        p.Name,
 			Description: p.Description,
 			Price:       p.Price,
@@ -129,7 +128,7 @@ func (server *grpcServer) GetOrdersForAccount(ctx context.Context, request *pb.G
 	productIDsSet := mapset.NewSet[string]()
 	for _, o := range accountOrders {
 		for _, p := range o.Products {
-			productIDsSet.Add(strconv.Itoa(int(p.ID)))
+			productIDsSet.Add(p.ID)
 		}
 	}
 
@@ -158,7 +157,7 @@ func (server *grpcServer) GetOrdersForAccount(ctx context.Context, request *pb.G
 		for _, orderedProduct := range order.Products {
 			// Populate product fields
 			for _, prod := range products {
-				if prod.ID == strconv.Itoa(int(orderedProduct.ID)) {
+				if prod.ID == orderedProduct.ID {
 					orderedProduct.Name = prod.Name
 					orderedProduct.Description = prod.Description
 					orderedProduct.Price = prod.Price
@@ -167,7 +166,7 @@ func (server *grpcServer) GetOrdersForAccount(ctx context.Context, request *pb.G
 			}
 
 			encodedOrder.Products = append(encodedOrder.Products, &pb.ProductInfo{
-				Id:          strconv.Itoa(int(orderedProduct.ID)),
+				Id:          orderedProduct.ID,
 				Name:        orderedProduct.Name,
 				Description: orderedProduct.Description,
 				Price:       orderedProduct.Price,

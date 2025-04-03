@@ -3,6 +3,8 @@ package product
 import (
 	"context"
 	"errors"
+	"github.com/IBM/sarama"
+	"log"
 )
 
 type Service interface {
@@ -24,14 +26,15 @@ type Product struct {
 }
 
 type productService struct {
-	repo Repository
+	repo     Repository
+	producer sarama.AsyncProducer
 }
 
-func NewProductService(repository Repository) Service {
-	return &productService{repository}
+func NewProductService(repository Repository, producer sarama.AsyncProducer) Service {
+	return &productService{repository, producer}
 }
 
-func (p productService) PostProduct(ctx context.Context, name, description string, price float64, accountId int) (*Product, error) {
+func (service productService) PostProduct(ctx context.Context, name, description string, price float64, accountId int) (*Product, error) {
 	product := Product{
 		Name:        name,
 		Description: description,
@@ -39,32 +42,66 @@ func (p productService) PostProduct(ctx context.Context, name, description strin
 		AccountID:   accountId,
 	}
 
-	err := p.repo.PutProduct(ctx, product)
+	err := service.repo.PutProduct(ctx, product)
 	if err != nil {
 		return nil, err
 	}
 
+	go func() {
+		err = service.SendMessageToRecommender(Event{
+			Type: "product_created",
+			Data: EventData{
+				ID:          &product.ID,
+				Name:        &product.Name,
+				Description: &product.Description,
+				Price:       &product.Price,
+				AccountID:   &product.AccountID,
+			},
+		}, "product_events")
+		if err != nil {
+			log.Println("Failed to send event to recommendation service:", err)
+		}
+	}()
+
 	return &product, nil
 }
 
-func (p productService) GetProduct(ctx context.Context, id string) (*Product, error) {
-	return p.repo.GetProductById(ctx, id)
+func (service productService) GetProduct(ctx context.Context, id string) (*Product, error) {
+	product, err := service.repo.GetProductById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	go func() {
+		err = service.SendMessageToRecommender(Event{
+			Type: "product_retrieved",
+			Data: EventData{
+				ID:        &product.ID,
+				AccountID: &product.AccountID,
+			},
+		}, "interaction_events")
+		if err != nil {
+			log.Println("Failed to send event to recommendation service:", err)
+		}
+	}()
+
+	return product, nil
 }
 
-func (p productService) GetProducts(ctx context.Context, skip, take uint64) ([]Product, error) {
-	return p.repo.ListProducts(ctx, skip, take)
+func (service productService) GetProducts(ctx context.Context, skip, take uint64) ([]Product, error) {
+	return service.repo.ListProducts(ctx, skip, take)
 }
 
-func (p productService) GetProductsWithIDs(ctx context.Context, ids []string) ([]Product, error) {
-	return p.repo.ListProductsWithIDs(ctx, ids)
+func (service productService) GetProductsWithIDs(ctx context.Context, ids []string) ([]Product, error) {
+	return service.repo.ListProductsWithIDs(ctx, ids)
 }
 
-func (p productService) SearchProducts(ctx context.Context, query string, skip, take uint64) ([]Product, error) {
-	return p.repo.SearchProducts(ctx, query, skip, take)
+func (service productService) SearchProducts(ctx context.Context, query string, skip, take uint64) ([]Product, error) {
+	return service.repo.SearchProducts(ctx, query, skip, take)
 }
 
-func (p productService) UpdateProduct(ctx context.Context, id, name, description string, price float64, accountId int) (*Product, error) {
-	product, err := p.repo.GetProductById(ctx, id)
+func (service productService) UpdateProduct(ctx context.Context, id, name, description string, price float64, accountId int) (*Product, error) {
+	product, err := service.repo.GetProductById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -79,14 +116,31 @@ func (p productService) UpdateProduct(ctx context.Context, id, name, description
 		price,
 		accountId,
 	}
-	err = p.repo.UpdateProduct(ctx, updatedProduct)
+	err = service.repo.UpdateProduct(ctx, updatedProduct)
 	if err != nil {
 		return nil, err
 	}
+
+	go func() {
+		err = service.SendMessageToRecommender(Event{
+			Type: "product_updated",
+			Data: EventData{
+				ID:          &updatedProduct.ID,
+				Name:        &updatedProduct.Name,
+				Description: &updatedProduct.Description,
+				Price:       &updatedProduct.Price,
+				AccountID:   &updatedProduct.AccountID,
+			},
+		}, "product_events")
+		if err != nil {
+			log.Println("Failed to send event to recommendation service:", err)
+		}
+	}()
+
 	return &updatedProduct, nil
 }
-func (p productService) DeleteProduct(ctx context.Context, productId string, accountId int) error {
-	product, err := p.repo.GetProductById(ctx, productId)
+func (service productService) DeleteProduct(ctx context.Context, productId string, accountId int) error {
+	product, err := service.repo.GetProductById(ctx, productId)
 	if err != nil {
 		return err
 	}
@@ -94,5 +148,17 @@ func (p productService) DeleteProduct(ctx context.Context, productId string, acc
 		return errors.New("unauthorized")
 	}
 
-	return p.repo.DeleteProduct(ctx, productId)
+	go func() {
+		err = service.SendMessageToRecommender(Event{
+			Type: "product_deleted",
+			Data: EventData{
+				ID: &product.ID,
+			},
+		}, "product_events")
+		if err != nil {
+			log.Println("Failed to send event to recommendation service:", err)
+		}
+	}()
+
+	return service.repo.DeleteProduct(ctx, productId)
 }

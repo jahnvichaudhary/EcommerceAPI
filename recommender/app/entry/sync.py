@@ -12,7 +12,7 @@ def sync_products():
         with ReplicaSession() as session:
             if event["type"] in ["product_created", "product_updated"]:
                 product_data = event["data"]
-                product = session.query(Product).filter_by(id=product_data["id"]).first()
+                product = session.query(Product).filter_by(id=product_data["product_id"]).first()
                 if product:
                     product.name = product_data["name"]
                     product.description = product_data["description"]
@@ -23,7 +23,7 @@ def sync_products():
                     session.add(product)
                 session.commit()
             elif event["type"] == "product_deleted":
-                product = session.query(Product).filter_by(id=event["data"]["id"]).first()
+                product = session.query(Product).filter_by(id=event["data"]["product_id"]).first()
                 if product:
                     session.delete(product)
                     session.commit()
@@ -34,8 +34,8 @@ def process_interactions():
         event = json.loads(message.value)
         with ReplicaSession() as session:
             interaction = Interaction(
-                user_id=event["user_id"],
-                product_id=event["product_id"],
+                user_id=event["data"]["user_id"],
+                product_id=event["data"]["product_id"],
                 interaction_type=event["type"]
             )
             session.add(interaction)

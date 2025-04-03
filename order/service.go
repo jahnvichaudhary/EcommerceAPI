@@ -2,6 +2,9 @@ package order
 
 import (
 	"context"
+	"github.com/IBM/sarama"
+	"log"
+	"strconv"
 	"time"
 )
 
@@ -22,7 +25,7 @@ type Order struct {
 type ProductsInfo struct {
 	ID        uint `gorm:"primaryKey;autoIncrement"`
 	OrderID   uint
-	ProductID uint
+	ProductID string
 	Quantity  int
 }
 
@@ -31,7 +34,7 @@ func (ProductsInfo) TableName() string {
 }
 
 type OrderedProduct struct {
-	ID          uint
+	ID          string
 	Name        string
 	Description string
 	Price       float64
@@ -40,10 +43,11 @@ type OrderedProduct struct {
 
 type orderService struct {
 	repository Repository
+	producer   sarama.AsyncProducer
 }
 
-func NewOrderService(r Repository) Service {
-	return &orderService{r}
+func NewOrderService(repository Repository, producer sarama.AsyncProducer) Service {
+	return &orderService{repository, producer}
 }
 
 func (service orderService) PostOrder(ctx context.Context, accountID string, totalPrice float64, products []OrderedProduct) (*Order, error) {
@@ -57,6 +61,28 @@ func (service orderService) PostOrder(ctx context.Context, accountID string, tot
 	if err != nil {
 		return nil, err
 	}
+
+	// Send to recommendation service
+	go func() {
+		accountIdInt, err := strconv.Atoi(accountID)
+		if err != nil {
+			log.Println("Failed to convert account ID to int:", err)
+			return
+		}
+		for _, product := range products {
+			err = service.SendMessageToRecommender(Event{
+				Type: "purchase",
+				EventData: EventData{
+					AccountId: accountIdInt,
+					ProductId: product.ID,
+				},
+			}, "interaction_events")
+			if err != nil {
+				log.Println("Failed to send event to recommendation service:", err)
+			}
+		}
+	}()
+
 	return &order, nil
 }
 

@@ -35,7 +35,7 @@ func (client *Client) PostOrder(
 	var protoProducts []*pb.OrderProduct
 	for _, p := range products {
 		protoProducts = append(protoProducts, &pb.OrderProduct{
-			Id:       strconv.Itoa(int(p.ID)),
+			Id:       p.ID,
 			Quantity: p.Quantity,
 		})
 	}
@@ -86,9 +86,8 @@ func (client *Client) GetOrdersForAccount(ctx context.Context, accountID string)
 
 		var products []OrderedProduct
 		for _, p := range orderProto.Products {
-			productId, _ := strconv.ParseInt(p.Id, 10, 64)
 			products = append(products, OrderedProduct{
-				ID:          uint(productId),
+				ID:          p.Id,
 				Quantity:    p.Quantity,
 				Name:        p.Name,
 				Description: p.Description,
