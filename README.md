@@ -17,6 +17,7 @@ This repository hosts a sample **e-commerce platform** demonstrating a **microse
 - [Getting Started](#-getting-started)
 - [Usage](#-usage-graphql)
 - [Contributing](#-contributing)
+- [Author](#-author)
 - [License](#-license)
 
 ---
@@ -227,6 +228,12 @@ Commit and push your changes
 
 Open a Pull Request
 
+## 👤 Author
+
+**Rauf Asadov**  
+GitHub: [@rasadov](https://github.com/rasadov)  
+LinkedIn: [Rauf Asadov](https://www.linkedin.com/in/rauf-asadov/)  
+Email: raufasadov23@gmail.com
+
 ## 🪪 License
 This project is licensed under the MIT License.
-
