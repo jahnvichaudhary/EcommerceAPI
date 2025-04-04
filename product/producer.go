@@ -2,8 +2,9 @@ package product
 
 import (
 	"encoding/json"
-	"github.com/IBM/sarama"
 	"log"
+
+	"github.com/IBM/sarama"
 )
 
 type EventData struct {
@@ -18,6 +19,8 @@ type Event struct {
 	Type string    `json:"type"`
 	Data EventData `json:"data"`
 }
+
+var done = make(chan bool)
 
 func (service productService) SendMessageToRecommender(event Event, topic string) error {
 	jsonMessage, err := json.Marshal(event)
@@ -34,17 +37,29 @@ func (service productService) SendMessageToRecommender(event Event, topic string
 	// Send the message asynchronously
 	service.producer.Input() <- msg
 
-	// Optionally, handle errors and successes
+	return nil
+}
+
+func (service productService) MsgHandler() {
 	go func() {
 		for {
 			select {
 			case success := <-service.producer.Successes():
 				log.Printf("Message sent to partition %d at offset %d\n", success.Partition, success.Offset)
-			case err = <-service.producer.Errors():
+			case err := <-service.producer.Errors():
 				log.Printf("Failed to send message: %v\n", err)
+			case <-done:
+				log.Println("Producer closed successfully")
+				return
 			}
 		}
 	}()
+}
 
-	return nil
+func (service productService) Close() {
+	if err := service.producer.Close(); err != nil {
+		log.Printf("Failed to close producer: %v\n", err)
+	} else {
+		done <- true
+	}
 }
