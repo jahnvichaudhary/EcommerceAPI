@@ -11,15 +11,13 @@ This repository hosts a sample **e-commerce platform** demonstrating a **microse
 
 ## 📚 Table of Contents
 
-- [Overview](#overview)
-- [Project Structure](#project-structure)
-- [Architecture Diagram](#architecture-diagram)
-- [Services](#services)
-- [GraphQL Schema](#graphql-schema)
-- [Getting Started](#getting-started)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
+- [Overview](#-overview)
+- [Architecture Diagram](#-architecture-diagram)
+- [Services](#-services)
+- [Getting Started](#-getting-started)
+- [Usage](#-usage-graphql)
+- [Contributing](#-contributing)
+- [License](#-license)
 
 ---
 
