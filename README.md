@@ -236,4 +236,4 @@ LinkedIn: [Rauf Asadov](https://www.linkedin.com/in/rauf-asadov/)
 Email: raufasadov23@gmail.com
 
 ## 🪪 License
-This project is licensed under the MIT License.
+This project is licensed under the Apache License 2.0.
