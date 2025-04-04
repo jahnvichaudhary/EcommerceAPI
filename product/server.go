@@ -3,7 +3,7 @@ package product
 import (
 	"context"
 	"fmt"
-	"github.com/rasadov/EcommerceMicroservices/product/pb"
+	"github.com/rasadov/EcommerceAPI/product/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/types/known/emptypb"

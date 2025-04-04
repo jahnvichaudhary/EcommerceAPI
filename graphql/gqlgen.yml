@@ -2,7 +2,7 @@ schema: schema.graphql
 
 models:
   Account:
-    model: github.com/rasadov/EcommerceMicroservices/graphql.Account
+    model: github.com/rasadov/EcommerceAPI/graphql.Account
     fields:
       orders:
         resolver: true

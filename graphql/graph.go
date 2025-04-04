@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/rasadov/EcommerceMicroservices/account"
-	"github.com/rasadov/EcommerceMicroservices/order"
-	"github.com/rasadov/EcommerceMicroservices/product"
-	"github.com/rasadov/EcommerceMicroservices/recommender"
+	"github.com/rasadov/EcommerceAPI/account"
+	"github.com/rasadov/EcommerceAPI/order"
+	"github.com/rasadov/EcommerceAPI/product"
+	"github.com/rasadov/EcommerceAPI/recommender"
 )
 
 type Server struct {

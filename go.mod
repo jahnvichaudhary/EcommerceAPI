@@ -1,4 +1,4 @@
-module github.com/rasadov/EcommerceMicroservices
+module github.com/rasadov/EcommerceAPI
 
 go 1.23.4
 

@@ -3,7 +3,7 @@ package account
 import (
 	"context"
 	"fmt"
-	"github.com/rasadov/EcommerceMicroservices/account/pb"
+	"github.com/rasadov/EcommerceAPI/account/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"net"

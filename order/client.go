@@ -2,7 +2,7 @@ package order
 
 import (
 	"context"
-	"github.com/rasadov/EcommerceMicroservices/order/pb"
+	"github.com/rasadov/EcommerceAPI/order/pb"
 	"google.golang.org/grpc"
 	"log"
 	"strconv"

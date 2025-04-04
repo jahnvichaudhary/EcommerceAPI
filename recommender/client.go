@@ -2,7 +2,7 @@ package recommender
 
 import (
 	"context"
-	"github.com/rasadov/EcommerceMicroservices/recommender/generated/pb"
+	"github.com/rasadov/EcommerceAPI/recommender/generated/pb"
 	"google.golang.org/grpc"
 )
 

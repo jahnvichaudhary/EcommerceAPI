@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/rasadov/EcommerceMicroservices/account"
+	"github.com/rasadov/EcommerceAPI/account"
 )
 
 func AuthorizeJWT(jwtService account.AuthService) gin.HandlerFunc {

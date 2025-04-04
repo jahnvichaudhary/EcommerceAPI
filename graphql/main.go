@@ -6,7 +6,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
 	"github.com/kelseyhightower/envconfig"
-	accountPackage "github.com/rasadov/EcommerceMicroservices/account"
+	accountPackage "github.com/rasadov/EcommerceAPI/account"
 	"log"
 )
 

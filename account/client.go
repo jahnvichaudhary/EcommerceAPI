@@ -2,7 +2,7 @@ package account
 
 import (
 	"context"
-	"github.com/rasadov/EcommerceMicroservices/account/pb"
+	"github.com/rasadov/EcommerceAPI/account/pb"
 	"google.golang.org/grpc"
 	"strconv"
 )

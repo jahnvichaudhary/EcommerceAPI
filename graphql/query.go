@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/rasadov/EcommerceMicroservices/account"
+	"github.com/rasadov/EcommerceAPI/account"
 	"log"
 	"strconv"
 	"time"

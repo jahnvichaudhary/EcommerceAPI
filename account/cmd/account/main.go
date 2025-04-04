@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/kelseyhightower/envconfig"
-	"github.com/rasadov/EcommerceMicroservices/account"
+	"github.com/rasadov/EcommerceAPI/account"
 	"github.com/tinrab/retry"
 	"log"
 	"time"

@@ -2,7 +2,7 @@ package product
 
 import (
 	"context"
-	"github.com/rasadov/EcommerceMicroservices/product/pb"
+	"github.com/rasadov/EcommerceAPI/product/pb"
 	"google.golang.org/grpc"
 )
 
