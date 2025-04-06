@@ -3,10 +3,12 @@ package main
 import (
 	"github.com/IBM/sarama"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/rasadov/EcommerceAPI/product"
 	"github.com/tinrab/retry"
 	"log"
 	"time"
+
+	"github.com/rasadov/EcommerceAPI/product/internal/product"
+	"github.com/rasadov/EcommerceAPI/product/internal/server"
 )
 
 type Config struct {
@@ -40,5 +42,5 @@ func main() {
 	defer repository.Close()
 	log.Println("Listening on port 8080...")
 	service := product.NewProductService(repository, producer)
-	log.Fatal(product.ListenGRPC(service, 8080))
+	log.Fatal(server.ListenGRPC(service, 8080))
 }

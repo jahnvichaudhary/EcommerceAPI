@@ -2,16 +2,16 @@ package graph
 
 import (
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/rasadov/EcommerceAPI/product/client"
 
 	account "github.com/rasadov/EcommerceAPI/account/client"
 	order "github.com/rasadov/EcommerceAPI/order/client"
-	"github.com/rasadov/EcommerceAPI/product"
 	"github.com/rasadov/EcommerceAPI/recommender"
 )
 
 type Server struct {
 	accountClient     *account.Client
-	productClient     *product.Client
+	productClient     *client.Client
 	orderClient       *order.Client
 	recommenderClient *recommender.Client
 }
@@ -22,7 +22,7 @@ func NewGraphQLServer(accountUrl, productUrl, orderUrl string) (*Server, error) 
 		return nil, err
 	}
 
-	prodClient, err := product.NewClient(productUrl)
+	prodClient, err := client.NewClient(productUrl)
 	if err != nil {
 		accClient.Close()
 		return nil, err

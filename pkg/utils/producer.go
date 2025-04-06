@@ -2,9 +2,8 @@ package utils
 
 import (
 	"encoding/json"
-	"log"
-
 	"github.com/IBM/sarama"
+	"log"
 )
 
 var done = make(chan bool)

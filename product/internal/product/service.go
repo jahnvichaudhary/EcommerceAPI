@@ -4,17 +4,19 @@ import (
 	"context"
 	"errors"
 	"github.com/IBM/sarama"
-	"github.com/rasadov/EcommerceAPI/pkg/utils"
 	"log"
+
+	"github.com/rasadov/EcommerceAPI/pkg/utils"
+	"github.com/rasadov/EcommerceAPI/product/models"
 )
 
 type Service interface {
-	PostProduct(ctx context.Context, name, description string, price float64, accountId int) (*Product, error)
-	GetProduct(ctx context.Context, id string) (*Product, error)
-	GetProducts(ctx context.Context, skip, take uint64) ([]Product, error)
-	GetProductsWithIDs(ctx context.Context, ids []string) ([]Product, error)
-	SearchProducts(ctx context.Context, query string, skip, take uint64) ([]Product, error)
-	UpdateProduct(ctx context.Context, id, name, description string, price float64, accountId int) (*Product, error)
+	PostProduct(ctx context.Context, name, description string, price float64, accountId int) (*models.Product, error)
+	GetProduct(ctx context.Context, id string) (*models.Product, error)
+	GetProducts(ctx context.Context, skip, take uint64) ([]models.Product, error)
+	GetProductsWithIDs(ctx context.Context, ids []string) ([]models.Product, error)
+	SearchProducts(ctx context.Context, query string, skip, take uint64) ([]models.Product, error)
+	UpdateProduct(ctx context.Context, id, name, description string, price float64, accountId int) (*models.Product, error)
 	DeleteProduct(ctx context.Context, productId string, accountId int) error
 	Producer() sarama.AsyncProducer
 }
@@ -32,8 +34,8 @@ func (service productService) Producer() sarama.AsyncProducer {
 	return service.producer
 }
 
-func (service productService) PostProduct(ctx context.Context, name, description string, price float64, accountId int) (*Product, error) {
-	product := Product{
+func (service productService) PostProduct(ctx context.Context, name, description string, price float64, accountId int) (*models.Product, error) {
+	product := models.Product{
 		Name:        name,
 		Description: description,
 		Price:       price,
@@ -46,9 +48,9 @@ func (service productService) PostProduct(ctx context.Context, name, description
 	}
 
 	go func() {
-		err = utils.SendMessageToRecommender(service, Event{
+		err = utils.SendMessageToRecommender(service, models.Event{
 			Type: "product_created",
-			Data: EventData{
+			Data: models.EventData{
 				ID:          &product.ID,
 				Name:        &product.Name,
 				Description: &product.Description,
@@ -64,16 +66,16 @@ func (service productService) PostProduct(ctx context.Context, name, description
 	return &product, nil
 }
 
-func (service productService) GetProduct(ctx context.Context, id string) (*Product, error) {
+func (service productService) GetProduct(ctx context.Context, id string) (*models.Product, error) {
 	product, err := service.repo.GetProductById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
 	go func() {
-		err = utils.SendMessageToRecommender(service, Event{
+		err = utils.SendMessageToRecommender(service, models.Event{
 			Type: "product_retrieved",
-			Data: EventData{
+			Data: models.EventData{
 				ID:        &product.ID,
 				AccountID: &product.AccountID,
 			},
@@ -86,19 +88,19 @@ func (service productService) GetProduct(ctx context.Context, id string) (*Produ
 	return product, nil
 }
 
-func (service productService) GetProducts(ctx context.Context, skip, take uint64) ([]Product, error) {
+func (service productService) GetProducts(ctx context.Context, skip, take uint64) ([]models.Product, error) {
 	return service.repo.ListProducts(ctx, skip, take)
 }
 
-func (service productService) GetProductsWithIDs(ctx context.Context, ids []string) ([]Product, error) {
+func (service productService) GetProductsWithIDs(ctx context.Context, ids []string) ([]models.Product, error) {
 	return service.repo.ListProductsWithIDs(ctx, ids)
 }
 
-func (service productService) SearchProducts(ctx context.Context, query string, skip, take uint64) ([]Product, error) {
+func (service productService) SearchProducts(ctx context.Context, query string, skip, take uint64) ([]models.Product, error) {
 	return service.repo.SearchProducts(ctx, query, skip, take)
 }
 
-func (service productService) UpdateProduct(ctx context.Context, id, name, description string, price float64, accountId int) (*Product, error) {
+func (service productService) UpdateProduct(ctx context.Context, id, name, description string, price float64, accountId int) (*models.Product, error) {
 	product, err := service.repo.GetProductById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -107,7 +109,7 @@ func (service productService) UpdateProduct(ctx context.Context, id, name, descr
 		return nil, errors.New("unauthorized")
 	}
 
-	updatedProduct := Product{
+	updatedProduct := models.Product{
 		id,
 		name,
 		description,
@@ -120,9 +122,9 @@ func (service productService) UpdateProduct(ctx context.Context, id, name, descr
 	}
 
 	go func() {
-		err = utils.SendMessageToRecommender(service, Event{
+		err = utils.SendMessageToRecommender(service, models.Event{
 			Type: "product_updated",
-			Data: EventData{
+			Data: models.EventData{
 				ID:          &updatedProduct.ID,
 				Name:        &updatedProduct.Name,
 				Description: &updatedProduct.Description,
@@ -147,9 +149,9 @@ func (service productService) DeleteProduct(ctx context.Context, productId strin
 	}
 
 	go func() {
-		err = utils.SendMessageToRecommender(service, Event{
+		err = utils.SendMessageToRecommender(service, models.Event{
 			Type: "product_deleted",
-			Data: EventData{
+			Data: models.EventData{
 				ID: &product.ID,
 			},
 		}, "product_events")

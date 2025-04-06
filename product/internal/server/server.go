@@ -1,22 +1,25 @@
-package product
+package server
 
 import (
 	"context"
 	"fmt"
-	"github.com/rasadov/EcommerceAPI/product/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 	"net"
+
+	"github.com/rasadov/EcommerceAPI/product/internal/product"
+	"github.com/rasadov/EcommerceAPI/product/models"
+	"github.com/rasadov/EcommerceAPI/product/proto/pb"
 )
 
 type grpcServer struct {
 	pb.UnimplementedProductServiceServer
-	service Service
+	service product.Service
 }
 
-func ListenGRPC(s Service, port int) error {
+func ListenGRPC(s product.Service, port int) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return err
@@ -44,7 +47,7 @@ func (s *grpcServer) GetProduct(ctx context.Context, r *pb.ProductByIdRequest) (
 }
 
 func (s *grpcServer) GetProducts(ctx context.Context, r *pb.GetProductsRequest) (*pb.ProductsResponse, error) {
-	var res []Product
+	var res []models.Product
 	var err error
 	if r.Query != "" {
 		res, err = s.service.SearchProducts(ctx, r.Query, r.Skip, r.Take)

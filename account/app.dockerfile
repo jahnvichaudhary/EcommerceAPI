@@ -4,6 +4,7 @@ WORKDIR /go/src/github.com/rasadov/EcommerceAPI
 COPY go.mod go.sum ./
 RUN go mod download
 COPY account account
+COPY pkg pkg
 RUN GO111MODULE=on go build -mod mod -o /go/bin/app ./account/cmd/account
 
 FROM alpine:3.20

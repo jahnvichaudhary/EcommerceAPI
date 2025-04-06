@@ -1,5 +1,6 @@
 services:
   account:
+    container_name: "account"
     build:
       context: .
       dockerfile: ./account/app.dockerfile
@@ -10,6 +11,7 @@ services:
     restart: on-failure
 
   product:
+    container_name: "product"
     build:
       context: .
       dockerfile: ./product/app.dockerfile
@@ -20,6 +22,7 @@ services:
     restart: on-failure
 
   order:
+    container_name: "order"
     build:
       context: .
       dockerfile: ./order/app.dockerfile
@@ -32,6 +35,7 @@ services:
     restart: on-failure
 
   recommender-server:
+    container_name: "recommender"
     build:
       context: .
       dockerfile: ./recommender/app.dockerfile
@@ -44,6 +48,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
 
   recommender-sync:
+    container_name: "recommender-sync"
     build:
       context: .
       dockerfile: ./recommender/app.dockerfile
@@ -56,6 +61,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
 
   graphql:
+    container_name: "graphql"
     build:
       context: .
       dockerfile: ./graphql/app.dockerfile
@@ -72,6 +78,7 @@ services:
     restart: on-failure
 
   account_db:
+    container_name: "account_db"
     image: postgres:14.0
     environment:
       POSTGRES_DB: rasadov
@@ -82,6 +89,7 @@ services:
     restart: unless-stopped
 
   product_db:
+    container_name: "product_db"
     image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
     environment:
       ES_JAVA_OPTS: -Xms1g -Xmx1g
@@ -90,6 +98,7 @@ services:
       - product_db_data:/usr/share/elasticsearch/data
 
   order_db:
+    container_name: "order_db"
     image: postgres:14.0
     environment:
       POSTGRES_DB: rasadov
@@ -100,6 +109,7 @@ services:
     restart: unless-stopped
 
   recommender_db:
+    container_name: "recommender_db"
     image: postgres:15
     environment:
       POSTGRES_DB: rasadov
@@ -121,6 +131,8 @@ services:
       - ALLOW_ANONYMOUS_LOGIN=yes
 
   kafka:
+    container_name: kafka
+    hostname: kafka
     image: docker.io/bitnami/kafka:3.3
     depends_on:
       - zookeeper

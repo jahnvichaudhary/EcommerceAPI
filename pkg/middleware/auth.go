@@ -2,10 +2,11 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/rasadov/EcommerceAPI/account/internal/user"
+
+	"github.com/rasadov/EcommerceAPI/pkg/auth"
 )
 
-func AuthorizeJWT(jwtService user.AuthService) gin.HandlerFunc {
+func AuthorizeJWT(jwtService auth.AuthService) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		authCookie, err := context.Cookie("token")
 		if err != nil || authCookie == "" {
@@ -23,7 +24,7 @@ func AuthorizeJWT(jwtService user.AuthService) gin.HandlerFunc {
 		}
 
 		// Token is valid => set user info
-		if claims, ok := token.Claims.(*user.JWTCustomClaims); ok && token.Valid {
+		if claims, ok := token.Claims.(*auth.JWTCustomClaims); ok && token.Valid {
 			context.Set("userID", claims.UserID)
 		} else {
 			context.Set("userID", "")

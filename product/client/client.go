@@ -1,9 +1,11 @@
-package product
+package client
 
 import (
 	"context"
-	"github.com/rasadov/EcommerceAPI/product/pb"
 	"google.golang.org/grpc"
+
+	"github.com/rasadov/EcommerceAPI/product/models"
+	"github.com/rasadov/EcommerceAPI/product/proto/pb"
 )
 
 type Client struct {
@@ -24,14 +26,14 @@ func (client *Client) Close() {
 	client.conn.Close()
 }
 
-func (client *Client) GetProduct(ctx context.Context, id string) (*Product, error) {
+func (client *Client) GetProduct(ctx context.Context, id string) (*models.Product, error) {
 	res, err := client.service.GetProduct(ctx, &pb.ProductByIdRequest{
 		Id: id,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &Product{
+	return &models.Product{
 		res.Product.Id,
 		res.Product.Name,
 		res.Product.Description,
@@ -40,7 +42,7 @@ func (client *Client) GetProduct(ctx context.Context, id string) (*Product, erro
 	}, nil
 }
 
-func (client *Client) GetProducts(ctx context.Context, skip, take uint64, ids []string, query string) ([]Product, error) {
+func (client *Client) GetProducts(ctx context.Context, skip, take uint64, ids []string, query string) ([]models.Product, error) {
 	res, err := client.service.GetProducts(ctx, &pb.GetProductsRequest{
 		Skip:  skip,
 		Take:  take,
@@ -50,9 +52,9 @@ func (client *Client) GetProducts(ctx context.Context, skip, take uint64, ids []
 	if err != nil {
 		return nil, err
 	}
-	var products []Product
+	var products []models.Product
 	for _, p := range res.Products {
-		products = append(products, Product{
+		products = append(products, models.Product{
 			ID:          p.Id,
 			Name:        p.Name,
 			Description: p.Description,
@@ -63,7 +65,7 @@ func (client *Client) GetProducts(ctx context.Context, skip, take uint64, ids []
 	return products, nil
 }
 
-func (client *Client) PostProduct(ctx context.Context, name, description string, price float64, accountId int64) (*Product, error) {
+func (client *Client) PostProduct(ctx context.Context, name, description string, price float64, accountId int64) (*models.Product, error) {
 	res, err := client.service.PostProduct(ctx, &pb.CreateProductRequest{
 		Name:        name,
 		Description: description,
@@ -73,7 +75,7 @@ func (client *Client) PostProduct(ctx context.Context, name, description string,
 	if err != nil {
 		return nil, err
 	}
-	return &Product{
+	return &models.Product{
 		res.Product.Id,
 		res.Product.Name,
 		res.Product.Description,
@@ -82,7 +84,7 @@ func (client *Client) PostProduct(ctx context.Context, name, description string,
 	}, nil
 }
 
-func (client *Client) UpdateProduct(ctx context.Context, id, name, description string, price float64, accountId int64) (*Product, error) {
+func (client *Client) UpdateProduct(ctx context.Context, id, name, description string, price float64, accountId int64) (*models.Product, error) {
 	res, err := client.service.UpdateProduct(ctx, &pb.UpdateProductRequest{
 		Id:          id,
 		Name:        name,
@@ -93,12 +95,12 @@ func (client *Client) UpdateProduct(ctx context.Context, id, name, description s
 	if err != nil {
 		return nil, err
 	}
-	return &Product{
-		res.Product.Id,
-		res.Product.Name,
-		res.Product.Description,
-		res.Product.Price,
-		int(res.Product.GetAccountId()),
+	return &models.Product{
+		ID:          res.Product.Id,
+		Name:        res.Product.Name,
+		Description: res.Product.Description,
+		Price:       res.Product.Price,
+		AccountID:   int(res.Product.GetAccountId()),
 	}, nil
 }
 

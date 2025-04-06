@@ -11,20 +11,20 @@ import (
 	"strconv"
 
 	account "github.com/rasadov/EcommerceAPI/account/client"
-	internal "github.com/rasadov/EcommerceAPI/order/internal/order"
+	"github.com/rasadov/EcommerceAPI/order/internal/order"
 	"github.com/rasadov/EcommerceAPI/order/models"
 	"github.com/rasadov/EcommerceAPI/order/proto/pb"
-	"github.com/rasadov/EcommerceAPI/product"
+	product "github.com/rasadov/EcommerceAPI/product/client"
 )
 
 type grpcServer struct {
 	pb.UnimplementedOrderServiceServer
-	service       internal.Service
+	service       order.Service
 	accountClient *account.Client
 	productClient *product.Client
 }
 
-func ListenGRPC(service internal.Service, accountURL string, productURL string, port int) error {
+func ListenGRPC(service order.Service, accountURL string, productURL string, port int) error {
 	accountClient, err := account.NewClient(accountURL)
 	if err != nil {
 		return err

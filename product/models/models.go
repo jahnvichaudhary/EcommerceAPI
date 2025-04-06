@@ -1,4 +1,4 @@
-package product
+package models
 
 type Product struct {
 	ID          string  `json:"id"`
@@ -8,7 +8,7 @@ type Product struct {
 	AccountID   int     `json:"accountID"`
 }
 
-type productDocument struct {
+type ProductDocument struct {
 	Name        string  `json:"name"`
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
