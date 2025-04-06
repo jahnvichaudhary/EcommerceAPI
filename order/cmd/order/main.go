@@ -3,7 +3,8 @@ package main
 import (
 	"github.com/IBM/sarama"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/rasadov/EcommerceAPI/order"
+	internal "github.com/rasadov/EcommerceAPI/order/internal/order"
+	"github.com/rasadov/EcommerceAPI/order/internal/server"
 	"github.com/tinrab/retry"
 	"log"
 	"time"
@@ -18,7 +19,7 @@ type Config struct {
 
 func main() {
 	var cfg Config
-	var repository order.Repository
+	var repository internal.Repository
 	var producer sarama.AsyncProducer
 
 	err := envconfig.Process("", &cfg)
@@ -33,7 +34,7 @@ func main() {
 	defer producer.Close()
 
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
-		repository, err = order.NewPostgresRepository(cfg.DatabaseUrl)
+		repository, err = internal.NewPostgresRepository(cfg.DatabaseUrl)
 		if err != nil {
 			log.Println(err)
 		}
@@ -41,6 +42,6 @@ func main() {
 	})
 	defer repository.Close()
 	log.Println("Listening on port 8080...")
-	service := order.NewOrderService(repository, producer)
-	log.Fatal(order.ListenGRPC(service, cfg.AccountUrl, cfg.ProductUrl, 8080))
+	service := internal.NewOrderService(repository, producer)
+	log.Fatal(server.ListenGRPC(service, cfg.AccountUrl, cfg.ProductUrl, 8080))
 }

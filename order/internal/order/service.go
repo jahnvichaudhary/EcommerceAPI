@@ -3,15 +3,17 @@ package order
 import (
 	"context"
 	"github.com/IBM/sarama"
-	"github.com/rasadov/EcommerceAPI/pkg/utils"
 	"log"
 	"strconv"
 	"time"
+	
+	"github.com/rasadov/EcommerceAPI/order/models"
+	"github.com/rasadov/EcommerceAPI/pkg/utils"
 )
 
 type Service interface {
-	PostOrder(ctx context.Context, accountID string, totalPrice float64, products []OrderedProduct) (*Order, error)
-	GetOrdersForAccount(ctx context.Context, accountID string) ([]Order, error)
+	PostOrder(ctx context.Context, accountID string, totalPrice float64, products []models.OrderedProduct) (*models.Order, error)
+	GetOrdersForAccount(ctx context.Context, accountID string) ([]models.Order, error)
 }
 
 type orderService struct {
@@ -27,8 +29,8 @@ func (service orderService) Producer() sarama.AsyncProducer {
 	return service.producer
 }
 
-func (service orderService) PostOrder(ctx context.Context, accountID string, totalPrice float64, products []OrderedProduct) (*Order, error) {
-	order := Order{
+func (service orderService) PostOrder(ctx context.Context, accountID string, totalPrice float64, products []models.OrderedProduct) (*models.Order, error) {
+	order := models.Order{
 		AccountID:  accountID,
 		TotalPrice: totalPrice,
 		Products:   products,
@@ -47,9 +49,9 @@ func (service orderService) PostOrder(ctx context.Context, accountID string, tot
 			return
 		}
 		for _, product := range products {
-			err = utils.SendMessageToRecommender(service, Event{
+			err = utils.SendMessageToRecommender(service, models.Event{
 				Type: "purchase",
-				EventData: EventData{
+				EventData: models.EventData{
 					AccountId: accountIdInt,
 					ProductId: product.ID,
 				},
@@ -63,6 +65,6 @@ func (service orderService) PostOrder(ctx context.Context, accountID string, tot
 	return &order, nil
 }
 
-func (service orderService) GetOrdersForAccount(ctx context.Context, accountID string) ([]Order, error) {
+func (service orderService) GetOrdersForAccount(ctx context.Context, accountID string) ([]models.Order, error) {
 	return service.repository.GetOrdersForAccount(ctx, accountID)
 }

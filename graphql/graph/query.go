@@ -3,10 +3,11 @@ package graph
 import (
 	"context"
 	"errors"
-	"github.com/rasadov/EcommerceAPI/pkg/auth"
 	"log"
 	"strconv"
 	"time"
+	
+	"github.com/rasadov/EcommerceAPI/pkg/auth"
 )
 
 type queryResolver struct {

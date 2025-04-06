@@ -2,12 +2,13 @@ package main
 
 import (
 	"github.com/kelseyhightower/envconfig"
-	"github.com/rasadov/EcommerceAPI/account/internal/server"
-	"github.com/rasadov/EcommerceAPI/account/internal/user"
-	"github.com/rasadov/EcommerceAPI/pkg/auth"
 	"github.com/tinrab/retry"
 	"log"
 	"time"
+	
+	"github.com/rasadov/EcommerceAPI/account/internal/server"
+	"github.com/rasadov/EcommerceAPI/account/internal/user"
+	"github.com/rasadov/EcommerceAPI/pkg/auth"
 )
 
 type Config struct {

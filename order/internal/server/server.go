@@ -1,28 +1,31 @@
-package order
+package server
 
 import (
 	"context"
 	"fmt"
 	"github.com/deckarep/golang-set/v2"
-	accountClient "github.com/rasadov/EcommerceAPI/account/client"
-	"github.com/rasadov/EcommerceAPI/order/pb"
-	"github.com/rasadov/EcommerceAPI/product"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"log"
 	"net"
 	"strconv"
+
+	account "github.com/rasadov/EcommerceAPI/account/client"
+	internal "github.com/rasadov/EcommerceAPI/order/internal/order"
+	"github.com/rasadov/EcommerceAPI/order/models"
+	"github.com/rasadov/EcommerceAPI/order/proto/pb"
+	"github.com/rasadov/EcommerceAPI/product"
 )
 
 type grpcServer struct {
 	pb.UnimplementedOrderServiceServer
-	service       Service
-	accountClient *accountClient.Client
+	service       internal.Service
+	accountClient *account.Client
 	productClient *product.Client
 }
 
-func ListenGRPC(service Service, accountURL string, productURL string, port int) error {
-	accountClient, err := accountClient.NewClient(accountURL)
+func ListenGRPC(service internal.Service, accountURL string, productURL string, port int) error {
+	accountClient, err := account.NewClient(accountURL)
 	if err != nil {
 		return err
 	}
@@ -68,10 +71,10 @@ func (server *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRe
 		return nil, err
 	}
 
-	var products []OrderedProduct
+	var products []models.OrderedProduct
 
 	for _, p := range orderedProducts {
-		productObj := OrderedProduct{
+		productObj := models.OrderedProduct{
 			ID:          p.ID,
 			Name:        p.Name,
 			Description: p.Description,

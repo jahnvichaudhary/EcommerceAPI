@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
-	"github.com/rasadov/EcommerceAPI/order"
-	"github.com/rasadov/EcommerceAPI/pkg/auth"
 	"log"
 	"strconv"
 	"time"
+
+	"github.com/rasadov/EcommerceAPI/order/models"
+	"github.com/rasadov/EcommerceAPI/pkg/auth"
 )
 
 var (
@@ -126,12 +127,12 @@ func (resolver *mutationResolver) CreateOrder(ctx context.Context, in OrderInput
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	var products []order.OrderedProduct
+	var products []models.OrderedProduct
 	for _, product := range in.Products {
 		if product.Quantity <= 0 {
 			return nil, ErrInvalidParameter
 		}
-		products = append(products, order.OrderedProduct{
+		products = append(products, models.OrderedProduct{
 			ID:       product.ID,
 			Quantity: uint32(product.Quantity),
 		})

@@ -4,12 +4,14 @@ import (
 	"context"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	
+	"github.com/rasadov/EcommerceAPI/order/models"
 )
 
 type Repository interface {
 	Close()
-	PutOrder(ctx context.Context, order Order) error
-	GetOrdersForAccount(ctx context.Context, accountId string) ([]Order, error)
+	PutOrder(ctx context.Context, order models.Order) error
+	GetOrdersForAccount(ctx context.Context, accountId string) ([]models.Order, error)
 }
 
 type postgresRepository struct {
@@ -32,7 +34,7 @@ func NewPostgresRepository(databaseURl string) (Repository, error) {
 		return nil, err
 	}
 
-	err = db.AutoMigrate(&Order{}, &ProductsInfo{})
+	err = db.AutoMigrate(&models.Order{}, &models.ProductsInfo{})
 
 	return &postgresRepository{db}, nil
 }
@@ -44,7 +46,7 @@ func (repository *postgresRepository) Close() {
 	}
 }
 
-func (repository *postgresRepository) PutOrder(ctx context.Context, order Order) error {
+func (repository *postgresRepository) PutOrder(ctx context.Context, order models.Order) error {
 	tx := repository.db.WithContext(ctx).Begin()
 
 	err := tx.WithContext(ctx).Create(&order).Error
@@ -55,7 +57,7 @@ func (repository *postgresRepository) PutOrder(ctx context.Context, order Order)
 	}
 
 	for _, product := range order.Products {
-		orderedProduct := ProductsInfo{
+		orderedProduct := models.ProductsInfo{
 			OrderID:   order.ID,
 			ProductID: product.ID,
 			Quantity:  int(product.Quantity),
@@ -69,8 +71,8 @@ func (repository *postgresRepository) PutOrder(ctx context.Context, order Order)
 	return nil
 }
 
-func (repository *postgresRepository) GetOrdersForAccount(ctx context.Context, accountId string) ([]Order, error) {
-	var orders []Order
+func (repository *postgresRepository) GetOrdersForAccount(ctx context.Context, accountId string) ([]models.Order, error) {
+	var orders []models.Order
 	err := repository.db.WithContext(ctx).
 		Table("orders o").
 		Select("o.id, o.created_at, o.account_id, o.total_price::money::numeric::float8, op.product_id, op.quantity").

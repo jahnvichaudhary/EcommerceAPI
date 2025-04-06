@@ -2,17 +2,17 @@ package client
 
 import (
 	"context"
-	"github.com/rasadov/EcommerceAPI/account/internal/user"
-	pb2 "github.com/rasadov/EcommerceAPI/account/proto/pb"
-	"github.com/rasadov/EcommerceAPI/pkg/auth"
-
 	"google.golang.org/grpc"
 	"strconv"
+
+	"github.com/rasadov/EcommerceAPI/account/internal/user"
+	"github.com/rasadov/EcommerceAPI/account/proto/pb"
+	"github.com/rasadov/EcommerceAPI/pkg/auth"
 )
 
 type Client struct {
 	conn    *grpc.ClientConn
-	service pb2.AccountServiceClient
+	service pb.AccountServiceClient
 }
 
 func NewClient(url string) (*Client, error) {
@@ -20,7 +20,7 @@ func NewClient(url string) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	C := pb2.NewAccountServiceClient(conn)
+	C := pb.NewAccountServiceClient(conn)
 	return &Client{conn, C}, nil
 }
 
@@ -36,7 +36,7 @@ func (client *Client) Close() {
 }
 
 func (client *Client) Register(ctx context.Context, name, email, password string) (string, error) {
-	response, err := client.service.RegisterAccount(ctx, &pb2.RegisterRequest{
+	response, err := client.service.RegisterAccount(ctx, &pb.RegisterRequest{
 		Name:     name,
 		Email:    email,
 		Password: password,
@@ -48,7 +48,7 @@ func (client *Client) Register(ctx context.Context, name, email, password string
 }
 
 func (client *Client) Login(ctx context.Context, email, password string) (string, error) {
-	response, err := client.service.LoginAccount(ctx, &pb2.LoginRequest{
+	response, err := client.service.LoginAccount(ctx, &pb.LoginRequest{
 		Email:    email,
 		Password: password,
 	})
@@ -61,7 +61,7 @@ func (client *Client) Login(ctx context.Context, email, password string) (string
 func (client *Client) GetAccount(ctx context.Context, Id string) (*user.Account, error) {
 	r, err := client.service.GetAccount(
 		ctx,
-		&pb2.GetAccountRequest{Id: Id},
+		&pb.GetAccountRequest{Id: Id},
 	)
 	if err != nil {
 		return nil, err
@@ -77,7 +77,7 @@ func (client *Client) GetAccount(ctx context.Context, Id string) (*user.Account,
 func (client *Client) GetAccounts(ctx context.Context, skip, take uint64) ([]user.Account, error) {
 	r, err := client.service.GetAccounts(
 		ctx,
-		&pb2.GetAccountsRequest{Take: take, Skip: skip},
+		&pb.GetAccountsRequest{Take: take, Skip: skip},
 	)
 	if err != nil {
 		return nil, err

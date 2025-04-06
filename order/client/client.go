@@ -1,12 +1,14 @@
-package order
+package client
 
 import (
 	"context"
-	"github.com/rasadov/EcommerceAPI/order/pb"
 	"google.golang.org/grpc"
 	"log"
 	"strconv"
 	"time"
+
+	"github.com/rasadov/EcommerceAPI/order/models"
+	"github.com/rasadov/EcommerceAPI/order/proto/pb"
 )
 
 type Client struct {
@@ -30,8 +32,8 @@ func (client *Client) Close() {
 func (client *Client) PostOrder(
 	ctx context.Context,
 	accountID string,
-	products []OrderedProduct,
-) (*Order, error) {
+	products []models.OrderedProduct,
+) (*models.Order, error) {
 	var protoProducts []*pb.OrderProduct
 	for _, p := range products {
 		protoProducts = append(protoProducts, &pb.OrderProduct{
@@ -55,7 +57,7 @@ func (client *Client) PostOrder(
 	newOrderCreatedAt := time.Time{}
 	newOrderCreatedAt.UnmarshalBinary(newOrder.CreatedAt)
 
-	return &Order{
+	return &models.Order{
 		CreatedAt:  newOrderCreatedAt,
 		TotalPrice: newOrder.TotalPrice,
 		AccountID:  newOrder.AccountId,
@@ -63,7 +65,7 @@ func (client *Client) PostOrder(
 	}, nil
 }
 
-func (client *Client) GetOrdersForAccount(ctx context.Context, accountID string) ([]Order, error) {
+func (client *Client) GetOrdersForAccount(ctx context.Context, accountID string) ([]models.Order, error) {
 	r, err := client.service.GetOrdersForAccount(ctx, &pb.GetOrdersForAccountRequest{
 		AccountId: accountID,
 	})
@@ -73,10 +75,10 @@ func (client *Client) GetOrdersForAccount(ctx context.Context, accountID string)
 	}
 
 	// Create response orders
-	var orders []Order
+	var orders []models.Order
 	for _, orderProto := range r.Orders {
 		orderId, _ := strconv.ParseInt(orderProto.Id, 10, 64)
-		newOrder := Order{
+		newOrder := models.Order{
 			ID:         uint(orderId),
 			TotalPrice: orderProto.TotalPrice,
 			AccountID:  orderProto.AccountId,
@@ -84,9 +86,9 @@ func (client *Client) GetOrdersForAccount(ctx context.Context, accountID string)
 		newOrder.CreatedAt = time.Time{}
 		newOrder.CreatedAt.UnmarshalBinary(orderProto.CreatedAt)
 
-		var products []OrderedProduct
+		var products []models.OrderedProduct
 		for _, p := range orderProto.Products {
-			products = append(products, OrderedProduct{
+			products = append(products, models.OrderedProduct{
 				ID:          p.Id,
 				Quantity:    p.Quantity,
 				Name:        p.Name,

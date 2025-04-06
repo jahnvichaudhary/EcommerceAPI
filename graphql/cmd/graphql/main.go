@@ -6,10 +6,11 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
 	"github.com/kelseyhightower/envconfig"
+	"log"
+	
 	"github.com/rasadov/EcommerceAPI/graphql/graph"
 	"github.com/rasadov/EcommerceAPI/pkg/auth"
 	"github.com/rasadov/EcommerceAPI/pkg/middleware"
-	"log"
 )
 
 type AppConfig struct {

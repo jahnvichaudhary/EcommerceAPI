@@ -2,9 +2,10 @@ package user
 
 import (
 	"context"
+	"strconv"
+	
 	"github.com/rasadov/EcommerceAPI/pkg/auth"
 	"github.com/rasadov/EcommerceAPI/pkg/utils"
-	"strconv"
 )
 
 type Service interface {
