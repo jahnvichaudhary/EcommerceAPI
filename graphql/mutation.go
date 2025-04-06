@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
-	"github.com/rasadov/EcommerceAPI/account"
+	"github.com/rasadov/EcommerceAPI/account/internal/user"
 	"github.com/rasadov/EcommerceAPI/order"
 	"log"
 	"strconv"
@@ -61,7 +61,7 @@ func (resolver *mutationResolver) CreateProduct(ctx context.Context, in CreatePr
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	accountId, err := account.GetUserIdInt(ctx, true)
+	accountId, err := user.GetUserIdInt(ctx, true)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (resolver *mutationResolver) UpdateProduct(ctx context.Context, in UpdatePr
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	accountId, err := account.GetUserIdInt(ctx, true)
+	accountId, err := user.GetUserIdInt(ctx, true)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func (resolver *mutationResolver) DeleteProduct(ctx context.Context, id string) 
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	accountId, err := account.GetUserIdInt(ctx, true)
+	accountId, err := user.GetUserIdInt(ctx, true)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,7 @@ func (resolver *mutationResolver) CreateOrder(ctx context.Context, in OrderInput
 		})
 	}
 
-	accountId := account.GetUserId(ctx, true)
+	accountId := user.GetUserId(ctx, true)
 	if accountId == "" {
 		return nil, errors.New("unauthorized")
 	}

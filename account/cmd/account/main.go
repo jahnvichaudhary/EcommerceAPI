@@ -2,7 +2,8 @@ package main
 
 import (
 	"github.com/kelseyhightower/envconfig"
-	"github.com/rasadov/EcommerceAPI/account"
+	"github.com/rasadov/EcommerceAPI/account/internal/server"
+	"github.com/rasadov/EcommerceAPI/account/internal/user"
 	"github.com/tinrab/retry"
 	"log"
 	"time"
@@ -16,7 +17,7 @@ type Config struct {
 
 var (
 	cfg        Config
-	repository account.Repository
+	repository user.Repository
 )
 
 func main() {
@@ -26,15 +27,15 @@ func main() {
 	}
 
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
-		repository, err = account.NewPostgresRepository(cfg.DatabaseURL)
+		repository, err = user.NewPostgresRepository(cfg.DatabaseURL)
 		if err != nil {
 			log.Println(err)
 		}
 		return
 	})
 	defer repository.Close()
-	jwtService := account.NewJwtService(cfg.SecretKey, cfg.Issuer)
+	jwtService := user.NewJwtService(cfg.SecretKey, cfg.Issuer)
 	log.Println("Listening on port 8080...")
-	service := account.NewService(repository, jwtService)
-	log.Fatal(account.ListenGRPC(service, 8080))
+	service := user.NewService(repository, jwtService)
+	log.Fatal(server.ListenGRPC(service, 8080))
 }

@@ -1,7 +1,8 @@
-package account
+package user
 
 import (
 	"context"
+	"github.com/rasadov/EcommerceAPI/pkg/utils"
 	"strconv"
 )
 
@@ -29,7 +30,7 @@ func NewService(r Repository, j AuthService) Service {
 }
 
 func (service accountService) Register(ctx context.Context, name, email, password string) (string, error) {
-	hashedPass, err := HashPassword(password)
+	hashedPass, err := utils.HashPassword(password)
 	if err != nil {
 		return "", err
 	}
@@ -51,7 +52,7 @@ func (service accountService) Register(ctx context.Context, name, email, passwor
 
 func (service accountService) Login(ctx context.Context, email, password string) (string, error) {
 	account, err := service.repository.GetAccountByEmail(ctx, email)
-	if err == nil && VerifyPassword(password, account.Password) {
+	if err == nil && utils.VerifyPassword(password, account.Password) {
 		token, err := service.authService.GenerateToken(strconv.Itoa(int(account.ID)))
 		if err == nil {
 			return token, nil

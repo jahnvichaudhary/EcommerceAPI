@@ -6,7 +6,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
 	"github.com/kelseyhightower/envconfig"
-	accountPackage "github.com/rasadov/EcommerceAPI/account"
+	accountPackage "github.com/rasadov/EcommerceAPI/account/internal/user"
+	"github.com/rasadov/EcommerceAPI/pkg/middleware"
 	"log"
 )
 
@@ -41,7 +42,7 @@ func main() {
 			"message": "It works",
 		})
 	})
-	engine.POST("/graphql", AuthorizeJWT(accountPackage.NewJwtService(cfg.SecretKey, cfg.Issuer)), gin.WrapH(srv))
+	engine.POST("/graphql", middleware.AuthorizeJWT(user.NewJwtService(cfg.SecretKey, cfg.Issuer)), gin.WrapH(srv))
 	engine.GET("/playground", gin.WrapH(playground.Handler("Playground", "/graphql")))
 
 	log.Fatal(engine.Run(":8080"))

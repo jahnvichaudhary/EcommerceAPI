@@ -2,14 +2,14 @@ package main
 
 import (
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/rasadov/EcommerceAPI/account"
+	"github.com/rasadov/EcommerceAPI/account/internal/client"
 	"github.com/rasadov/EcommerceAPI/order"
 	"github.com/rasadov/EcommerceAPI/product"
 	"github.com/rasadov/EcommerceAPI/recommender"
 )
 
 type Server struct {
-	accountClient     *account.Client
+	accountClient     *client.Client
 	productClient     *product.Client
 	orderClient       *order.Client
 	recommenderClient *recommender.Client
@@ -18,7 +18,7 @@ type Server struct {
 func NewGraphQLServer(
 	accountUrl, productUrl, orderUrl string) (
 	*Server, error) {
-	accountClient, err := account.NewClient(accountUrl)
+	accountClient, err := client.NewClient(accountUrl)
 	if err != nil {
 		return nil, err
 	}
