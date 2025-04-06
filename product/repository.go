@@ -27,12 +27,6 @@ type elasticRepository struct {
 	client *elastic.Client
 }
 
-type productDocument struct {
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-}
-
 func NewElasticRepository(url string) (Repository, error) {
 	client, err := elastic.NewClient(
 		elastic.SetURL(url),

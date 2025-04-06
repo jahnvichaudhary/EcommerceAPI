@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/IBM/sarama"
+	"github.com/rasadov/EcommerceAPI/pkg/utils"
 	"log"
 )
 
@@ -15,14 +16,7 @@ type Service interface {
 	SearchProducts(ctx context.Context, query string, skip, take uint64) ([]Product, error)
 	UpdateProduct(ctx context.Context, id, name, description string, price float64, accountId int) (*Product, error)
 	DeleteProduct(ctx context.Context, productId string, accountId int) error
-}
-
-type Product struct {
-	ID          string  `json:"id"`
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	AccountID   int     `json:"accountID"`
+	Producer() sarama.AsyncProducer
 }
 
 type productService struct {
@@ -32,6 +26,10 @@ type productService struct {
 
 func NewProductService(repository Repository, producer sarama.AsyncProducer) Service {
 	return &productService{repository, producer}
+}
+
+func (service productService) Producer() sarama.AsyncProducer {
+	return service.producer
 }
 
 func (service productService) PostProduct(ctx context.Context, name, description string, price float64, accountId int) (*Product, error) {
@@ -48,7 +46,7 @@ func (service productService) PostProduct(ctx context.Context, name, description
 	}
 
 	go func() {
-		err = service.SendMessageToRecommender(Event{
+		err = utils.SendMessageToRecommender(service, Event{
 			Type: "product_created",
 			Data: EventData{
 				ID:          &product.ID,
@@ -73,7 +71,7 @@ func (service productService) GetProduct(ctx context.Context, id string) (*Produ
 	}
 
 	go func() {
-		err = service.SendMessageToRecommender(Event{
+		err = utils.SendMessageToRecommender(service, Event{
 			Type: "product_retrieved",
 			Data: EventData{
 				ID:        &product.ID,
@@ -122,7 +120,7 @@ func (service productService) UpdateProduct(ctx context.Context, id, name, descr
 	}
 
 	go func() {
-		err = service.SendMessageToRecommender(Event{
+		err = utils.SendMessageToRecommender(service, Event{
 			Type: "product_updated",
 			Data: EventData{
 				ID:          &updatedProduct.ID,
@@ -149,7 +147,7 @@ func (service productService) DeleteProduct(ctx context.Context, productId strin
 	}
 
 	go func() {
-		err = service.SendMessageToRecommender(Event{
+		err = utils.SendMessageToRecommender(service, Event{
 			Type: "product_deleted",
 			Data: EventData{
 				ID: &product.ID,
