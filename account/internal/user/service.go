@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"github.com/rasadov/EcommerceAPI/pkg/auth"
 	"github.com/rasadov/EcommerceAPI/pkg/utils"
 	"strconv"
 )
@@ -22,10 +23,10 @@ type Account struct {
 
 type accountService struct {
 	repository  Repository
-	authService AuthService
+	authService auth.AuthService
 }
 
-func NewService(r Repository, j AuthService) Service {
+func NewService(r Repository, j auth.AuthService) Service {
 	return &accountService{r, j}
 }
 

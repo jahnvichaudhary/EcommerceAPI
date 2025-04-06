@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/deckarep/golang-set/v2"
-	"github.com/rasadov/EcommerceAPI/account/internal/client"
+	accountClient "github.com/rasadov/EcommerceAPI/account/client"
 	"github.com/rasadov/EcommerceAPI/order/pb"
 	"github.com/rasadov/EcommerceAPI/product"
 	"google.golang.org/grpc"
@@ -17,12 +17,12 @@ import (
 type grpcServer struct {
 	pb.UnimplementedOrderServiceServer
 	service       Service
-	accountClient *client.Client
+	accountClient *accountClient.Client
 	productClient *product.Client
 }
 
 func ListenGRPC(service Service, accountURL string, productURL string, port int) error {
-	accountClient, err := client.NewClient(accountURL)
+	accountClient, err := accountClient.NewClient(accountURL)
 	if err != nil {
 		return err
 	}

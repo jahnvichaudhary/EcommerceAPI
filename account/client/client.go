@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/rasadov/EcommerceAPI/account/internal/user"
 	pb2 "github.com/rasadov/EcommerceAPI/account/proto/pb"
+	"github.com/rasadov/EcommerceAPI/pkg/auth"
+
 	"google.golang.org/grpc"
 	"strconv"
 )
@@ -20,6 +22,13 @@ func NewClient(url string) (*Client, error) {
 	}
 	C := pb2.NewAccountServiceClient(conn)
 	return &Client{conn, C}, nil
+}
+
+func NewJwtService(secretKey, issuer string) auth.AuthService {
+	return &auth.JwtService{
+		SecretKey: secretKey,
+		Issuer:    issuer,
+	}
 }
 
 func (client *Client) Close() {

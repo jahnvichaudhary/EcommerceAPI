@@ -4,6 +4,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/rasadov/EcommerceAPI/account/internal/server"
 	"github.com/rasadov/EcommerceAPI/account/internal/user"
+	"github.com/rasadov/EcommerceAPI/pkg/auth"
 	"github.com/tinrab/retry"
 	"log"
 	"time"
@@ -34,7 +35,7 @@ func main() {
 		return
 	})
 	defer repository.Close()
-	jwtService := user.NewJwtService(cfg.SecretKey, cfg.Issuer)
+	jwtService := auth.NewJwtService(cfg.SecretKey, cfg.Issuer)
 	log.Println("Listening on port 8080...")
 	service := user.NewService(repository, jwtService)
 	log.Fatal(server.ListenGRPC(service, 8080))

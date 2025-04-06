@@ -6,7 +6,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
 	"github.com/kelseyhightower/envconfig"
-	accountPackage "github.com/rasadov/EcommerceAPI/account/internal/user"
+	"github.com/rasadov/EcommerceAPI/graphql/graph"
+	"github.com/rasadov/EcommerceAPI/pkg/auth"
 	"github.com/rasadov/EcommerceAPI/pkg/middleware"
 	"log"
 )
@@ -26,12 +27,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	server, err := NewGraphQLServer(cfg.AccountUrl, cfg.ProductUrl, cfg.OrderUrl)
+	server, err := graph.NewGraphQLServer(cfg.AccountUrl, cfg.ProductUrl, cfg.OrderUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	srv := handler.New(server.toExecutableSchema())
+	srv := handler.New(server.ToExecutableSchema())
 	srv.AddTransport(transport.POST{})
 	srv.AddTransport(transport.MultipartForm{})
 
@@ -42,7 +43,7 @@ func main() {
 			"message": "It works",
 		})
 	})
-	engine.POST("/graphql", middleware.AuthorizeJWT(user.NewJwtService(cfg.SecretKey, cfg.Issuer)), gin.WrapH(srv))
+	engine.POST("/graphql", middleware.AuthorizeJWT(auth.NewJwtService(cfg.SecretKey, cfg.Issuer)), gin.WrapH(srv))
 	engine.GET("/playground", gin.WrapH(playground.Handler("Playground", "/graphql")))
 
 	log.Fatal(engine.Run(":8080"))

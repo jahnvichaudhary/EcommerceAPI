@@ -1,11 +1,11 @@
-package main
+package graph
 
 import (
 	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
-	"github.com/rasadov/EcommerceAPI/account/internal/user"
 	"github.com/rasadov/EcommerceAPI/order"
+	"github.com/rasadov/EcommerceAPI/pkg/auth"
 	"log"
 	"strconv"
 	"time"
@@ -61,7 +61,7 @@ func (resolver *mutationResolver) CreateProduct(ctx context.Context, in CreatePr
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	accountId, err := user.GetUserIdInt(ctx, true)
+	accountId, err := auth.GetUserIdInt(ctx, true)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (resolver *mutationResolver) UpdateProduct(ctx context.Context, in UpdatePr
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	accountId, err := user.GetUserIdInt(ctx, true)
+	accountId, err := auth.GetUserIdInt(ctx, true)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func (resolver *mutationResolver) DeleteProduct(ctx context.Context, id string) 
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	accountId, err := user.GetUserIdInt(ctx, true)
+	accountId, err := auth.GetUserIdInt(ctx, true)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,7 @@ func (resolver *mutationResolver) CreateOrder(ctx context.Context, in OrderInput
 		})
 	}
 
-	accountId := user.GetUserId(ctx, true)
+	accountId := auth.GetUserId(ctx, true)
 	if accountId == "" {
 		return nil, errors.New("unauthorized")
 	}

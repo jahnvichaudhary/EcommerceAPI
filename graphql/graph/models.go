@@ -1,4 +1,4 @@
-package main
+package graph
 
 type Account struct {
 	ID     string  `json:"id"`

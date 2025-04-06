@@ -1,9 +1,9 @@
-package main
+package graph
 
 import (
 	"context"
 	"errors"
-	"github.com/rasadov/EcommerceAPI/account/internal/user"
+	"github.com/rasadov/EcommerceAPI/pkg/auth"
 	"log"
 	"strconv"
 	"time"
@@ -78,7 +78,7 @@ func (resolver *queryResolver) Product(ctx context.Context, pagination *Paginati
 
 	// Get recommendations
 	if *recommended == true {
-		accountId := user.GetUserId(ctx, true)
+		accountId := auth.GetUserId(ctx, true)
 		if accountId == "" {
 			return nil, errors.New("unauthorized")
 		}

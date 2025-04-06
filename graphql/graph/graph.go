@@ -1,15 +1,15 @@
-package main
+package graph
 
 import (
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/rasadov/EcommerceAPI/account/internal/client"
+	accountClient "github.com/rasadov/EcommerceAPI/account/client"
 	"github.com/rasadov/EcommerceAPI/order"
 	"github.com/rasadov/EcommerceAPI/product"
 	"github.com/rasadov/EcommerceAPI/recommender"
 )
 
 type Server struct {
-	accountClient     *client.Client
+	accountClient     *accountClient.Client
 	productClient     *product.Client
 	orderClient       *order.Client
 	recommenderClient *recommender.Client
@@ -18,7 +18,7 @@ type Server struct {
 func NewGraphQLServer(
 	accountUrl, productUrl, orderUrl string) (
 	*Server, error) {
-	accountClient, err := client.NewClient(accountUrl)
+	accountClient, err := accountClient.NewClient(accountUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (server *Server) Account() AccountResolver {
 	}
 }
 
-func (server *Server) toExecutableSchema() graphql.ExecutableSchema {
+func (server *Server) ToExecutableSchema() graphql.ExecutableSchema {
 	return NewExecutableSchema(Config{
 		Resolvers: server,
 	})
