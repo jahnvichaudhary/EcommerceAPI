@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"log"
 	"math/rand"
@@ -26,6 +27,8 @@ type GraphQLResponse struct {
 // Change this if needed:
 var (
 	serverURL = "http://localhost:8080/graphql"
+	Email     string
+	Password  string
 	AuthToken string
 )
 
@@ -78,11 +81,13 @@ func Test01Register(t *testing.T) {
           }
         }
     `
+	Email = fmt.Sprintf("random%d@example.com", rand.Intn(100000))
+	Password = fmt.Sprintf("password%d", rand.Intn(100000))
 	variables := map[string]interface{}{
 		"account": map[string]interface{}{
 			"name":     "John Doe",
-			"email":    "john@example.com",
-			"password": "mypass123",
+			"email":    Email,
+			"password": Password,
 		},
 	}
 
@@ -114,8 +119,8 @@ func Test02Login(t *testing.T) {
     `
 	variables := map[string]interface{}{
 		"account": map[string]interface{}{
-			"email":    "john@example.com",
-			"password": "mypass123",
+			"email":    Email,
+			"password": Password,
 		},
 	}
 

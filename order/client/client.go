@@ -4,7 +4,6 @@ import (
 	"context"
 	"google.golang.org/grpc"
 	"log"
-	"strconv"
 	"time"
 
 	"github.com/rasadov/EcommerceAPI/order/models"
@@ -61,6 +60,7 @@ func (client *Client) PostOrder(
 	newOrderCreatedAt.UnmarshalBinary(newOrder.CreatedAt)
 	log.Println("New order created: ", newOrderCreatedAt)
 	return &models.Order{
+		ID:         uint(r.Order.GetId()),
 		CreatedAt:  newOrderCreatedAt,
 		TotalPrice: newOrder.TotalPrice,
 		AccountID:  newOrder.AccountId,
@@ -80,9 +80,8 @@ func (client *Client) GetOrdersForAccount(ctx context.Context, accountID string)
 	// Create response orders
 	var orders []models.Order
 	for _, orderProto := range r.Orders {
-		orderId, _ := strconv.ParseInt(orderProto.Id, 10, 64)
 		newOrder := models.Order{
-			ID:         uint(orderId),
+			ID:         uint(orderProto.Id),
 			TotalPrice: orderProto.TotalPrice,
 			AccountID:  orderProto.AccountId,
 		}

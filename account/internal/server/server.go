@@ -3,13 +3,11 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/rasadov/EcommerceAPI/account/internal/user"
+	"github.com/rasadov/EcommerceAPI/account/proto/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"net"
-	"strconv"
-
-	"github.com/rasadov/EcommerceAPI/account/internal/user"
-	"github.com/rasadov/EcommerceAPI/account/proto/pb"
 )
 
 type grpcServer struct {
@@ -57,7 +55,7 @@ func (server *grpcServer) GetAccount(ctx context.Context, r *pb.GetAccountReques
 		return nil, err
 	}
 	return &pb.AccountResponse{Account: &pb.Account{
-		Id:   strconv.Itoa(int(a.ID)),
+		Id:   uint64(a.ID),
 		Name: a.Name,
 	}}, nil
 }
@@ -70,7 +68,7 @@ func (server *grpcServer) GetAccounts(ctx context.Context, r *pb.GetAccountsRequ
 	var accounts []*pb.Account
 	for _, p := range res {
 		accounts = append(accounts, &pb.Account{
-			Id:   strconv.Itoa(int(p.ID)),
+			Id:   uint64(int(p.ID)),
 			Name: p.Name,
 		},
 		)

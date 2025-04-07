@@ -4,17 +4,15 @@ import (
 	"context"
 	"fmt"
 	"github.com/deckarep/golang-set/v2"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
-	"log"
-	"net"
-	"strconv"
-
 	account "github.com/rasadov/EcommerceAPI/account/client"
 	"github.com/rasadov/EcommerceAPI/order/internal/order"
 	"github.com/rasadov/EcommerceAPI/order/models"
 	"github.com/rasadov/EcommerceAPI/order/proto/pb"
 	product "github.com/rasadov/EcommerceAPI/product/client"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+	"log"
+	"net"
 )
 
 type grpcServer struct {
@@ -75,6 +73,7 @@ func (server *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRe
 	}
 
 	var products []*models.OrderedProduct
+	totalPrice := 0.0
 
 	for _, p := range orderedProducts {
 		productObj := &models.OrderedProduct{
@@ -93,12 +92,13 @@ func (server *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRe
 
 		if productObj.Quantity != 0 {
 			products = append(products, productObj)
+			totalPrice += productObj.Price * float64(productObj.Quantity)
 		}
 	}
 
 	log.Println("Products", products)
 
-	postOrder, err := server.service.PostOrder(ctx, request.AccountId, request.GetTotalPrice(), products)
+	postOrder, err := server.service.PostOrder(ctx, request.AccountId, totalPrice, products)
 	if err != nil {
 		log.Println("Error posting postOrder", err)
 		return nil, err
@@ -107,7 +107,7 @@ func (server *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRe
 	log.Println("SERVICE: Posted postOrder", postOrder)
 
 	orderProto := &pb.Order{
-		Id:         strconv.Itoa(int(postOrder.ID)),
+		Id:         uint64(postOrder.ID),
 		AccountId:  postOrder.AccountID,
 		TotalPrice: postOrder.TotalPrice,
 		Products:   []*pb.ProductInfo{},
@@ -160,7 +160,7 @@ func (server *grpcServer) GetOrdersForAccount(ctx context.Context, request *pb.G
 		// Encode order
 		encodedOrder := &pb.Order{
 			AccountId:  order.AccountID,
-			Id:         strconv.Itoa(int(order.ID)),
+			Id:         uint64(order.ID),
 			TotalPrice: order.TotalPrice,
 			Products:   []*pb.ProductInfo{},
 		}

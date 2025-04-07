@@ -2,11 +2,9 @@ package client
 
 import (
 	"context"
-	"google.golang.org/grpc"
-	"strconv"
-
 	"github.com/rasadov/EcommerceAPI/account/internal/user"
 	"github.com/rasadov/EcommerceAPI/account/proto/pb"
+	"google.golang.org/grpc"
 )
 
 type Client struct {
@@ -58,9 +56,8 @@ func (client *Client) GetAccount(ctx context.Context, Id string) (*user.Account,
 	if err != nil {
 		return nil, err
 	}
-	accountId, _ := strconv.ParseInt(r.Account.GetId(), 10, 64)
 	return &user.Account{
-		ID:    uint(accountId),
+		ID:    uint(r.Account.GetId()),
 		Name:  r.Account.GetName(),
 		Email: r.Account.GetEmail(),
 	}, nil
@@ -76,9 +73,8 @@ func (client *Client) GetAccounts(ctx context.Context, skip, take uint64) ([]use
 	}
 	var accounts []user.Account
 	for _, a := range r.Accounts {
-		accountId, _ := strconv.ParseInt(a.GetId(), 10, 64)
 		accounts = append(accounts, user.Account{
-			ID:    uint(accountId),
+			ID:    uint(a.GetId()),
 			Name:  a.GetName(),
 			Email: a.GetEmail(),
 		})
