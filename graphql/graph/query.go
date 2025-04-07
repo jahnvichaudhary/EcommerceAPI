@@ -35,10 +35,7 @@ func (resolver *queryResolver) Accounts(ctx context.Context, pagination *Paginat
 	if pagination != nil {
 		skip, take = pagination.bounds()
 	}
-	log.Println("Accounts")
-	log.Println("skip", skip, "take", take)
 	accountList, err := resolver.server.accountClient.GetAccounts(ctx, skip, take)
-	log.Println("accountList", accountList)
 	if err != nil {
 		log.Println(err)
 		return nil, err

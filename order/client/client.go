@@ -41,7 +41,6 @@ func (client *Client) PostOrder(
 		})
 	}
 
-	log.Println("Order products: ", protoProducts)
 	r, err := client.service.PostOrder(
 		ctx,
 		&pb.PostOrderRequest{
@@ -49,16 +48,13 @@ func (client *Client) PostOrder(
 			Products:  protoProducts,
 		},
 	)
-	log.Println("Graphql got the order: ", r)
 	if err != nil {
 		return nil, err
 	}
-	log.Println("Posted order: ", r)
 	// Create response order
 	newOrder := r.Order
 	newOrderCreatedAt := time.Time{}
 	newOrderCreatedAt.UnmarshalBinary(newOrder.CreatedAt)
-	log.Println("New order created: ", newOrderCreatedAt)
 	return &models.Order{
 		ID:         uint(r.Order.GetId()),
 		CreatedAt:  newOrderCreatedAt,

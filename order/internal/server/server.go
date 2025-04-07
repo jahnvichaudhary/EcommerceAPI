@@ -54,7 +54,6 @@ func ListenGRPC(service order.Service, accountURL string, productURL string, por
 }
 
 func (server *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRequest) (*pb.PostOrderResponse, error) {
-	log.Println("We are here")
 	_, err := server.accountClient.GetAccount(ctx, request.AccountId)
 	if err != nil {
 		log.Println("Error getting account", err)
@@ -64,9 +63,7 @@ func (server *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRe
 	for _, p := range request.Products {
 		productIDs = append(productIDs, p.Id)
 	}
-	log.Println("Got the product IDs", productIDs)
 	orderedProducts, err := server.productClient.GetProducts(ctx, 0, 0, productIDs, "")
-	log.Println("Got the Products", orderedProducts)
 	if err != nil {
 		log.Println("Error getting ordered products", err)
 		return nil, err
@@ -96,15 +93,11 @@ func (server *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRe
 		}
 	}
 
-	log.Println("Products", products)
-
 	postOrder, err := server.service.PostOrder(ctx, request.AccountId, totalPrice, products)
 	if err != nil {
 		log.Println("Error posting postOrder", err)
 		return nil, err
 	}
-
-	log.Println("SERVICE: Posted postOrder", postOrder)
 
 	orderProto := &pb.Order{
 		Id:         uint64(postOrder.ID),
@@ -123,8 +116,6 @@ func (server *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRe
 		})
 	}
 
-	log.Println("We are finished")
-	log.Println(orderProto)
 	return &pb.PostOrderResponse{
 		Order: orderProto,
 	}, nil

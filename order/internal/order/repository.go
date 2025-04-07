@@ -2,11 +2,9 @@ package order
 
 import (
 	"context"
+	"github.com/rasadov/EcommerceAPI/order/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
-
-	"github.com/rasadov/EcommerceAPI/order/models"
 )
 
 type Repository interface {
@@ -48,11 +46,9 @@ func (repository *postgresRepository) Close() {
 }
 
 func (repository *postgresRepository) PutOrder(ctx context.Context, order *models.Order) error {
-	log.Println("PutOrder", order)
 	tx := repository.db.WithContext(ctx).Begin()
 
 	err := tx.WithContext(ctx).Create(&order).Error
-	log.Println("order created: ", order)
 	if err != nil {
 		tx.Rollback()
 		return err

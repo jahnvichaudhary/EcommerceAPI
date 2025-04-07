@@ -35,11 +35,11 @@ func (client *Client) GetProduct(ctx context.Context, id string) (*models.Produc
 		return nil, err
 	}
 	return &models.Product{
-		res.Product.Id,
-		res.Product.Name,
-		res.Product.Description,
-		res.Product.Price,
-		int(res.Product.GetAccountId()),
+		ID:          res.Product.Id,
+		Name:        res.Product.Name,
+		Description: res.Product.Description,
+		Price:       res.Product.Price,
+		AccountID:   int(res.Product.GetAccountId()),
 	}, nil
 }
 
@@ -67,14 +67,12 @@ func (client *Client) GetProducts(ctx context.Context, skip, take uint64, ids []
 }
 
 func (client *Client) PostProduct(ctx context.Context, name, description string, price float64, accountId int64) (*models.Product, error) {
-	log.Println("Creating product", name, description, price, accountId)
 	res, err := client.service.PostProduct(ctx, &pb.CreateProductRequest{
 		Name:        name,
 		Description: description,
 		Price:       price,
 		AccountId:   accountId,
 	})
-	log.Println("Created product", res)
 	if err != nil {
 		log.Println("Error creating product", err)
 		return nil, err

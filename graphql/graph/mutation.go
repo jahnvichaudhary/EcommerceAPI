@@ -132,8 +132,6 @@ func (resolver *mutationResolver) CreateOrder(ctx context.Context, in OrderInput
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	log.Println("CreateOrder called with input:", in)
-
 	var products []*models.OrderedProduct
 	for _, product := range in.Products {
 		if product.Quantity <= 0 {
@@ -156,8 +154,6 @@ func (resolver *mutationResolver) CreateOrder(ctx context.Context, in OrderInput
 		return nil, err
 	}
 
-	log.Println("Finishing up!")
-	log.Println("Post Order:", postOrder)
 	var orderedProducts []*OrderedProduct
 	for _, orderedProduct := range postOrder.Products {
 		orderedProducts = append(orderedProducts, &OrderedProduct{

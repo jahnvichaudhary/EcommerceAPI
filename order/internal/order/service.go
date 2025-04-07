@@ -37,7 +37,6 @@ func (service orderService) PostOrder(ctx context.Context, accountID string, tot
 		CreatedAt:  time.Now().UTC(),
 	}
 	err := service.repository.PutOrder(ctx, &order)
-	log.Println(order)
 	if err != nil {
 		return nil, err
 	}
