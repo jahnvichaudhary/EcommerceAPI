@@ -21,7 +21,10 @@ type GraphQLResponse struct {
 	Errors []interface{} `json:"errors,omitempty"`
 }
 
-var serverURL = "http://localhost:8080/graphql"
+var (
+	serverURL = "http://localhost:8080/graphql"
+	AuthToken string
+)
 
 // doRequest is a helper that executes a GraphQL query against our test server
 func doRequest(t *testing.T, serverURL, query string, variables map[string]interface{}) GraphQLResponse {
@@ -34,8 +37,18 @@ func doRequest(t *testing.T, serverURL, query string, variables map[string]inter
 	b, err := json.Marshal(body)
 	assert.NoError(t, err)
 
+	var req *http.Request
+	var resp *http.Response
+
 	// Execute request
-	resp, err := http.Post(serverURL, "application/json", bytes.NewBuffer(b))
+	if AuthToken != "" {
+		req, err = http.NewRequest("POST", serverURL, bytes.NewBuffer(b))
+		assert.NoError(t, err)
+		req.Header.Set("Authorization", "Bearer "+AuthToken)
+		resp, err = http.DefaultClient.Do(req)
+	} else {
+		resp, err = http.Post(serverURL, "application/json", bytes.NewBuffer(b))
+	}
 	assert.NoError(t, err)
 	defer resp.Body.Close()
 
@@ -48,8 +61,6 @@ func doRequest(t *testing.T, serverURL, query string, variables map[string]inter
 }
 
 func TestRegister(t *testing.T) {
-
-	// Our GraphQL mutation for register
 	query := `
         mutation Register($account: RegisterInput!) {
           register(account: $account) {
@@ -75,6 +86,7 @@ func TestRegister(t *testing.T) {
 	assert.Nil(t, resp.Errors)
 
 	reg, ok := data["register"].(map[string]interface{})
+	AuthToken = reg["token"].(string)
 	assert.True(t, ok)
 	assert.NotEmpty(t, reg["token"], "expected a token in register response")
 }

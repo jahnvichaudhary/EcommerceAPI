@@ -62,16 +62,21 @@ func (resolver *mutationResolver) CreateProduct(ctx context.Context, in CreatePr
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
+	log.Println("CreateProduct called with input:", in)
+
 	accountId, err := auth.GetUserIdInt(ctx, true)
 	if err != nil {
 		return nil, err
 	}
-
+	log.Println("CreateProduct called with accountId:", accountId)
 	postProduct, err := resolver.server.productClient.PostProduct(ctx, in.Name, in.Description, in.Price, int64(accountId))
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
+
+	log.Println("Created product:", postProduct)
+	log.Println("Product id: ", postProduct.ID)
 
 	return &Product{
 		ID:          postProduct.ID,
@@ -126,6 +131,8 @@ func (resolver *mutationResolver) DeleteProduct(ctx context.Context, id string) 
 func (resolver *mutationResolver) CreateOrder(ctx context.Context, in OrderInput) (*Order, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
+
+	log.Println("CreateOrder called with input:", in)
 
 	var products []models.OrderedProduct
 	for _, product := range in.Products {
