@@ -6,11 +6,10 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
 	"github.com/kelseyhightower/envconfig"
-	"log"
-	
 	"github.com/rasadov/EcommerceAPI/graphql/graph"
 	"github.com/rasadov/EcommerceAPI/pkg/auth"
 	"github.com/rasadov/EcommerceAPI/pkg/middleware"
+	"log"
 )
 
 type AppConfig struct {
@@ -39,12 +38,17 @@ func main() {
 
 	engine := gin.Default()
 
+	engine.Use(middleware.GinContextToContextMiddleware())
+
 	engine.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "It works",
 		})
 	})
-	engine.POST("/graphql", middleware.AuthorizeJWT(auth.NewJwtService(cfg.SecretKey, cfg.Issuer)), gin.WrapH(srv))
+	engine.POST("/graphql",
+		middleware.AuthorizeJWT(auth.NewJwtService(cfg.SecretKey, cfg.Issuer)),
+		gin.WrapH(srv),
+	)
 	engine.GET("/playground", gin.WrapH(playground.Handler("Playground", "/graphql")))
 
 	log.Fatal(engine.Run(":8080"))
