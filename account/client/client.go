@@ -7,7 +7,6 @@ import (
 
 	"github.com/rasadov/EcommerceAPI/account/internal/user"
 	"github.com/rasadov/EcommerceAPI/account/proto/pb"
-	"github.com/rasadov/EcommerceAPI/pkg/auth"
 )
 
 type Client struct {
@@ -24,19 +23,12 @@ func NewClient(url string) (*Client, error) {
 	return &Client{conn, C}, nil
 }
 
-func NewJwtService(secretKey, issuer string) auth.AuthService {
-	return &auth.JwtService{
-		SecretKey: secretKey,
-		Issuer:    issuer,
-	}
-}
-
 func (client *Client) Close() {
 	client.conn.Close()
 }
 
 func (client *Client) Register(ctx context.Context, name, email, password string) (string, error) {
-	response, err := client.service.RegisterAccount(ctx, &pb.RegisterRequest{
+	response, err := client.service.Register(ctx, &pb.RegisterRequest{
 		Name:     name,
 		Email:    email,
 		Password: password,
@@ -48,7 +40,7 @@ func (client *Client) Register(ctx context.Context, name, email, password string
 }
 
 func (client *Client) Login(ctx context.Context, email, password string) (string, error) {
-	response, err := client.service.LoginAccount(ctx, &pb.LoginRequest{
+	response, err := client.service.Login(ctx, &pb.LoginRequest{
 		Email:    email,
 		Password: password,
 	})
