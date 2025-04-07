@@ -173,35 +173,50 @@ func Test03CreateProduct(t *testing.T) {
 	log.Println("Created product:", p)
 }
 
-// 4) CREATE ORDER
 func Test04CreateOrder(t *testing.T) {
-	// 1) First, query products to get a list of available product IDs
-	getProductsQuery := `
-        query GetProducts($pagination: PaginationInput) {
-          product(pagination: $pagination) {
+	// 1) Query products to get a list of available product IDs
+	productQuery := `
+        query GetProducts($pagination: PaginationInput, $query: String, $id: String, $recommended: Boolean) {
+          product(pagination: $pagination, query: $query, id: $id, recommended: $recommended) {
             id
             name
             description
             price
+            accountId
           }
         }
     `
-	productsResp := doRequest(t, serverURL, getProductsQuery, map[string]interface{}{
+	variables := map[string]interface{}{
 		"pagination": map[string]interface{}{
 			"skip": 0,
-			"take": 10,
+			"take": 5,
 		},
-	})
-	assert.Nil(t, productsResp.Errors, "unexpected GraphQL errors during product query")
+		// Use "query" if you want to filter products by name or something, or just leave it blank
+		"query":       nil,
+		"id":          nil,
+		"recommended": false,
+	}
 
+	productsResp := doRequest(t, serverURL, productQuery, variables)
+
+	// 2) Debug logs
+	log.Printf("ProductsResp errors: %#v", productsResp.Errors)
+	log.Printf("ProductsResp data: %#v", productsResp.Data)
+
+	// 3) If there are GraphQL errors, fail immediately so we see the cause
+	if len(productsResp.Errors) > 0 {
+		t.Fatalf("unexpected GraphQL errors during product query: %v", productsResp.Errors)
+	}
+
+	// 4) Parse the data
 	productsData, ok := productsResp.Data.(map[string]interface{})
 	assert.True(t, ok, "expected product query data to be a map")
 
 	productList, ok := productsData["product"].([]interface{})
-	assert.True(t, ok, "expected product field to be a slice")
+	assert.True(t, ok, "expected 'product' field to be a slice in the response")
 	assert.True(t, len(productList) >= 2, "need at least 2 products to create an order")
 
-	// 2) Pick 2 random products
+	// 5) Pick 2 random products
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(productList), func(i, j int) {
 		productList[i], productList[j] = productList[j], productList[i]
@@ -213,8 +228,9 @@ func Test04CreateOrder(t *testing.T) {
 	id2, _ := product2["id"].(string)
 	assert.NotEmpty(t, id1, "product 1 id is empty")
 	assert.NotEmpty(t, id2, "product 2 id is empty")
+	log.Printf("Randomly selected product IDs: %q and %q", id1, id2)
 
-	// 3) Now, call CreateOrder using the 2 random IDs
+	// 6) Now, call CreateOrder using the 2 random IDs
 	createOrderQuery := `
         mutation CreateOrder($order: OrderInput!) {
           createOrder(order: $order) {
@@ -245,9 +261,15 @@ func Test04CreateOrder(t *testing.T) {
 		},
 	}
 	resp := doRequest(t, serverURL, createOrderQuery, orderVariables)
+
+	// 7) Debug logs for order creation
+	log.Printf("CreateOrderResp errors: %#v", resp.Errors)
+	log.Printf("CreateOrderResp data: %#v", resp.Data)
+
+	// 8) Check for GraphQL errors before parsing
 	assert.Nil(t, resp.Errors, "unexpected GraphQL errors during CreateOrder")
 
-	// 4) Assert the response is valid
+	// 9) Assert the response is valid
 	data, ok := resp.Data.(map[string]interface{})
 	assert.True(t, ok, "createOrder response data should be a map")
 
@@ -261,6 +283,7 @@ func Test04CreateOrder(t *testing.T) {
 	products, ok := createdOrder["products"].([]interface{})
 	assert.True(t, ok, "expected products to be a list")
 	assert.Len(t, products, 2, "Expected 2 products in the order")
+
 	log.Println("Created order:", createdOrder)
 }
 

@@ -6,13 +6,13 @@ import (
 	"log"
 	"strconv"
 	"time"
-	
+
 	"github.com/rasadov/EcommerceAPI/order/models"
 	"github.com/rasadov/EcommerceAPI/pkg/utils"
 )
 
 type Service interface {
-	PostOrder(ctx context.Context, accountID string, totalPrice float64, products []models.OrderedProduct) (*models.Order, error)
+	PostOrder(ctx context.Context, accountID string, totalPrice float64, products []*models.OrderedProduct) (*models.Order, error)
 	GetOrdersForAccount(ctx context.Context, accountID string) ([]models.Order, error)
 }
 
@@ -29,14 +29,15 @@ func (service orderService) Producer() sarama.AsyncProducer {
 	return service.producer
 }
 
-func (service orderService) PostOrder(ctx context.Context, accountID string, totalPrice float64, products []models.OrderedProduct) (*models.Order, error) {
+func (service orderService) PostOrder(ctx context.Context, accountID string, totalPrice float64, products []*models.OrderedProduct) (*models.Order, error) {
 	order := models.Order{
 		AccountID:  accountID,
 		TotalPrice: totalPrice,
 		Products:   products,
 		CreatedAt:  time.Now().UTC(),
 	}
-	err := service.repository.PutOrder(ctx, order)
+	err := service.repository.PutOrder(ctx, &order)
+	log.Println(order)
 	if err != nil {
 		return nil, err
 	}

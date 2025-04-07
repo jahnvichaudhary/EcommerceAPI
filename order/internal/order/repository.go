@@ -4,13 +4,14 @@ import (
 	"context"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	
+	"log"
+
 	"github.com/rasadov/EcommerceAPI/order/models"
 )
 
 type Repository interface {
 	Close()
-	PutOrder(ctx context.Context, order models.Order) error
+	PutOrder(ctx context.Context, order *models.Order) error
 	GetOrdersForAccount(ctx context.Context, accountId string) ([]models.Order, error)
 }
 
@@ -46,11 +47,12 @@ func (repository *postgresRepository) Close() {
 	}
 }
 
-func (repository *postgresRepository) PutOrder(ctx context.Context, order models.Order) error {
+func (repository *postgresRepository) PutOrder(ctx context.Context, order *models.Order) error {
+	log.Println("PutOrder", order)
 	tx := repository.db.WithContext(ctx).Begin()
 
 	err := tx.WithContext(ctx).Create(&order).Error
-
+	log.Println("order created: ", order)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -68,6 +70,10 @@ func (repository *postgresRepository) PutOrder(ctx context.Context, order models
 			return err
 		}
 	}
+	if err = tx.Commit().Error; err != nil {
+		return err
+	}
+
 	return nil
 }
 

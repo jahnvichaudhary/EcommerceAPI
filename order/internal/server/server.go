@@ -56,6 +56,7 @@ func ListenGRPC(service order.Service, accountURL string, productURL string, por
 }
 
 func (server *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRequest) (*pb.PostOrderResponse, error) {
+	log.Println("We are here")
 	_, err := server.accountClient.GetAccount(ctx, request.AccountId)
 	if err != nil {
 		log.Println("Error getting account", err)
@@ -65,16 +66,18 @@ func (server *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRe
 	for _, p := range request.Products {
 		productIDs = append(productIDs, p.Id)
 	}
+	log.Println("Got the product IDs", productIDs)
 	orderedProducts, err := server.productClient.GetProducts(ctx, 0, 0, productIDs, "")
+	log.Println("Got the Products", orderedProducts)
 	if err != nil {
 		log.Println("Error getting ordered products", err)
 		return nil, err
 	}
 
-	var products []models.OrderedProduct
+	var products []*models.OrderedProduct
 
 	for _, p := range orderedProducts {
-		productObj := models.OrderedProduct{
+		productObj := &models.OrderedProduct{
 			ID:          p.ID,
 			Name:        p.Name,
 			Description: p.Description,
@@ -93,20 +96,24 @@ func (server *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRe
 		}
 	}
 
-	order, err := server.service.PostOrder(ctx, request.AccountId, request.GetTotalPrice(), products)
+	log.Println("Products", products)
+
+	postOrder, err := server.service.PostOrder(ctx, request.AccountId, request.GetTotalPrice(), products)
 	if err != nil {
-		log.Println("Error posting order", err)
+		log.Println("Error posting postOrder", err)
 		return nil, err
 	}
 
+	log.Println("SERVICE: Posted postOrder", postOrder)
+
 	orderProto := &pb.Order{
-		Id:         strconv.Itoa(int(order.ID)),
-		AccountId:  order.AccountID,
-		TotalPrice: order.TotalPrice,
+		Id:         strconv.Itoa(int(postOrder.ID)),
+		AccountId:  postOrder.AccountID,
+		TotalPrice: postOrder.TotalPrice,
 		Products:   []*pb.ProductInfo{},
 	}
-	orderProto.CreatedAt, _ = order.CreatedAt.MarshalBinary()
-	for _, p := range order.Products {
+	orderProto.CreatedAt, _ = postOrder.CreatedAt.MarshalBinary()
+	for _, p := range postOrder.Products {
 		orderProto.Products = append(orderProto.Products, &pb.ProductInfo{
 			Id:          p.ID,
 			Name:        p.Name,
@@ -115,6 +122,9 @@ func (server *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRe
 			Quantity:    p.Quantity,
 		})
 	}
+
+	log.Println("We are finished")
+	log.Println(orderProto)
 	return &pb.PostOrderResponse{
 		Order: orderProto,
 	}, nil

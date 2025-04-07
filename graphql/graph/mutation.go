@@ -134,12 +134,12 @@ func (resolver *mutationResolver) CreateOrder(ctx context.Context, in OrderInput
 
 	log.Println("CreateOrder called with input:", in)
 
-	var products []models.OrderedProduct
+	var products []*models.OrderedProduct
 	for _, product := range in.Products {
 		if product.Quantity <= 0 {
 			return nil, ErrInvalidParameter
 		}
-		products = append(products, models.OrderedProduct{
+		products = append(products, &models.OrderedProduct{
 			ID:       product.ID,
 			Quantity: uint32(product.Quantity),
 		})
@@ -156,9 +156,23 @@ func (resolver *mutationResolver) CreateOrder(ctx context.Context, in OrderInput
 		return nil, err
 	}
 
+	log.Println("Finishing up!")
+	log.Println("Post Order:", postOrder)
+	var orderedProducts []*OrderedProduct
+	for _, orderedProduct := range postOrder.Products {
+		orderedProducts = append(orderedProducts, &OrderedProduct{
+			ID:          orderedProduct.ID,
+			Name:        orderedProduct.Name,
+			Description: orderedProduct.Description,
+			Price:       orderedProduct.Price,
+			Quantity:    int(orderedProduct.Quantity),
+		})
+	}
+
 	return &Order{
 		ID:         strconv.Itoa(int(postOrder.ID)),
 		CreatedAt:  postOrder.CreatedAt,
 		TotalPrice: postOrder.TotalPrice,
+		Products:   orderedProducts,
 	}, nil
 }

@@ -7,8 +7,8 @@ type Order struct {
 	CreatedAt     time.Time
 	TotalPrice    float64
 	AccountID     string
-	productsInfos []ProductsInfo   `gorm:"foreignKey:OrderID"`
-	Products      []OrderedProduct `gorm:"-"`
+	ProductsInfos []ProductsInfo    `gorm:"foreignKey:OrderID"`
+	Products      []*OrderedProduct `gorm:"-"`
 }
 
 type ProductsInfo struct {

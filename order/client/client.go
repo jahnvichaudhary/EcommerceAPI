@@ -32,7 +32,7 @@ func (client *Client) Close() {
 func (client *Client) PostOrder(
 	ctx context.Context,
 	accountID string,
-	products []models.OrderedProduct,
+	products []*models.OrderedProduct,
 ) (*models.Order, error) {
 	var protoProducts []*pb.OrderProduct
 	for _, p := range products {
@@ -41,6 +41,8 @@ func (client *Client) PostOrder(
 			Quantity: p.Quantity,
 		})
 	}
+
+	log.Println("Order products: ", protoProducts)
 	r, err := client.service.PostOrder(
 		ctx,
 		&pb.PostOrderRequest{
@@ -48,15 +50,16 @@ func (client *Client) PostOrder(
 			Products:  protoProducts,
 		},
 	)
+	log.Println("Graphql got the order: ", r)
 	if err != nil {
 		return nil, err
 	}
-
+	log.Println("Posted order: ", r)
 	// Create response order
 	newOrder := r.Order
 	newOrderCreatedAt := time.Time{}
 	newOrderCreatedAt.UnmarshalBinary(newOrder.CreatedAt)
-
+	log.Println("New order created: ", newOrderCreatedAt)
 	return &models.Order{
 		CreatedAt:  newOrderCreatedAt,
 		TotalPrice: newOrder.TotalPrice,
@@ -86,9 +89,9 @@ func (client *Client) GetOrdersForAccount(ctx context.Context, accountID string)
 		newOrder.CreatedAt = time.Time{}
 		newOrder.CreatedAt.UnmarshalBinary(orderProto.CreatedAt)
 
-		var products []models.OrderedProduct
+		var products []*models.OrderedProduct
 		for _, p := range orderProto.Products {
-			products = append(products, models.OrderedProduct{
+			products = append(products, &models.OrderedProduct{
 				ID:          p.Id,
 				Quantity:    p.Quantity,
 				Name:        p.Name,
