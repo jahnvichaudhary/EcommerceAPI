@@ -16,7 +16,7 @@ var (
 
 type Repository interface {
 	Close()
-	PutProduct(ctx context.Context, p models.Product) error
+	PutProduct(ctx context.Context, p *models.Product) error
 	GetProductById(ctx context.Context, id string) (*models.Product, error)
 	ListProducts(ctx context.Context, skip, take uint64) ([]models.Product, error)
 	ListProductsWithIDs(ctx context.Context, ids []string) ([]models.Product, error)
@@ -44,8 +44,8 @@ func (r *elasticRepository) Close() {
 	r.client.Stop()
 }
 
-func (r *elasticRepository) PutProduct(ctx context.Context, p models.Product) error {
-	_, err := r.client.Index().
+func (r *elasticRepository) PutProduct(ctx context.Context, p *models.Product) error {
+	res, err := r.client.Index().
 		Index("catalog").
 		Type("product").
 		BodyJson(models.ProductDocument{
@@ -54,7 +54,12 @@ func (r *elasticRepository) PutProduct(ctx context.Context, p models.Product) er
 			Price:       p.Price,
 		}).
 		Do(ctx)
-	return err
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	p.ID = res.Id
+	return nil
 }
 
 func (r *elasticRepository) GetProductById(ctx context.Context, id string) (*models.Product, error) {

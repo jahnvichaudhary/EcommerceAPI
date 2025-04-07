@@ -42,7 +42,7 @@ func (service productService) PostProduct(ctx context.Context, name, description
 		AccountID:   accountId,
 	}
 
-	err := service.repo.PutProduct(ctx, product)
+	err := service.repo.PutProduct(ctx, &product)
 	if err != nil {
 		return nil, err
 	}

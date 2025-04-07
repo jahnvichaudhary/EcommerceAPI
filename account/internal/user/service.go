@@ -2,8 +2,9 @@ package user
 
 import (
 	"context"
+	"errors"
 	"strconv"
-	
+
 	"github.com/rasadov/EcommerceAPI/pkg/auth"
 	"github.com/rasadov/EcommerceAPI/pkg/utils"
 )
@@ -32,6 +33,11 @@ func NewService(r Repository, j auth.AuthService) Service {
 }
 
 func (service accountService) Register(ctx context.Context, name, email, password string) (string, error) {
+	_, err := service.repository.GetAccountByEmail(ctx, email)
+	if err == nil {
+		return "", errors.New("account already exists")
+	}
+
 	hashedPass, err := utils.HashPassword(password)
 	if err != nil {
 		return "", err
@@ -64,7 +70,7 @@ func (service accountService) Login(ctx context.Context, email, password string)
 }
 
 func (service accountService) GetAccount(ctx context.Context, id string) (*Account, error) {
-	return service.GetAccount(ctx, id)
+	return service.repository.GetAccountByID(ctx, id)
 }
 
 func (service accountService) GetAccounts(ctx context.Context, skip uint64, take uint64) ([]Account, error) {
@@ -72,6 +78,6 @@ func (service accountService) GetAccounts(ctx context.Context, skip uint64, take
 		take = 100
 	}
 
-	return service.GetAccounts(ctx, skip, take)
+	return service.repository.ListAccounts(ctx, skip, take)
 
 }

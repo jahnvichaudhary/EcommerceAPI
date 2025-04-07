@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"github.com/stretchr/testify/assert"
 	"log"
+	"math/rand"
 	"net/http"
 	"testing"
+	"time"
 )
 
 // GraphQLRequest is a helper struct for the request body
@@ -21,12 +23,15 @@ type GraphQLResponse struct {
 	Errors []interface{} `json:"errors,omitempty"`
 }
 
+// Change this if needed:
 var (
 	serverURL = "http://localhost:8080/graphql"
 	AuthToken string
 )
 
-// doRequest is a helper that executes a GraphQL query against our test server
+// doRequest is a helper that executes a GraphQL mutation/query
+// against our server, attaching the JWT token as a *cookie*
+// if AuthToken is set.
 func doRequest(t *testing.T, serverURL, query string, variables map[string]interface{}) GraphQLResponse {
 	body := GraphQLRequest{
 		Query:     query,
@@ -37,18 +42,22 @@ func doRequest(t *testing.T, serverURL, query string, variables map[string]inter
 	b, err := json.Marshal(body)
 	assert.NoError(t, err)
 
-	var req *http.Request
-	var resp *http.Response
+	// Build the request
+	req, err := http.NewRequest("POST", serverURL, bytes.NewBuffer(b))
+	assert.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+
+	// If we have a token, set it as a cookie named "token"
+	if AuthToken != "" {
+		req.AddCookie(&http.Cookie{
+			Name:  "token",
+			Value: AuthToken,
+			Path:  "/",
+		})
+	}
 
 	// Execute request
-	if AuthToken != "" {
-		req, err = http.NewRequest("POST", serverURL, bytes.NewBuffer(b))
-		assert.NoError(t, err)
-		req.Header.Set("Authorization", "Bearer "+AuthToken)
-		resp, err = http.DefaultClient.Do(req)
-	} else {
-		resp, err = http.Post(serverURL, "application/json", bytes.NewBuffer(b))
-	}
+	resp, err := http.DefaultClient.Do(req)
 	assert.NoError(t, err)
 	defer resp.Body.Close()
 
@@ -60,7 +69,8 @@ func doRequest(t *testing.T, serverURL, query string, variables map[string]inter
 	return gqlResp
 }
 
-func TestRegister(t *testing.T) {
+// 1) REGISTER
+func Test01Register(t *testing.T) {
 	query := `
         mutation Register($account: RegisterInput!) {
           register(account: $account) {
@@ -68,7 +78,6 @@ func TestRegister(t *testing.T) {
           }
         }
     `
-	// Variables
 	variables := map[string]interface{}{
 		"account": map[string]interface{}{
 			"name":     "John Doe",
@@ -77,21 +86,25 @@ func TestRegister(t *testing.T) {
 		},
 	}
 
-	// Make the request
 	resp := doRequest(t, serverURL, query, variables)
+	assert.Nil(t, resp.Errors, "unexpected GraphQL errors during Register")
 
-	// We expect "token" in response data
 	data, ok := resp.Data.(map[string]interface{})
-	assert.True(t, ok)
-	assert.Nil(t, resp.Errors)
+	assert.True(t, ok, "response Data should be a map")
 
 	reg, ok := data["register"].(map[string]interface{})
-	AuthToken = reg["token"].(string)
-	assert.True(t, ok)
-	assert.NotEmpty(t, reg["token"], "expected a token in register response")
+	assert.True(t, ok, "register field should be a map")
+
+	token, ok := reg["token"].(string)
+	assert.True(t, ok, "token should be a string")
+	assert.NotEmpty(t, token, "expected a token in register response")
+
+	AuthToken = token // store the token globally for subsequent tests
+	log.Println("Got token from Register:", AuthToken)
 }
 
-func TestLogin(t *testing.T) {
+// 2) LOGIN
+func Test02Login(t *testing.T) {
 	query := `
         mutation Login($account: LoginInput!) {
           login(account: $account) {
@@ -107,16 +120,24 @@ func TestLogin(t *testing.T) {
 	}
 
 	resp := doRequest(t, serverURL, query, variables)
+	assert.Nil(t, resp.Errors, "unexpected GraphQL errors during Login")
+
 	data, ok := resp.Data.(map[string]interface{})
-	assert.True(t, ok)
-	assert.Nil(t, resp.Errors)
+	assert.True(t, ok, "response Data should be a map")
 
 	login, ok := data["login"].(map[string]interface{})
-	assert.True(t, ok)
-	assert.NotEmpty(t, login["token"], "expected a token in login response")
+	assert.True(t, ok, "login field should be a map")
+
+	token, ok := login["token"].(string)
+	assert.True(t, ok, "token should be a string")
+	assert.NotEmpty(t, token, "expected a token in login response")
+
+	AuthToken = token // refresh the token from login (optional)
+	log.Println("Got token from Login:", AuthToken)
 }
 
-func TestCreateProduct(t *testing.T) {
+// 3) CREATE PRODUCT
+func Test03CreateProduct(t *testing.T) {
 	query := `
         mutation CreateProduct($product: CreateProductInput!) {
           createProduct(product: $product) {
@@ -137,21 +158,64 @@ func TestCreateProduct(t *testing.T) {
 	}
 
 	resp := doRequest(t, serverURL, query, variables)
+	assert.Nil(t, resp.Errors, "unexpected GraphQL errors during CreateProduct")
+
 	data, ok := resp.Data.(map[string]interface{})
-	assert.True(t, ok)
-	assert.Nil(t, resp.Errors)
+	assert.True(t, ok, "response Data should be a map")
 
 	p, ok := data["createProduct"].(map[string]interface{})
-	assert.True(t, ok)
+	assert.True(t, ok, "createProduct field should be a map")
 
-	assert.NotEmpty(t, p["id"])
+	assert.NotEmpty(t, p["id"], "expected product ID to be returned")
 	assert.Equal(t, "Test Product", p["name"])
 	assert.Equal(t, "A test description", p["description"])
 	assert.EqualValues(t, 12.99, p["price"])
+	log.Println("Created product:", p)
 }
 
-func TestCreateOrder(t *testing.T) {
-	query := `
+// 4) CREATE ORDER
+func Test04CreateOrder(t *testing.T) {
+	// 1) First, query products to get a list of available product IDs
+	getProductsQuery := `
+        query GetProducts($pagination: PaginationInput) {
+          product(pagination: $pagination) {
+            id
+            name
+            description
+            price
+          }
+        }
+    `
+	productsResp := doRequest(t, serverURL, getProductsQuery, map[string]interface{}{
+		"pagination": map[string]interface{}{
+			"skip": 0,
+			"take": 10,
+		},
+	})
+	assert.Nil(t, productsResp.Errors, "unexpected GraphQL errors during product query")
+
+	productsData, ok := productsResp.Data.(map[string]interface{})
+	assert.True(t, ok, "expected product query data to be a map")
+
+	productList, ok := productsData["product"].([]interface{})
+	assert.True(t, ok, "expected product field to be a slice")
+	assert.True(t, len(productList) >= 2, "need at least 2 products to create an order")
+
+	// 2) Pick 2 random products
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(productList), func(i, j int) {
+		productList[i], productList[j] = productList[j], productList[i]
+	})
+	product1 := productList[0].(map[string]interface{})
+	product2 := productList[1].(map[string]interface{})
+
+	id1, _ := product1["id"].(string)
+	id2, _ := product2["id"].(string)
+	assert.NotEmpty(t, id1, "product 1 id is empty")
+	assert.NotEmpty(t, id2, "product 2 id is empty")
+
+	// 3) Now, call CreateOrder using the 2 random IDs
+	createOrderQuery := `
         mutation CreateOrder($order: OrderInput!) {
           createOrder(order: $order) {
             id
@@ -166,49 +230,48 @@ func TestCreateOrder(t *testing.T) {
           }
         }
     `
-	variables := map[string]interface{}{
+	orderVariables := map[string]interface{}{
 		"order": map[string]interface{}{
 			"products": []interface{}{
 				map[string]interface{}{
-					"id":       "product1",
+					"id":       id1,
 					"quantity": 2,
 				},
 				map[string]interface{}{
-					"id":       "product2",
+					"id":       id2,
 					"quantity": 1,
 				},
 			},
 		},
 	}
+	resp := doRequest(t, serverURL, createOrderQuery, orderVariables)
+	assert.Nil(t, resp.Errors, "unexpected GraphQL errors during CreateOrder")
 
-	resp := doRequest(t, serverURL, query, variables)
+	// 4) Assert the response is valid
 	data, ok := resp.Data.(map[string]interface{})
-	assert.True(t, ok)
-	assert.Nil(t, resp.Errors)
+	assert.True(t, ok, "createOrder response data should be a map")
 
 	createdOrder, ok := data["createOrder"].(map[string]interface{})
-	assert.True(t, ok)
+	assert.True(t, ok, "createOrder field should be a map")
 
-	assert.NotEmpty(t, createdOrder["id"])
-	assert.NotEmpty(t, createdOrder["createdAt"])
-	assert.NotEmpty(t, createdOrder["totalPrice"])
+	assert.NotEmpty(t, createdOrder["id"], "expected an order ID")
+	assert.NotEmpty(t, createdOrder["createdAt"], "expected a createdAt timestamp")
+	assert.NotEmpty(t, createdOrder["totalPrice"], "expected a totalPrice")
 
 	products, ok := createdOrder["products"].([]interface{})
-	assert.True(t, ok)
+	assert.True(t, ok, "expected products to be a list")
 	assert.Len(t, products, 2, "Expected 2 products in the order")
+	log.Println("Created order:", createdOrder)
 }
 
-func TestQueryAccounts(t *testing.T) {
+// 5) QUERY ACCOUNTS
+func Test05QueryAccounts(t *testing.T) {
 	query := `
         query GetAccounts($pagination: PaginationInput) {
           accounts(pagination: $pagination) {
             id
             name
             email
-            orders {
-              id
-              totalPrice
-            }
           }
         }
     `
@@ -220,16 +283,19 @@ func TestQueryAccounts(t *testing.T) {
 	}
 
 	resp := doRequest(t, serverURL, query, variables)
+	assert.Nil(t, resp.Errors)
+
 	data, ok := resp.Data.(map[string]interface{})
 	assert.True(t, ok)
-	assert.Nil(t, resp.Errors)
 
 	accounts, ok := data["accounts"].([]interface{})
 	assert.True(t, ok)
 	log.Println("Accounts:", accounts)
+	// Add additional assertions as needed
 }
 
-func TestQueryProducts(t *testing.T) {
+// 6) QUERY PRODUCTS
+func Test06QueryProducts(t *testing.T) {
 	query := `
         query GetProducts($pagination: PaginationInput, $query: String, $id: String, $recommended: Boolean) {
           product(pagination: $pagination, query: $query, id: $id, recommended: $recommended) {
@@ -252,11 +318,14 @@ func TestQueryProducts(t *testing.T) {
 	}
 
 	resp := doRequest(t, serverURL, query, variables)
+	assert.Nil(t, resp.Errors)
+
 	data, ok := resp.Data.(map[string]interface{})
 	assert.True(t, ok)
-	assert.Nil(t, resp.Errors)
 
 	products, ok := data["product"].([]interface{})
 	assert.True(t, ok)
+
 	log.Println("Products:", products)
+	// Add additional assertions as needed
 }

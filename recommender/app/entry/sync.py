@@ -12,6 +12,8 @@ def sync_products():
         with ReplicaSession() as session:
             if event["type"] in ["product_created", "product_updated"]:
                 product_data = event["data"]
+                print(f"Product data: {product_data}")
+                print(f"Processing product event: {event['type']} for product ID: {product_data['product_id']}")
                 product = session.query(Product).filter_by(id=product_data["product_id"]).first()
                 if product:
                     product.name = product_data["name"]
@@ -19,7 +21,13 @@ def sync_products():
                     product.price = product_data["price"]
                     product.account_id = product_data["account_id"]
                 else:
-                    product = Product(**product_data)
+                    product = Product(
+                        id=product_data["product_id"],
+                        name=product_data["name"],
+                        description=product_data["description"],
+                        price=product_data["price"],
+                        account_id=product_data["accountID"]
+                    )
                     session.add(product)
                 session.commit()
             elif event["type"] == "product_deleted":

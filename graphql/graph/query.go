@@ -6,7 +6,7 @@ import (
 	"log"
 	"strconv"
 	"time"
-	
+
 	"github.com/rasadov/EcommerceAPI/pkg/auth"
 )
 
@@ -25,8 +25,9 @@ func (resolver *queryResolver) Accounts(ctx context.Context, pagination *Paginat
 			return nil, err
 		}
 		return []*Account{{
-			ID:   strconv.Itoa(int(res.ID)),
-			Name: res.Name,
+			ID:    strconv.Itoa(int(res.ID)),
+			Name:  res.Name,
+			Email: res.Email,
 		}}, nil
 	}
 
@@ -34,8 +35,10 @@ func (resolver *queryResolver) Accounts(ctx context.Context, pagination *Paginat
 	if pagination != nil {
 		skip, take = pagination.bounds()
 	}
-
+	log.Println("Accounts")
+	log.Println("skip", skip, "take", take)
 	accountList, err := resolver.server.accountClient.GetAccounts(ctx, skip, take)
+	log.Println("accountList", accountList)
 	if err != nil {
 		log.Println(err)
 		return nil, err
