@@ -4,8 +4,16 @@ package pb;
 
 option go_package = "./pb";
 
-message RecommendationRequest {
+message RecommendationRequestForUserId {
   string user_id = 1;
+  uint64 skip = 2;
+  uint64 take = 3;
+}
+
+message RecommendationRequestOnViews {
+  repeated string ids = 1;
+  uint64 skip = 2;
+  uint64 take = 3;
 }
 
 message ProductReplica {
@@ -20,5 +28,6 @@ message RecommendationResponse {
 }
 
 service RecommenderService {
-  rpc GetRecommendations (RecommendationRequest) returns (RecommendationResponse);
+  rpc GetRecommendations (RecommendationRequestForUserId) returns (RecommendationResponse);
+  rpc GetRecommendationsBasedOnViewed (RecommendationRequestOnViews) returns (RecommendationResponse);
 }

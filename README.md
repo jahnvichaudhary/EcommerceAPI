@@ -65,7 +65,7 @@ Below is a high-level overview of the system architecture:
 
 ### 📦 Product Service (Go)
 - Responsibilities: Product CRUD operations, indexing to Elasticsearch, event publishing to Kafka.
-- Database: Elasticsearch, optional metadata in Postgres
+- Database: Elasticsearch
 
 ### 🛒 Order Service (Go)
 - Responsibilities: Order creation, price calculation, data persistence, Kafka event publishing.

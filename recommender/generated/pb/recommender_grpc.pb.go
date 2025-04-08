@@ -19,14 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	RecommenderService_GetRecommendations_FullMethodName = "/pb.RecommenderService/GetRecommendations"
+	RecommenderService_GetRecommendations_FullMethodName              = "/pb.RecommenderService/GetRecommendations"
+	RecommenderService_GetRecommendationsBasedOnViewed_FullMethodName = "/pb.RecommenderService/GetRecommendationsBasedOnViewed"
 )
 
 // RecommenderServiceClient is the client API for RecommenderService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RecommenderServiceClient interface {
-	GetRecommendations(ctx context.Context, in *RecommendationRequest, opts ...grpc.CallOption) (*RecommendationResponse, error)
+	GetRecommendations(ctx context.Context, in *RecommendationRequestForUserId, opts ...grpc.CallOption) (*RecommendationResponse, error)
+	GetRecommendationsBasedOnViewed(ctx context.Context, in *RecommendationRequestOnViews, opts ...grpc.CallOption) (*RecommendationResponse, error)
 }
 
 type recommenderServiceClient struct {
@@ -37,10 +39,20 @@ func NewRecommenderServiceClient(cc grpc.ClientConnInterface) RecommenderService
 	return &recommenderServiceClient{cc}
 }
 
-func (c *recommenderServiceClient) GetRecommendations(ctx context.Context, in *RecommendationRequest, opts ...grpc.CallOption) (*RecommendationResponse, error) {
+func (c *recommenderServiceClient) GetRecommendations(ctx context.Context, in *RecommendationRequestForUserId, opts ...grpc.CallOption) (*RecommendationResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RecommendationResponse)
 	err := c.cc.Invoke(ctx, RecommenderService_GetRecommendations_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *recommenderServiceClient) GetRecommendationsBasedOnViewed(ctx context.Context, in *RecommendationRequestOnViews, opts ...grpc.CallOption) (*RecommendationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RecommendationResponse)
+	err := c.cc.Invoke(ctx, RecommenderService_GetRecommendationsBasedOnViewed_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +63,8 @@ func (c *recommenderServiceClient) GetRecommendations(ctx context.Context, in *R
 // All implementations must embed UnimplementedRecommenderServiceServer
 // for forward compatibility.
 type RecommenderServiceServer interface {
-	GetRecommendations(context.Context, *RecommendationRequest) (*RecommendationResponse, error)
+	GetRecommendations(context.Context, *RecommendationRequestForUserId) (*RecommendationResponse, error)
+	GetRecommendationsBasedOnViewed(context.Context, *RecommendationRequestOnViews) (*RecommendationResponse, error)
 	mustEmbedUnimplementedRecommenderServiceServer()
 }
 
@@ -62,8 +75,11 @@ type RecommenderServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedRecommenderServiceServer struct{}
 
-func (UnimplementedRecommenderServiceServer) GetRecommendations(context.Context, *RecommendationRequest) (*RecommendationResponse, error) {
+func (UnimplementedRecommenderServiceServer) GetRecommendations(context.Context, *RecommendationRequestForUserId) (*RecommendationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRecommendations not implemented")
+}
+func (UnimplementedRecommenderServiceServer) GetRecommendationsBasedOnViewed(context.Context, *RecommendationRequestOnViews) (*RecommendationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRecommendationsBasedOnViewed not implemented")
 }
 func (UnimplementedRecommenderServiceServer) mustEmbedUnimplementedRecommenderServiceServer() {}
 func (UnimplementedRecommenderServiceServer) testEmbeddedByValue()                            {}
@@ -87,7 +103,7 @@ func RegisterRecommenderServiceServer(s grpc.ServiceRegistrar, srv RecommenderSe
 }
 
 func _RecommenderService_GetRecommendations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendationRequest)
+	in := new(RecommendationRequestForUserId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -99,7 +115,25 @@ func _RecommenderService_GetRecommendations_Handler(srv interface{}, ctx context
 		FullMethod: RecommenderService_GetRecommendations_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommenderServiceServer).GetRecommendations(ctx, req.(*RecommendationRequest))
+		return srv.(RecommenderServiceServer).GetRecommendations(ctx, req.(*RecommendationRequestForUserId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RecommenderService_GetRecommendationsBasedOnViewed_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RecommendationRequestOnViews)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RecommenderServiceServer).GetRecommendationsBasedOnViewed(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RecommenderService_GetRecommendationsBasedOnViewed_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RecommenderServiceServer).GetRecommendationsBasedOnViewed(ctx, req.(*RecommendationRequestOnViews))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -114,6 +148,10 @@ var RecommenderService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetRecommendations",
 			Handler:    _RecommenderService_GetRecommendations_Handler,
+		},
+		{
+			MethodName: "GetRecommendationsBasedOnViewed",
+			Handler:    _RecommenderService_GetRecommendationsBasedOnViewed_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

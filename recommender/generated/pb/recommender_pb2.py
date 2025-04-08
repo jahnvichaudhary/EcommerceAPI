@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11recommender.proto\x12\x02pb\"(\n\x15RecommendationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\"N\n\x0eProductReplica\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12\r\n\x05price\x18\x04 \x01(\x01\"J\n\x16RecommendationResponse\x12\x30\n\x14recommended_products\x18\x01 \x03(\x0b\x32\x12.pb.ProductReplica2a\n\x12RecommenderService\x12K\n\x12GetRecommendations\x12\x19.pb.RecommendationRequest\x1a\x1a.pb.RecommendationResponseB\x06Z\x04./pbb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11recommender.proto\x12\x02pb\"M\n\x1eRecommendationRequestForUserId\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0c\n\x04skip\x18\x02 \x01(\x04\x12\x0c\n\x04take\x18\x03 \x01(\x04\"G\n\x1cRecommendationRequestOnViews\x12\x0b\n\x03ids\x18\x01 \x03(\t\x12\x0c\n\x04skip\x18\x02 \x01(\x04\x12\x0c\n\x04take\x18\x03 \x01(\x04\"N\n\x0eProductReplica\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12\r\n\x05price\x18\x04 \x01(\x01\"J\n\x16RecommendationResponse\x12\x30\n\x14recommended_products\x18\x01 \x03(\x0b\x32\x12.pb.ProductReplica2\xcb\x01\n\x12RecommenderService\x12T\n\x12GetRecommendations\x12\".pb.RecommendationRequestForUserId\x1a\x1a.pb.RecommendationResponse\x12_\n\x1fGetRecommendationsBasedOnViewed\x12 .pb.RecommendationRequestOnViews\x1a\x1a.pb.RecommendationResponseB\x06Z\x04./pbb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,12 +32,14 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'recommender_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z\004./pb'
-  _globals['_RECOMMENDATIONREQUEST']._serialized_start=25
-  _globals['_RECOMMENDATIONREQUEST']._serialized_end=65
-  _globals['_PRODUCTREPLICA']._serialized_start=67
-  _globals['_PRODUCTREPLICA']._serialized_end=145
-  _globals['_RECOMMENDATIONRESPONSE']._serialized_start=147
-  _globals['_RECOMMENDATIONRESPONSE']._serialized_end=221
-  _globals['_RECOMMENDERSERVICE']._serialized_start=223
-  _globals['_RECOMMENDERSERVICE']._serialized_end=320
+  _globals['_RECOMMENDATIONREQUESTFORUSERID']._serialized_start=25
+  _globals['_RECOMMENDATIONREQUESTFORUSERID']._serialized_end=102
+  _globals['_RECOMMENDATIONREQUESTONVIEWS']._serialized_start=104
+  _globals['_RECOMMENDATIONREQUESTONVIEWS']._serialized_end=175
+  _globals['_PRODUCTREPLICA']._serialized_start=177
+  _globals['_PRODUCTREPLICA']._serialized_end=255
+  _globals['_RECOMMENDATIONRESPONSE']._serialized_start=257
+  _globals['_RECOMMENDATIONRESPONSE']._serialized_end=331
+  _globals['_RECOMMENDERSERVICE']._serialized_start=334
+  _globals['_RECOMMENDERSERVICE']._serialized_end=537
 # @@protoc_insertion_point(module_scope)

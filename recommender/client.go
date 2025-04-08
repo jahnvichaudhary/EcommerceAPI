@@ -24,9 +24,24 @@ func (client *Client) Close() {
 	client.conn.Close()
 }
 
-func (client *Client) GetRecommendation(ctx context.Context, userId string) (*pb.RecommendationResponse, error) {
+func (client *Client) GetRecommendationForUser(ctx context.Context, userId string, skip, take uint64) (*pb.RecommendationResponse, error) {
 	return client.service.GetRecommendations(
 		ctx,
-		&pb.RecommendationRequest{UserId: userId},
+		&pb.RecommendationRequestForUserId{
+			UserId: userId,
+			Skip:   skip,
+			Take:   take,
+		},
+	)
+}
+
+func (client *Client) GetRecommendationBasedOnViewed(ctx context.Context, ids []string, skip, take uint64) (*pb.RecommendationResponse, error) {
+	return client.service.GetRecommendationsBasedOnViewed(
+		ctx,
+		&pb.RecommendationRequestOnViews{
+			Ids:  ids,
+			Skip: skip,
+			Take: take,
+		},
 	)
 }

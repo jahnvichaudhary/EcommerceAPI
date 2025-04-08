@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import generated.pb.recommender_pb2 as recommender__pb2
+import recommender_pb2 as recommender__pb2
 
 GRPC_GENERATED_VERSION = '1.71.0'
 GRPC_VERSION = grpc.__version__
@@ -36,7 +36,12 @@ class RecommenderServiceStub(object):
         """
         self.GetRecommendations = channel.unary_unary(
                 '/pb.RecommenderService/GetRecommendations',
-                request_serializer=recommender__pb2.RecommendationRequest.SerializeToString,
+                request_serializer=recommender__pb2.RecommendationRequestForUserId.SerializeToString,
+                response_deserializer=recommender__pb2.RecommendationResponse.FromString,
+                _registered_method=True)
+        self.GetRecommendationsBasedOnViewed = channel.unary_unary(
+                '/pb.RecommenderService/GetRecommendationsBasedOnViewed',
+                request_serializer=recommender__pb2.RecommendationRequestOnViews.SerializeToString,
                 response_deserializer=recommender__pb2.RecommendationResponse.FromString,
                 _registered_method=True)
 
@@ -50,12 +55,23 @@ class RecommenderServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetRecommendationsBasedOnViewed(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_RecommenderServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetRecommendations': grpc.unary_unary_rpc_method_handler(
                     servicer.GetRecommendations,
-                    request_deserializer=recommender__pb2.RecommendationRequest.FromString,
+                    request_deserializer=recommender__pb2.RecommendationRequestForUserId.FromString,
+                    response_serializer=recommender__pb2.RecommendationResponse.SerializeToString,
+            ),
+            'GetRecommendationsBasedOnViewed': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetRecommendationsBasedOnViewed,
+                    request_deserializer=recommender__pb2.RecommendationRequestOnViews.FromString,
                     response_serializer=recommender__pb2.RecommendationResponse.SerializeToString,
             ),
     }
@@ -84,7 +100,34 @@ class RecommenderService(object):
             request,
             target,
             '/pb.RecommenderService/GetRecommendations',
-            recommender__pb2.RecommendationRequest.SerializeToString,
+            recommender__pb2.RecommendationRequestForUserId.SerializeToString,
+            recommender__pb2.RecommendationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetRecommendationsBasedOnViewed(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/pb.RecommenderService/GetRecommendationsBasedOnViewed',
+            recommender__pb2.RecommendationRequestOnViews.SerializeToString,
             recommender__pb2.RecommendationResponse.FromString,
             options,
             channel_credentials,

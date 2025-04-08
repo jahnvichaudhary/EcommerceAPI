@@ -5,11 +5,25 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class RecommendationRequest(_message.Message):
-    __slots__ = ("user_id",)
+class RecommendationRequestForUserId(_message.Message):
+    __slots__ = ("user_id", "skip", "take")
     USER_ID_FIELD_NUMBER: _ClassVar[int]
+    SKIP_FIELD_NUMBER: _ClassVar[int]
+    TAKE_FIELD_NUMBER: _ClassVar[int]
     user_id: str
-    def __init__(self, user_id: _Optional[str] = ...) -> None: ...
+    skip: int
+    take: int
+    def __init__(self, user_id: _Optional[str] = ..., skip: _Optional[int] = ..., take: _Optional[int] = ...) -> None: ...
+
+class RecommendationRequestOnViews(_message.Message):
+    __slots__ = ("ids", "skip", "take")
+    IDS_FIELD_NUMBER: _ClassVar[int]
+    SKIP_FIELD_NUMBER: _ClassVar[int]
+    TAKE_FIELD_NUMBER: _ClassVar[int]
+    ids: _containers.RepeatedScalarFieldContainer[str]
+    skip: int
+    take: int
+    def __init__(self, ids: _Optional[_Iterable[str]] = ..., skip: _Optional[int] = ..., take: _Optional[int] = ...) -> None: ...
 
 class ProductReplica(_message.Message):
     __slots__ = ("id", "name", "description", "price")

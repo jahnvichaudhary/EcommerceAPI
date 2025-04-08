@@ -16,6 +16,29 @@ def fetch_interactions() -> pd.DataFrame:
         ]
         return pd.DataFrame(data)
 
+def _get_all_product_ids(session):
+    """Fetch all product IDs from the database."""
+    return {p.id for p in session.query(Product.id).all()}
+
+def _get_interacted_ids_for_user(session, user_id: str):
+    """Get set of product IDs that the user has interacted with."""
+    return {
+        i.product_id
+        for i in session.query(Interaction.product_id)
+                      .filter(Interaction.user_id == user_id)
+                      .all()
+    }
+
+def _get_interacted_ids_for_viewed(session, viewed_ids: list[str]):
+    """Get set of product IDs among 'viewed_ids' that have existing interactions."""
+    return {
+        i.product_id
+        for i in session.query(Interaction.product_id)
+                      .filter(Interaction.product_id.in_(viewed_ids))
+                      .all()
+    }
+
+
 class Recommender:
     def __init__(self):
         self.model = SVD(n_factors=50, random_state=42)
@@ -30,16 +53,42 @@ class Recommender:
         self.trainset = data.build_full_trainset()
         self.model.fit(self.trainset)
 
-    def recommend(self, user_id: str, top_n: int = 5) -> list[str]:
-        with ReplicaSession() as session:
-            self.product_ids = {p.id for p in session.query(Product.id).all()}
-            interacted = {
-                i.product_id for i in session.query(Interaction.product_id)
-                .filter(Interaction.user_id == user_id).all()
-            }
-        candidates = [pid for pid in self.product_ids if pid not in interacted]
+    def _predict_and_sort(self, user_id: str, candidates: list[str]) -> list:
+        """
+        Predict ratings for each candidate and return a list
+        of (product_id, est_prediction), sorted descending by est_prediction.
+        """
         predictions = [self.model.predict(user_id, pid) for pid in candidates]
-        top_predictions = sorted(predictions, key=lambda x: x.est, reverse=True)[:top_n]
-        return [pred.iid for pred in top_predictions]
+        sorted_predictions = sorted(predictions, key=lambda x: x.est, reverse=True)
+        return sorted_predictions
+
+    def recommend_on_user_id(self, user_id: str, skip: int = 0, take: int = 5) -> list[str]:
+        """Recommend based on user interactions."""
+        with ReplicaSession() as session:
+            all_product_ids = _get_all_product_ids(session)
+            interacted_ids = _get_interacted_ids_for_user(session, user_id)
+
+        candidates = [pid for pid in all_product_ids if pid not in interacted_ids]
+
+        sorted_predictions = self._predict_and_sort(user_id, candidates)
+
+        sliced = sorted_predictions[skip : skip + take]
+
+        return [pred.iid for pred in sliced]
+
+    def recommend_on_viewed_ids(self, viewed_ids: list[str], skip: int = 0, take: int = 5) -> list[str]:
+        """Recommend based on a set of viewed product IDs."""
+        with ReplicaSession() as session:
+            all_product_ids = _get_all_product_ids(session)
+            interacted_ids = _get_interacted_ids_for_viewed(session, viewed_ids)
+
+        candidates = [pid for pid in all_product_ids if pid not in interacted_ids]
+
+        sorted_predictions = self._predict_and_sort("anonymous_user", candidates)
+
+        sliced = sorted_predictions[skip : skip + take]
+
+        return [pred.iid for pred in sliced]
+
 
 recommender = Recommender()  # Singleton for simplicity

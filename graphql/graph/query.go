@@ -14,7 +14,11 @@ type queryResolver struct {
 	server *Server
 }
 
-func (resolver *queryResolver) Accounts(ctx context.Context, pagination *PaginationInput, id *string) ([]*Account, error) {
+func (resolver *queryResolver) Accounts(
+	ctx context.Context,
+	pagination *PaginationInput,
+	id *string,
+) ([]*Account, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
@@ -54,7 +58,13 @@ func (resolver *queryResolver) Accounts(ctx context.Context, pagination *Paginat
 	return accounts, nil
 }
 
-func (resolver *queryResolver) Product(ctx context.Context, pagination *PaginationInput, query, id *string, recommended *bool) ([]*Product, error) {
+func (resolver *queryResolver) Product(
+	ctx context.Context,
+	pagination *PaginationInput,
+	query, id *string,
+	viewedProductsIds []*string,
+	byAccountId *bool,
+) ([]*Product, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
@@ -78,19 +88,56 @@ func (resolver *queryResolver) Product(ctx context.Context, pagination *Paginati
 	}
 
 	// Get recommendations
-	if *recommended == true {
-		accountId := auth.GetUserId(ctx, true)
-		if accountId == "" {
-			return nil, errors.New("unauthorized")
+	if viewedProductsIds != nil {
+		productIds := make([]string, len(viewedProductsIds))
+		for i, id := range viewedProductsIds {
+			productIds[i] = *id
 		}
-		res, err := resolver.server.recommenderClient.GetRecommendation(ctx, accountId)
+		res, err := resolver.server.recommenderClient.GetRecommendationBasedOnViewed(ctx, productIds, skip, take)
 		if err != nil {
 			log.Println(err)
 			return nil, err
 		}
-		if res == nil {
-			return nil, nil
+		productList := res.GetRecommendedProducts()
+		var products []*Product
+		for _, product := range productList {
+			products = append(products,
+				&Product{
+					ID:          product.Id,
+					Name:        product.Name,
+					Description: product.Description,
+					Price:       product.Price,
+				},
+			)
 		}
+		return products, nil
+	}
+
+	if byAccountId != nil && *byAccountId {
+		accountId := auth.GetUserId(ctx, true)
+		if accountId == "" {
+			return nil, errors.New("unauthorized")
+		}
+		skip = 0
+		take = 100
+		res, err := resolver.server.recommenderClient.GetRecommendationForUser(ctx, accountId, skip, take)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		productList := res.GetRecommendedProducts()
+		var products []*Product
+		for _, product := range productList {
+			products = append(products,
+				&Product{
+					ID:          product.Id,
+					Name:        product.Name,
+					Description: product.Description,
+					Price:       product.Price,
+				},
+			)
+		}
+		return products, nil
 	}
 
 	q := ""
