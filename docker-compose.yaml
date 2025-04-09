@@ -1,6 +1,7 @@
 services:
   account:
     container_name: "account"
+    image: "rasadov/account:latest"
     build:
       context: .
       dockerfile: ./account/app.dockerfile
@@ -12,6 +13,7 @@ services:
 
   product:
     container_name: "product"
+    image: "rasadov/product:latest"
     build:
       context: .
       dockerfile: ./product/app.dockerfile
@@ -23,6 +25,7 @@ services:
 
   order:
     container_name: "order"
+    image: "rasadov/order:latest"
     build:
       context: .
       dockerfile: ./order/app.dockerfile
@@ -36,6 +39,7 @@ services:
 
   recommender-server:
     container_name: "recommender"
+    image: "rasadov/recommender:latest"
     build:
       context: .
       dockerfile: ./recommender/app.dockerfile
@@ -49,6 +53,7 @@ services:
 
   recommender-sync:
     container_name: "recommender-sync"
+    image: "rasadov/recommender-sync:latest"
     build:
       context: .
       dockerfile: ./recommender/app.dockerfile
@@ -62,6 +67,7 @@ services:
 
   graphql:
     container_name: "graphql"
+    image: "rasadov/graphql:latest"
     build:
       context: .
       dockerfile: ./graphql/app.dockerfile

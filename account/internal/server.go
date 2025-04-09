@@ -1,9 +1,8 @@
-package server
+package internal
 
 import (
 	"context"
 	"fmt"
-	"github.com/rasadov/EcommerceAPI/account/internal/user"
 	"github.com/rasadov/EcommerceAPI/account/proto/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -12,10 +11,10 @@ import (
 
 type grpcServer struct {
 	pb.UnimplementedAccountServiceServer
-	service user.Service
+	service Service
 }
 
-func ListenGRPC(service user.Service, port int) error {
+func ListenGRPC(service Service, port int) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return err

@@ -3,8 +3,7 @@ package main
 import (
 	"github.com/IBM/sarama"
 	"github.com/kelseyhightower/envconfig"
-	internal "github.com/rasadov/EcommerceAPI/order/internal/order"
-	"github.com/rasadov/EcommerceAPI/order/internal/server"
+	internal "github.com/rasadov/EcommerceAPI/order/internal"
 	"github.com/tinrab/retry"
 	"log"
 	"time"
@@ -43,5 +42,5 @@ func main() {
 	defer repository.Close()
 	log.Println("Listening on port 8080...")
 	service := internal.NewOrderService(repository, producer)
-	log.Fatal(server.ListenGRPC(service, cfg.AccountUrl, cfg.ProductUrl, 8080))
+	log.Fatal(internal.ListenGRPC(service, cfg.AccountUrl, cfg.ProductUrl, 8080))
 }

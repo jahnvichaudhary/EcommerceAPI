@@ -1,11 +1,10 @@
-package server
+package internal
 
 import (
 	"context"
 	"fmt"
 	"github.com/deckarep/golang-set/v2"
 	account "github.com/rasadov/EcommerceAPI/account/client"
-	"github.com/rasadov/EcommerceAPI/order/internal/order"
 	"github.com/rasadov/EcommerceAPI/order/models"
 	"github.com/rasadov/EcommerceAPI/order/proto/pb"
 	product "github.com/rasadov/EcommerceAPI/product/client"
@@ -17,12 +16,12 @@ import (
 
 type grpcServer struct {
 	pb.UnimplementedOrderServiceServer
-	service       order.Service
+	service       Service
 	accountClient *account.Client
 	productClient *product.Client
 }
 
-func ListenGRPC(service order.Service, accountURL string, productURL string, port int) error {
+func ListenGRPC(service Service, accountURL string, productURL string, port int) error {
 	accountClient, err := account.NewClient(accountURL)
 	if err != nil {
 		return err

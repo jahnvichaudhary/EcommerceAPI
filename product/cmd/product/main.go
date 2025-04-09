@@ -7,8 +7,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/rasadov/EcommerceAPI/product/internal/product"
-	"github.com/rasadov/EcommerceAPI/product/internal/server"
+	"github.com/rasadov/EcommerceAPI/product/internal"
 )
 
 type Config struct {
@@ -18,7 +17,7 @@ type Config struct {
 
 func main() {
 	var cfg Config
-	var repository product.Repository
+	var repository internal.Repository
 	var producer sarama.AsyncProducer
 
 	err := envconfig.Process("", &cfg)
@@ -33,7 +32,7 @@ func main() {
 	defer producer.Close()
 
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
-		repository, err = product.NewElasticRepository(cfg.DatabaseURL)
+		repository, err = internal.NewElasticRepository(cfg.DatabaseURL)
 		if err != nil {
 			log.Println(err)
 		}
@@ -41,6 +40,6 @@ func main() {
 	})
 	defer repository.Close()
 	log.Println("Listening on port 8080...")
-	service := product.NewProductService(repository, producer)
-	log.Fatal(server.ListenGRPC(service, 8080))
+	service := internal.NewProductService(repository, producer)
+	log.Fatal(internal.ListenGRPC(service, 8080))
 }

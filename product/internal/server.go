@@ -1,4 +1,4 @@
-package server
+package internal
 
 import (
 	"context"
@@ -9,17 +9,16 @@ import (
 	"log"
 	"net"
 
-	"github.com/rasadov/EcommerceAPI/product/internal/product"
 	"github.com/rasadov/EcommerceAPI/product/models"
 	"github.com/rasadov/EcommerceAPI/product/proto/pb"
 )
 
 type grpcServer struct {
 	pb.UnimplementedProductServiceServer
-	service product.Service
+	service Service
 }
 
-func ListenGRPC(s product.Service, port int) error {
+func ListenGRPC(s Service, port int) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return err

@@ -2,7 +2,7 @@ package client
 
 import (
 	"context"
-	"github.com/rasadov/EcommerceAPI/account/internal/user"
+	"github.com/rasadov/EcommerceAPI/account/internal"
 	"github.com/rasadov/EcommerceAPI/account/proto/pb"
 	"google.golang.org/grpc"
 )
@@ -48,7 +48,7 @@ func (client *Client) Login(ctx context.Context, email, password string) (string
 	return response.Token, nil
 }
 
-func (client *Client) GetAccount(ctx context.Context, Id string) (*user.Account, error) {
+func (client *Client) GetAccount(ctx context.Context, Id string) (*internal.Account, error) {
 	r, err := client.service.GetAccount(
 		ctx,
 		&pb.GetAccountRequest{Id: Id},
@@ -56,14 +56,14 @@ func (client *Client) GetAccount(ctx context.Context, Id string) (*user.Account,
 	if err != nil {
 		return nil, err
 	}
-	return &user.Account{
+	return &internal.Account{
 		ID:    uint(r.Account.GetId()),
 		Name:  r.Account.GetName(),
 		Email: r.Account.GetEmail(),
 	}, nil
 }
 
-func (client *Client) GetAccounts(ctx context.Context, skip, take uint64) ([]user.Account, error) {
+func (client *Client) GetAccounts(ctx context.Context, skip, take uint64) ([]internal.Account, error) {
 	r, err := client.service.GetAccounts(
 		ctx,
 		&pb.GetAccountsRequest{Take: take, Skip: skip},
@@ -71,9 +71,9 @@ func (client *Client) GetAccounts(ctx context.Context, skip, take uint64) ([]use
 	if err != nil {
 		return nil, err
 	}
-	var accounts []user.Account
+	var accounts []internal.Account
 	for _, a := range r.Accounts {
-		accounts = append(accounts, user.Account{
+		accounts = append(accounts, internal.Account{
 			ID:    uint(a.GetId()),
 			Name:  a.GetName(),
 			Email: a.GetEmail(),

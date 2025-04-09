@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import recommender_pb2 as recommender__pb2
+import generated.pb.recommender_pb2 as recommender__pb2
 
 GRPC_GENERATED_VERSION = '1.71.0'
 GRPC_VERSION = grpc.__version__
