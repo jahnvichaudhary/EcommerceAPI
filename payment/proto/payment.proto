@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "./pb";
+
+message Client {
+  string clientId = 1;
+  string email = 2;
+  string name = 3;
+}
+
+message ClientInput {
+  string email = 1;
+  string name = 2;
+}

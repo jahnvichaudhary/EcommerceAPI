@@ -20,6 +20,11 @@ type AppConfig struct {
 	Issuer     string `envconfig:"ISSUER"`
 }
 
+//
+//type aseksual interface {
+//	PutOrder() error
+//}
+
 func main() {
 	var cfg AppConfig
 	err := envconfig.Process("", &cfg)
