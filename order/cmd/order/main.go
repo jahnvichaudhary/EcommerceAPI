@@ -2,38 +2,29 @@ package main
 
 import (
 	"github.com/IBM/sarama"
-	"github.com/kelseyhightower/envconfig"
+	"github.com/rasadov/EcommerceAPI/order/config"
 	"github.com/rasadov/EcommerceAPI/order/internal"
 	"github.com/tinrab/retry"
 	"log"
 	"time"
 )
 
-type Config struct {
-	DatabaseUrl      string `envconfig:"DATABASE_URL"`
-	AccountUrl       string `envconfig:"ACCOUNT_SERVICE_URL"`
-	ProductUrl       string `envconfig:"PRODUCT_SERVICE_URL"`
-	BootstrapServers string `envconfig:"BOOTSTRAP_SERVERS" default:"kafka:9092"`
-}
-
 func main() {
-	var cfg Config
 	var repository internal.Repository
-	var producer sarama.AsyncProducer
 
-	err := envconfig.Process("", &cfg)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	producer, err = sarama.NewAsyncProducer([]string{cfg.BootstrapServers}, nil)
+	producer, err := sarama.NewAsyncProducer([]string{config.BootstrapServers}, nil)
 	if err != nil {
 		log.Println(err)
 	}
-	defer producer.Close()
+	defer func(producer sarama.AsyncProducer) {
+		err := producer.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(producer)
 
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
-		repository, err = internal.NewPostgresRepository(cfg.DatabaseUrl)
+		repository, err = internal.NewPostgresRepository(config.DatabaseUrl)
 		if err != nil {
 			log.Println(err)
 		}
@@ -42,5 +33,5 @@ func main() {
 	defer repository.Close()
 	log.Println("Listening on port 8080...")
 	service := internal.NewOrderService(repository, producer)
-	log.Fatal(internal.ListenGRPC(service, cfg.AccountUrl, cfg.ProductUrl, 8080))
+	log.Fatal(internal.ListenGRPC(service, config.AccountUrl, config.ProductUrl, 8080))
 }

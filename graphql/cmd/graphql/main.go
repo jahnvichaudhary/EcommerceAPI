@@ -5,34 +5,15 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
-	"github.com/kelseyhightower/envconfig"
+	"github.com/rasadov/EcommerceAPI/graphql/config"
 	"github.com/rasadov/EcommerceAPI/graphql/graph"
 	"github.com/rasadov/EcommerceAPI/pkg/auth"
 	"github.com/rasadov/EcommerceAPI/pkg/middleware"
 	"log"
 )
 
-type AppConfig struct {
-	AccountUrl string `envconfig:"ACCOUNT_SERVICE_URL"`
-	ProductUrl string `envconfig:"PRODUCT_SERVICE_URL"`
-	OrderUrl   string `envconfig:"ORDER_SERVICE_URL"`
-	SecretKey  string `envconfig:"SECRET_KEY"`
-	Issuer     string `envconfig:"ISSUER"`
-}
-
-//
-//type aseksual interface {
-//	PutOrder() error
-//}
-
 func main() {
-	var cfg AppConfig
-	err := envconfig.Process("", &cfg)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	server, err := graph.NewGraphQLServer(cfg.AccountUrl, cfg.ProductUrl, cfg.OrderUrl)
+	server, err := graph.NewGraphQLServer(config.AccountUrl, config.ProductUrl, config.OrderUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,7 +32,7 @@ func main() {
 		})
 	})
 	engine.POST("/graphql",
-		middleware.AuthorizeJWT(auth.NewJwtService(cfg.SecretKey, cfg.Issuer)),
+		middleware.AuthorizeJWT(auth.NewJwtService(config.SecretKey, config.Issuer)),
 		gin.WrapH(srv),
 	)
 	engine.GET("/playground", gin.WrapH(playground.Handler("Playground", "/graphql")))

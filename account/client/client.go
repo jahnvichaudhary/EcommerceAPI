@@ -5,6 +5,7 @@ import (
 	"github.com/rasadov/EcommerceAPI/account/models"
 	"github.com/rasadov/EcommerceAPI/account/proto/pb"
 	"google.golang.org/grpc"
+	"log"
 )
 
 type Client struct {
@@ -22,7 +23,10 @@ func NewClient(url string) (*Client, error) {
 }
 
 func (client *Client) Close() {
-	client.conn.Close()
+	err := client.conn.Close()
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func (client *Client) Register(ctx context.Context, name, email, password string) (string, error) {

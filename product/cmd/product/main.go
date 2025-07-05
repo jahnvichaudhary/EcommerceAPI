@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/IBM/sarama"
-	"github.com/kelseyhightower/envconfig"
+	"github.com/rasadov/EcommerceAPI/product/config"
 	"github.com/tinrab/retry"
 	"log"
 	"time"
@@ -10,29 +10,22 @@ import (
 	"github.com/rasadov/EcommerceAPI/product/internal"
 )
 
-type Config struct {
-	DatabaseURL      string `envconfig:"DATABASE_URL"`
-	BootstrapServers string `envconfig:"BOOTSTRAP_SERVERS" default:"kafka:9092"`
-}
-
 func main() {
-	var cfg Config
 	var repository internal.Repository
-	var producer sarama.AsyncProducer
 
-	err := envconfig.Process("", &cfg)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	producer, err = sarama.NewAsyncProducer([]string{cfg.BootstrapServers}, nil)
+	producer, err := sarama.NewAsyncProducer([]string{config.BootstrapServers}, nil)
 	if err != nil {
 		log.Println(err)
 	}
-	defer producer.Close()
+	defer func(producer sarama.AsyncProducer) {
+		err := producer.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(producer)
 
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
-		repository, err = internal.NewElasticRepository(cfg.DatabaseURL)
+		repository, err = internal.NewElasticRepository(config.DatabaseURL)
 		if err != nil {
 			log.Println(err)
 		}

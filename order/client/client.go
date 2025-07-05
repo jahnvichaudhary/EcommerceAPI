@@ -25,7 +25,10 @@ func NewClient(url string) (*Client, error) {
 }
 
 func (client *Client) Close() {
-	client.conn.Close()
+	err := client.conn.Close()
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func (client *Client) PostOrder(
