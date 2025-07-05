@@ -47,7 +47,11 @@ func NewPostgresRepository(databaseURL string) (Repository, error) {
 func (repository *postgresRepository) Close() {
 	sqlDB, err := repository.db.DB()
 	if err == nil {
-		sqlDB.Close()
+		err = sqlDB.Close()
+		if err != nil {
+			log.Println("Error closing postgres repository")
+			log.Println(err)
+		}
 	}
 }
 

@@ -6,3 +6,7 @@ type Customer struct {
 
 	Transactions []Transaction `json:"transactions"`
 }
+
+type CustomerInput struct {
+	UserId string `json:"user_id"`
+}
