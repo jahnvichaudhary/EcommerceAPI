@@ -16,7 +16,7 @@ type Server struct {
 	recommenderClient *recommender.Client
 }
 
-func NewGraphQLServer(accountUrl, productUrl, orderUrl string) (*Server, error) {
+func NewGraphQLServer(accountUrl, productUrl, orderUrl, recommenderUrl string) (*Server, error) {
 	accClient, err := account.NewClient(accountUrl)
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func NewGraphQLServer(accountUrl, productUrl, orderUrl string) (*Server, error) 
 		return nil, err
 	}
 
-	recClient, err := recommender.NewClient("http://localhost:8080")
+	recClient, err := recommender.NewClient(recommenderUrl)
 	if err != nil {
 		accClient.Close()
 		prodClient.Close()

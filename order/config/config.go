@@ -11,7 +11,7 @@ var (
 
 func init() {
 	DatabaseUrl = os.Getenv("DATABASE_URL")
-	AccountUrl = os.Getenv("ACCOUNT_URL")
-	ProductUrl = os.Getenv("PRODUCT_URL")
-	BootstrapServers = os.Getenv("BOOTSTRAP_SERVERS")
+	AccountUrl = os.Getenv("ACCOUNT_SERVICE_URL")
+	ProductUrl = os.Getenv("PRODUCT_SERVICE_URL")
+	BootstrapServers = os.Getenv("KAFKA_BOOTSTRAP_SERVERS")
 }
