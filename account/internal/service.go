@@ -3,6 +3,7 @@ package internal
 import (
 	"context"
 	"errors"
+	"github.com/rasadov/EcommerceAPI/account/models"
 	"strconv"
 
 	"github.com/rasadov/EcommerceAPI/pkg/auth"
@@ -12,15 +13,8 @@ import (
 type Service interface {
 	Register(ctx context.Context, name, email, password string) (string, error)
 	Login(ctx context.Context, email, password string) (string, error)
-	GetAccount(ctx context.Context, id string) (*Account, error)
-	GetAccounts(ctx context.Context, skip uint64, take uint64) ([]Account, error)
-}
-
-type Account struct {
-	ID       uint   `gorm:"primaryKey;autoIncrement"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	GetAccount(ctx context.Context, id string) (*models.Account, error)
+	GetAccounts(ctx context.Context, skip uint64, take uint64) ([]*models.Account, error)
 }
 
 type accountService struct {
@@ -42,7 +36,7 @@ func (service accountService) Register(ctx context.Context, name, email, passwor
 	if err != nil {
 		return "", err
 	}
-	acc := Account{
+	acc := models.Account{
 		Name:     name,
 		Email:    email,
 		Password: hashedPass,
@@ -69,11 +63,11 @@ func (service accountService) Login(ctx context.Context, email, password string)
 	return "", err
 }
 
-func (service accountService) GetAccount(ctx context.Context, id string) (*Account, error) {
+func (service accountService) GetAccount(ctx context.Context, id string) (*models.Account, error) {
 	return service.repository.GetAccountByID(ctx, id)
 }
 
-func (service accountService) GetAccounts(ctx context.Context, skip uint64, take uint64) ([]Account, error) {
+func (service accountService) GetAccounts(ctx context.Context, skip uint64, take uint64) ([]*models.Account, error) {
 	if take > 100 || (skip == 0 && take == 0) {
 		take = 100
 	}

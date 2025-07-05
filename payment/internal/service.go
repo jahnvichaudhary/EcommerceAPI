@@ -1,11 +1,13 @@
 package internal
 
-import "github.com/dodopayments/dodopayments-go"
+import (
+	"github.com/dodopayments/dodopayments-go"
+)
 
 type PaymentService interface {
 	GetCustomerPortal(userId string) string
 	RegisterProduct(productID, title, description, category string, price int) error
-	GetCheckoutURL(productID string) string
+	GetCheckoutURL(productID, userEmail, userName string) string
 }
 
 type dodoPaymentService struct {
@@ -16,7 +18,7 @@ func NewPaymentService(client *dodopayments.Client) PaymentService {
 	return &dodoPaymentService{client: client}
 }
 
-func (d *dodoPaymentService) GetCheckoutURL(productID string) string {
+func (d *dodoPaymentService) GetCheckoutURL(productID, userEmail, userName string) string {
 	return ""
 }
 

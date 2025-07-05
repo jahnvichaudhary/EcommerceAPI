@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/IBM/sarama"
 	"github.com/kelseyhightower/envconfig"
-	internal "github.com/rasadov/EcommerceAPI/order/internal"
+	"github.com/rasadov/EcommerceAPI/order/internal"
 	"github.com/tinrab/retry"
 	"log"
 	"time"
