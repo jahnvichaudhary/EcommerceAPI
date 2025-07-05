@@ -1,8 +1,11 @@
 package models
 
+import "time"
+
 type Customer struct {
-	CustomerId string `json:"customer_id"`
-	UserId     string `json:"user_id"`
+	UserId     int       `json:"user_id" gorm:"primary_key"`
+	CustomerId string    `json:"customer_id"`
+	CreatedAt  time.Time `json:"created_at"`
 
 	Transactions []Transaction `json:"transactions"`
 }
