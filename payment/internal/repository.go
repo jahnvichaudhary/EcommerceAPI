@@ -10,9 +10,10 @@ import (
 type Repository interface {
 	Close()
 	GetCustomerByCustomerID(ctx context.Context, customerId string) (*models.Customer, error)
-	GetCustomerByUserID(ctx context.Context, userId int) (*models.Customer, error)
-	RegisterTransaction(ctx context.Context, transaction *models.Transaction) error
+	GetCustomerByUserID(ctx context.Context, userId int64) (*models.Customer, error)
 	SaveCustomer(ctx context.Context, customer *models.Customer) error
+	GetTransactionByProductID(ctx context.Context, productId string) (*models.Transaction, error)
+	RegisterTransaction(ctx context.Context, transaction *models.Transaction) error
 }
 
 type postgresRepository struct {
@@ -43,7 +44,7 @@ func (repository *postgresRepository) GetCustomerByCustomerID(ctx context.Contex
 	return &customer, nil
 }
 
-func (repository *postgresRepository) GetCustomerByUserID(ctx context.Context, userId int) (*models.Customer, error) {
+func (repository *postgresRepository) GetCustomerByUserID(ctx context.Context, userId int64) (*models.Customer, error) {
 	var customer models.Customer
 	err := repository.db.WithContext(ctx).First(&customer, "user_id = ?", userId).Error
 	if err != nil {
@@ -52,10 +53,24 @@ func (repository *postgresRepository) GetCustomerByUserID(ctx context.Context, u
 	return &customer, nil
 }
 
+func (repository *postgresRepository) SaveCustomer(ctx context.Context, customer *models.Customer) error {
+	return repository.db.WithContext(ctx).Create(&customer).Error
+}
+
+func (repository *postgresRepository) GetTransactionByProductID(ctx context.Context, productId string) (*models.Transaction, error) {
+	var transaction models.Transaction
+
+	err := repository.db.WithContext(ctx).First(&transaction, "product_id = ?", productId).Error
+	if err != nil {
+		return nil, err
+	}
+	return &transaction, nil
+}
+
 func (repository *postgresRepository) RegisterTransaction(ctx context.Context, transaction *models.Transaction) error {
 	return repository.db.WithContext(ctx).Create(&transaction).Error
 }
 
-func (repository *postgresRepository) SaveCustomer(ctx context.Context, customer *models.Customer) error {
-	return repository.db.WithContext(ctx).Create(&customer).Error
+func (repository *postgresRepository) UpdateTransactionStatus(ctx context.Context, transaction *models.Transaction) error {
+	return repository.db.WithContext(ctx).Model(&transaction).Update("status", transaction.Status).Error
 }

@@ -1,12 +1,29 @@
 package models
 
-import "time"
+import (
+	"time"
+)
+
+type TransactionStatus string
+
+const (
+	Failed  = TransactionStatus("Failed")
+	Success = TransactionStatus("Success")
+)
+
+func (s TransactionStatus) String() string {
+	return string(s)
+}
 
 type Transaction struct {
-	PaymentID  string    `json:"id" gorm:"primary_key"`
+	ID         uint      `gorm:"primaryKey;autoIncrement"`
 	CreatedAt  time.Time `json:"createdAt" gorm:"column:created_at;"`
+	OrderId    int64     `json:"order_id"`
+	UserId     int64     `json:"user_id"`
 	CustomerId string    `json:"customer_id"`
-	OrderId    string    `json:"order_id"`
-	Amount     int       `json:"amount"`
+	ProductId  string    `json:"product_id"`
+	PaymentId  string    `json:"payment_id"`
+	Amount     int64     `json:"amount"`
 	Currency   string    `json:"currency"`
+	Status     string    `json:"status" gorm:"type:varchar(20)"`
 }

@@ -17,15 +17,19 @@ message CustomerInput {
 }
 
 message CheckoutRequest {
-  string email = 1;
-  string name = 2;
-  string redirectURL = 3;
-  int64 price = 4;
-  string currency = 5;
+  int64 userId = 1;
+  string email = 2;
+  string name = 3;
+  string redirectURL = 4;
+  int64 price = 5;
+  string currency = 6;
+  int64 orderId = 7;
 }
 
 message CustomerPortalRequest {
   int64 userId = 1;
+  optional string email = 2;
+  optional string name = 3;
 }
 
 message RedirectResponse {
@@ -33,8 +37,6 @@ message RedirectResponse {
 }
 
 service PaymentService {
-  rpc FindOrCreateCustomer (CustomerInput) returns (Customer) {
-  }
   rpc Checkout (CheckoutRequest) returns (RedirectResponse) {
   }
   rpc GetCustomerPortal (CustomerPortalRequest) returns (RedirectResponse) {
