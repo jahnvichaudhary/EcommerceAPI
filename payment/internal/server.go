@@ -1,20 +1,47 @@
 package internal
 
 import (
-	"context"
 	"fmt"
-	"github.com/dodopayments/dodopayments-go"
 	order "github.com/rasadov/EcommerceAPI/order/client"
 	"github.com/rasadov/EcommerceAPI/payment/proto/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"log"
 	"net"
+	"net/http"
+	"sync"
 )
 
-type grpcServer struct {
-	pb.UnimplementedPaymentServiceServer
-	service     Service
-	orderClient *order.Client
+// StartServers runs both gRPC and HTTP webhook servers concurrently
+func StartServers(service Service, orderURL string, grpcPort, webhookPort int) error {
+	var wg sync.WaitGroup
+	errCh := make(chan error, 2)
+
+	// Start gRPC server
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err := ListenGRPC(service, orderURL, grpcPort); err != nil {
+			errCh <- fmt.Errorf("gRPC server error: %w", err)
+		}
+	}()
+
+	// Start webhook HTTP server
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err := listenWebhook(service, orderURL, webhookPort); err != nil {
+			errCh <- fmt.Errorf("webhook server error: %w", err)
+		}
+	}()
+
+	// Wait for first error or all servers to complete
+	go func() {
+		wg.Wait()
+		close(errCh)
+	}()
+
+	return <-errCh
 }
 
 func ListenGRPC(service Service, orderURL string, port int) error {
@@ -40,40 +67,26 @@ func ListenGRPC(service Service, orderURL string, port int) error {
 	return serv.Serve(lis)
 }
 
-func (s *grpcServer) Checkout(ctx context.Context, request *pb.CheckoutRequest) (*pb.RedirectResponse, error) {
-	customer, err := s.service.FindOrCreateCustomer(ctx, request.UserId, request.Email, request.Name)
+func listenWebhook(service Service, orderURL string, port int) error {
+	orderClient, err := order.NewClient(orderURL)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	currency := dodopayments.Currency(request.Currency)
+	defer orderClient.Close()
 
-	checkoutUrl, productId, err := s.service.GetCheckoutURL(ctx, request.Email, request.Name, request.RedirectURL, request.Price, currency)
-
-	// We will use these transaction on webhooks
-	err = s.service.RegisterTransaction(ctx, request.OrderId, request.UserId, request.Price, currency, customer.CustomerId, productId)
-
-	if err != nil {
-		return nil, err
+	webhookServer := &WebhookServer{
+		service:     service,
+		orderClient: orderClient,
 	}
 
-	return &pb.RedirectResponse{
-		Url: checkoutUrl,
-	}, nil
-}
+	mux := http.NewServeMux()
+	mux.HandleFunc("/webhook/payment", webhookServer.HandlePaymentWebhook)
 
-func (s *grpcServer) GetCustomerPortal(ctx context.Context, request *pb.CustomerPortalRequest) (*pb.RedirectResponse, error) {
-	customer, err := s.service.FindOrCreateCustomer(ctx, request.UserId, *request.Email, *request.Name)
-
-	if err != nil {
-		return nil, err
+	server := &http.Server{
+		Addr:    fmt.Sprintf(":%d", port),
+		Handler: mux,
 	}
 
-	link, err := s.service.GetCustomerPortal(ctx, customer)
-
-	if err != nil {
-		return nil, err
-	}
-	return &pb.RedirectResponse{
-		Url: link,
-	}, nil
+	log.Printf("Webhook server listening on port %d", port)
+	return server.ListenAndServe()
 }

@@ -24,6 +24,7 @@ type Service interface {
 		orderId, userId, price int64,
 		currency dodopayments.Currency,
 		customerId, productId string) error
+	ProcessPayment(ctx context.Context, customerId, productId, paymentId string, status models.TransactionStatus) error
 }
 
 type dodoPaymentService struct {
@@ -48,6 +49,7 @@ func (d *dodoPaymentService) GetCheckoutURL(ctx context.Context,
 
 	checkoutUrl := fmt.Sprintf("%s/%s?quantity=1&email=%s&disableEmail=true&fullName=%s&disableFullName=true&redirect_url=%s", config.DodoCheckoutURL, productID, email, name, redirect)
 	return checkoutUrl, productID, nil
+
 }
 
 func (d *dodoPaymentService) GetCustomerPortal(ctx context.Context, customer *models.Customer) (string, error) {
@@ -123,4 +125,8 @@ func (d *dodoPaymentService) RegisterTransaction(ctx context.Context,
 	}
 
 	return d.paymentRepository.RegisterTransaction(ctx, transaction)
+}
+
+func (d *dodoPaymentService) ProcessPayment(ctx context.Context, customerId, productId, paymentId string, status models.TransactionStatus) error {
+
 }
