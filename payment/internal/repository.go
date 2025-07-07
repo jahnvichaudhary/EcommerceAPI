@@ -3,6 +3,7 @@ package internal
 import (
 	"context"
 	"github.com/rasadov/EcommerceAPI/payment/models"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
 )
@@ -20,8 +21,23 @@ type postgresRepository struct {
 	db *gorm.DB
 }
 
-func NewRepository(db *gorm.DB) Repository {
-	return &postgresRepository{db: db}
+func NewPostgresRepository(databaseURL string) (Repository, error) {
+	db, err := gorm.Open(postgres.Open(databaseURL), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+
+	err = sqlDB.Ping()
+	if err != nil {
+		return nil, err
+	}
+
+	return &postgresRepository{db: db}, nil
 }
 
 func (repository *postgresRepository) Close() {

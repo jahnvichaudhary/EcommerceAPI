@@ -9,11 +9,9 @@ import (
 	"time"
 )
 
-var (
-	repository internal.Repository
-)
-
 func main() {
+	var repository internal.Repository
+
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
 		repository, err = internal.NewPostgresRepository(config.DatabaseURL)
 		if err != nil {

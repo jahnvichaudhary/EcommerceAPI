@@ -128,5 +128,5 @@ func (d *dodoPaymentService) RegisterTransaction(ctx context.Context,
 }
 
 func (d *dodoPaymentService) ProcessPayment(ctx context.Context, customerId, productId, paymentId string, status models.TransactionStatus) error {
-
+	return nil
 }
