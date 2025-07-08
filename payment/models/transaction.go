@@ -17,8 +17,8 @@ func (s TransactionStatus) String() string {
 
 type Transaction struct {
 	CreatedAt  time.Time `json:"createdAt" gorm:"column:created_at;"`
-	OrderId    int64     `json:"order_id"`
-	UserId     int64     `json:"user_id"`
+	OrderId    uint64    `json:"order_id"`
+	UserId     uint64    `json:"user_id"`
 	CustomerId string    `json:"customer_id"`
 	ProductId  string    `json:"product_id" gorm:"primaryKey;"`
 	PaymentId  string    `json:"payment_id"`

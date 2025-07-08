@@ -104,7 +104,7 @@ func (client *Client) GetOrdersForAccount(ctx context.Context, accountID string)
 	return orders, nil
 }
 
-func (client *Client) UpdateOrderStatus(ctx context.Context, orderId int64, status string) error {
+func (client *Client) UpdateOrderStatus(ctx context.Context, orderId uint64, status string) error {
 	_, err := client.service.UpdateOrderStatus(ctx, &pb.UpdateOrderStatusRequest{
 		OrderId: orderId,
 		Status:  status,

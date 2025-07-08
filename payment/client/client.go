@@ -29,7 +29,7 @@ func (client *Client) Close() {
 	}
 }
 
-func (client *Client) CreateCustomerPortalSession(ctx context.Context, userId int64, email, name string) (string, error) {
+func (client *Client) CreateCustomerPortalSession(ctx context.Context, userId uint64, email, name string) (string, error) {
 	res, err := client.service.CreateCustomerPortalSession(ctx, &pb.CustomerPortalRequest{
 		UserId: userId,
 		Email:  &email,
@@ -39,23 +39,23 @@ func (client *Client) CreateCustomerPortalSession(ctx context.Context, userId in
 		log.Println(err)
 		return "", err
 	}
-	return res.Url, nil
+	return res.Value, nil
 }
 
 func (client *Client) CreateCheckoutSession(ctx context.Context, orderId, userId int,
 	email, name, redirectUrl string, price int, currency string) (string, error) {
 	res, err := client.service.Checkout(ctx, &pb.CheckoutRequest{
-		UserId:      int64(userId),
+		UserId:      uint64(userId),
 		Email:       email,
 		Name:        name,
 		RedirectURL: redirectUrl,
-		Price:       int64(price),
+		PriceCents:  int64(price),
 		Currency:    currency,
-		OrderId:     int64(orderId),
+		OrderId:     uint64(orderId),
 	})
 	if err != nil {
 		log.Println(err)
 		return "", err
 	}
-	return res.Url, nil
+	return res.Value, nil
 }

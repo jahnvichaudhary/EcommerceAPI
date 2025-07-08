@@ -18,7 +18,7 @@ import (
 )
 
 type PaymentClient interface {
-	CreateCustomer(ctx context.Context, userId int64, email, name string) (*models.Customer, error)
+	CreateCustomer(ctx context.Context, userId uint64, email, name string) (*models.Customer, error)
 	CreateCheckoutLink(ctx context.Context,
 		email, name, redirect string, price int64,
 		currency dodopayments.Currency) (checkoutURL string, productId string, err error)
@@ -50,7 +50,7 @@ type dodoClient struct {
 	webhookSecret string
 }
 
-func (d *dodoClient) CreateCustomer(ctx context.Context, userId int64, email, name string) (*models.Customer, error) {
+func (d *dodoClient) CreateCustomer(ctx context.Context, userId uint64, email, name string) (*models.Customer, error) {
 	customer, err := d.client.Customers.New(ctx, dodopayments.CustomerNewParams{
 		Email: dodopayments.F(email),
 		Name:  dodopayments.F(name),

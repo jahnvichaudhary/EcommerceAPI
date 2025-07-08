@@ -13,14 +13,14 @@ type Service interface {
 	CreateCustomerPortalSession(ctx context.Context,
 		customer *models.Customer) (string, error)
 	FindOrCreateCustomer(ctx context.Context,
-		userId int64,
+		userId uint64,
 		email, name string) (*models.Customer, error)
 	GetCheckoutURL(ctx context.Context,
 		email, name, redirect string,
 		price int64,
 		currency dodopayments.Currency) (checkoutURL string, productId string, err error)
 	RegisterTransaction(ctx context.Context,
-		orderId, userId, price int64,
+		orderId, userId uint64, price int64,
 		currency dodopayments.Currency,
 		customerId, productId string) error
 	HandlePaymentWebhook(ctx context.Context, w http.ResponseWriter, r *http.Request) (*models.Transaction, error)
@@ -52,7 +52,7 @@ func (d *paymentService) CreateCustomerPortalSession(ctx context.Context, custom
 	return customerPortalLink, nil
 }
 
-func (d *paymentService) FindOrCreateCustomer(ctx context.Context, userId int64, email, name string) (*models.Customer, error) {
+func (d *paymentService) FindOrCreateCustomer(ctx context.Context, userId uint64, email, name string) (*models.Customer, error) {
 	existingCustomer, err := d.paymentRepository.GetCustomerByUserID(ctx, userId)
 
 	if err == nil {
@@ -75,7 +75,7 @@ func (d *paymentService) FindOrCreateCustomer(ctx context.Context, userId int64,
 }
 
 func (d *paymentService) RegisterTransaction(ctx context.Context,
-	orderId, userId, price int64,
+	orderId, userId uint64, price int64,
 	currency dodopayments.Currency,
 	customerId, productId string) error {
 	transaction := &models.Transaction{

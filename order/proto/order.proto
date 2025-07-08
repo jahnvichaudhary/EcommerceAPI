@@ -36,7 +36,7 @@ message PostOrderResponse {
 }
 
 message UpdateOrderStatusRequest {
-  int64 orderId = 1;
+  uint64 orderId = 1;
   string status = 2;
 }
 

@@ -11,7 +11,7 @@ import (
 type Repository interface {
 	Close()
 	GetCustomerByCustomerID(ctx context.Context, customerId string) (*models.Customer, error)
-	GetCustomerByUserID(ctx context.Context, userId int64) (*models.Customer, error)
+	GetCustomerByUserID(ctx context.Context, userId uint64) (*models.Customer, error)
 	SaveCustomer(ctx context.Context, customer *models.Customer) error
 	GetTransactionByProductID(ctx context.Context, productId string) (*models.Transaction, error)
 	RegisterTransaction(ctx context.Context, transaction *models.Transaction) error
@@ -71,7 +71,7 @@ func (repository *postgresRepository) GetCustomerByCustomerID(ctx context.Contex
 	return &customer, nil
 }
 
-func (repository *postgresRepository) GetCustomerByUserID(ctx context.Context, userId int64) (*models.Customer, error) {
+func (repository *postgresRepository) GetCustomerByUserID(ctx context.Context, userId uint64) (*models.Customer, error) {
 	var customer models.Customer
 	err := repository.db.WithContext(ctx).First(&customer, "user_id = ?", userId).Error
 	if err != nil {

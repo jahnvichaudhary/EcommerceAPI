@@ -1,44 +1,42 @@
 syntax = "proto3";
+import 'google/protobuf/wrappers.proto';
+import 'google/protobuf/timestamp.proto';
 
 package pb;
 
 option go_package = "./pb";
 
 message Customer {
-  int64 userId = 1;
+  uint64 userId = 1;
   string customerId = 2;
-  bytes createdAt = 3;
+  google.protobuf.Timestamp createdAt = 3;
 }
 
 message CustomerInput {
-  int64 userId = 1;
+  uint64 userId = 1;
   string email = 2;
   string name = 3;
 }
 
 message CheckoutRequest {
-  int64 userId = 1;
+  uint64 userId = 1;
   string email = 2;
   string name = 3;
   string redirectURL = 4;
-  int64 price = 5;
+  int64 price_cents = 5;
   string currency = 6;
-  int64 orderId = 7;
+  uint64 orderId = 7;
 }
 
 message CustomerPortalRequest {
-  int64 userId = 1;
+  uint64 userId = 1;
   optional string email = 2;
   optional string name = 3;
 }
 
-message RedirectResponse {
-  string url = 1;
-}
-
 service PaymentService {
-  rpc Checkout (CheckoutRequest) returns (RedirectResponse) {
+  rpc Checkout (CheckoutRequest) returns (google.protobuf.StringValue) {
   }
-  rpc CreateCustomerPortalSession (CustomerPortalRequest) returns (RedirectResponse) {
+  rpc CreateCustomerPortalSession (CustomerPortalRequest) returns (google.protobuf.StringValue) {
   }
 }

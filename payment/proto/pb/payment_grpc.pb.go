@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -27,8 +28,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PaymentServiceClient interface {
-	Checkout(ctx context.Context, in *CheckoutRequest, opts ...grpc.CallOption) (*RedirectResponse, error)
-	CreateCustomerPortalSession(ctx context.Context, in *CustomerPortalRequest, opts ...grpc.CallOption) (*RedirectResponse, error)
+	Checkout(ctx context.Context, in *CheckoutRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
+	CreateCustomerPortalSession(ctx context.Context, in *CustomerPortalRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
 }
 
 type paymentServiceClient struct {
@@ -39,9 +40,9 @@ func NewPaymentServiceClient(cc grpc.ClientConnInterface) PaymentServiceClient {
 	return &paymentServiceClient{cc}
 }
 
-func (c *paymentServiceClient) Checkout(ctx context.Context, in *CheckoutRequest, opts ...grpc.CallOption) (*RedirectResponse, error) {
+func (c *paymentServiceClient) Checkout(ctx context.Context, in *CheckoutRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RedirectResponse)
+	out := new(wrapperspb.StringValue)
 	err := c.cc.Invoke(ctx, PaymentService_Checkout_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -49,9 +50,9 @@ func (c *paymentServiceClient) Checkout(ctx context.Context, in *CheckoutRequest
 	return out, nil
 }
 
-func (c *paymentServiceClient) CreateCustomerPortalSession(ctx context.Context, in *CustomerPortalRequest, opts ...grpc.CallOption) (*RedirectResponse, error) {
+func (c *paymentServiceClient) CreateCustomerPortalSession(ctx context.Context, in *CustomerPortalRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RedirectResponse)
+	out := new(wrapperspb.StringValue)
 	err := c.cc.Invoke(ctx, PaymentService_CreateCustomerPortalSession_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -63,8 +64,8 @@ func (c *paymentServiceClient) CreateCustomerPortalSession(ctx context.Context, 
 // All implementations must embed UnimplementedPaymentServiceServer
 // for forward compatibility.
 type PaymentServiceServer interface {
-	Checkout(context.Context, *CheckoutRequest) (*RedirectResponse, error)
-	CreateCustomerPortalSession(context.Context, *CustomerPortalRequest) (*RedirectResponse, error)
+	Checkout(context.Context, *CheckoutRequest) (*wrapperspb.StringValue, error)
+	CreateCustomerPortalSession(context.Context, *CustomerPortalRequest) (*wrapperspb.StringValue, error)
 	mustEmbedUnimplementedPaymentServiceServer()
 }
 
@@ -75,10 +76,10 @@ type PaymentServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedPaymentServiceServer struct{}
 
-func (UnimplementedPaymentServiceServer) Checkout(context.Context, *CheckoutRequest) (*RedirectResponse, error) {
+func (UnimplementedPaymentServiceServer) Checkout(context.Context, *CheckoutRequest) (*wrapperspb.StringValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Checkout not implemented")
 }
-func (UnimplementedPaymentServiceServer) CreateCustomerPortalSession(context.Context, *CustomerPortalRequest) (*RedirectResponse, error) {
+func (UnimplementedPaymentServiceServer) CreateCustomerPortalSession(context.Context, *CustomerPortalRequest) (*wrapperspb.StringValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCustomerPortalSession not implemented")
 }
 func (UnimplementedPaymentServiceServer) mustEmbedUnimplementedPaymentServiceServer() {}

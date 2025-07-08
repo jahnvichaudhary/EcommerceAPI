@@ -177,7 +177,7 @@ func (resolver *mutationResolver) CreateCustomerPortalSession(ctx context.Contex
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
-	UrlWithSession, err := resolver.server.paymentClient.CreateCustomerPortalSession(ctx, int64(credentials.AccountID), credentials.Email, credentials.Name)
+	UrlWithSession, err := resolver.server.paymentClient.CreateCustomerPortalSession(ctx, uint64(credentials.AccountID), credentials.Email, credentials.Name)
 	if err != nil {
 		log.Println(err)
 		return nil, err
