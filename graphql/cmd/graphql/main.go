@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	server, err := graph.NewGraphQLServer(config.AccountUrl, config.ProductUrl, config.OrderUrl, config.RecommenderUrl)
+	server, err := graph.NewGraphQLServer(config.AccountUrl, config.ProductUrl, config.OrderUrl, config.PaymentUrl, config.RecommenderUrl)
 	if err != nil {
 		log.Fatal(err)
 	}

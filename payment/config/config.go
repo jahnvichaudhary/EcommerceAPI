@@ -18,9 +18,9 @@ const (
 
 func init() {
 	DatabaseURL = os.Getenv("DATABASE_URL")
+	OrderServiceURL = os.Getenv("ORDER_SERVICE_URL")
 	DodoAPIKEY = os.Getenv("DODO_API_KEY")
 	DodoWebhookSecret = os.Getenv("DODO_WEBHOOK_SECRET")
 	DodoCheckoutURL = os.Getenv("DODO_CHECKOUT_URL")
 	DodoTestMode = os.Getenv("DODO_TEST_MODE") == "true"
-	OrderServiceURL = os.Getenv("ORDER_SERVICE_URL")
 }

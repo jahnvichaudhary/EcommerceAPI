@@ -34,6 +34,10 @@ type AuthResponse {
     token: String!
 }
 
+type RedirectResponse {
+    url: String!
+}
+
 input PaginationInput {
     skip: Int!
     take: Int!
@@ -72,6 +76,22 @@ input OrderInput {
     products: [OrderedProductInput]!
 }
 
+input CustomerPortalSessionInput {
+    accountId: Int!
+    email: String!
+    name: String!
+}
+
+input CheckoutInput {
+    accountId: Int!
+    email: String!
+    name: String!
+    redirectUrl: String!
+    price: Int!
+    currency: String!
+    orderId: Int!
+}
+
 type Mutation {
     register(account: RegisterInput!): AuthResponse
     login(account: LoginInput!): AuthResponse
@@ -79,6 +99,8 @@ type Mutation {
     updateProduct(product: UpdateProductInput!): Product
     deleteProduct(id: String!): Boolean
     createOrder(order: OrderInput!): Order
+    createCustomerPortalSession(credentials: CustomerPortalSessionInput): RedirectResponse
+    checkout(details: CheckoutInput): RedirectResponse
 }
 
 type Query{

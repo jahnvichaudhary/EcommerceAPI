@@ -39,6 +39,6 @@ message RedirectResponse {
 service PaymentService {
   rpc Checkout (CheckoutRequest) returns (RedirectResponse) {
   }
-  rpc GetCustomerPortal (CustomerPortalRequest) returns (RedirectResponse) {
+  rpc CreateCustomerPortalSession (CustomerPortalRequest) returns (RedirectResponse) {
   }
 }

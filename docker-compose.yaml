@@ -39,6 +39,20 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     restart: on-failure
 
+  payment:
+    container_name: "payment"
+    image: "rasadov/payment:latest"
+    build:
+      context: .
+      dockerfile: ./payment/app.dockerfile
+    depends_on:
+      - order_db
+    environment:
+      DATABASE_URL: postgres://rasadov:123456@payment_db/rasadov?sslmode=disable
+      ORDER_SERVICE_URL: order:8080
+      # Add Payment Provider Credentials
+    restart: on-failure
+
   recommender-server:
     container_name: "recommender"
     image: "rasadov/recommender:latest"
@@ -82,6 +96,7 @@ services:
       ACCOUNT_SERVICE_URL: account:8080
       PRODUCT_SERVICE_URL: product:8080
       ORDER_SERVICE_URL: order:8080
+      PAYMENT_SERVICE_URL: payment:8080
       RECOMMENDER_SERVICE_URL: recommender:8080
     restart: on-failure
 
@@ -114,6 +129,17 @@ services:
       POSTGRES_PASSWORD: 123456
     volumes:
       - order_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  payment_db:
+    container_name: "payment_db"
+    image: postgres:14.0
+    environment:
+      POSTGRES_DB: rasadov
+      POSTGRES_USER: rasadov
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - payment_db_data:/var/lib/postgresql/data
     restart: unless-stopped
 
   recommender_db:
@@ -162,6 +188,7 @@ volumes:
   account_db_data:
   product_db_data:
   order_db_data:
+  payment_db_data:
   recommender_db_data:
   kafka-volume:
   zookeeper-volume:

@@ -2,27 +2,29 @@ package graph
 
 import (
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/rasadov/EcommerceAPI/product/client"
 
 	account "github.com/rasadov/EcommerceAPI/account/client"
 	order "github.com/rasadov/EcommerceAPI/order/client"
+	payment "github.com/rasadov/EcommerceAPI/payment/client"
+	product "github.com/rasadov/EcommerceAPI/product/client"
 	recommender "github.com/rasadov/EcommerceAPI/recommender/client"
 )
 
 type Server struct {
 	accountClient     *account.Client
-	productClient     *client.Client
+	productClient     *product.Client
 	orderClient       *order.Client
+	paymentClient     *payment.Client
 	recommenderClient *recommender.Client
 }
 
-func NewGraphQLServer(accountUrl, productUrl, orderUrl, recommenderUrl string) (*Server, error) {
+func NewGraphQLServer(accountUrl, productUrl, orderUrl, paymentUrl, recommenderUrl string) (*Server, error) {
 	accClient, err := account.NewClient(accountUrl)
 	if err != nil {
 		return nil, err
 	}
 
-	prodClient, err := client.NewClient(productUrl)
+	prodClient, err := product.NewClient(productUrl)
 	if err != nil {
 		accClient.Close()
 		return nil, err
@@ -35,11 +37,19 @@ func NewGraphQLServer(accountUrl, productUrl, orderUrl, recommenderUrl string) (
 		return nil, err
 	}
 
+	paymentClient, err := payment.NewClient(paymentUrl)
+	if err != nil {
+		accClient.Close()
+		prodClient.Close()
+		ordClient.Close()
+	}
+
 	recClient, err := recommender.NewClient(recommenderUrl)
 	if err != nil {
 		accClient.Close()
 		prodClient.Close()
 		ordClient.Close()
+		paymentClient.Close()
 		return nil, err
 	}
 
@@ -47,6 +57,7 @@ func NewGraphQLServer(accountUrl, productUrl, orderUrl, recommenderUrl string) (
 		accountClient:     accClient,
 		productClient:     prodClient,
 		orderClient:       ordClient,
+		paymentClient:     paymentClient,
 		recommenderClient: recClient,
 	}, nil
 }

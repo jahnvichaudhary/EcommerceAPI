@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PaymentService_Checkout_FullMethodName          = "/pb.PaymentService/Checkout"
-	PaymentService_GetCustomerPortal_FullMethodName = "/pb.PaymentService/GetCustomerPortal"
+	PaymentService_Checkout_FullMethodName                    = "/pb.PaymentService/Checkout"
+	PaymentService_CreateCustomerPortalSession_FullMethodName = "/pb.PaymentService/CreateCustomerPortalSession"
 )
 
 // PaymentServiceClient is the client API for PaymentService service.
@@ -28,7 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PaymentServiceClient interface {
 	Checkout(ctx context.Context, in *CheckoutRequest, opts ...grpc.CallOption) (*RedirectResponse, error)
-	GetCustomerPortal(ctx context.Context, in *CustomerPortalRequest, opts ...grpc.CallOption) (*RedirectResponse, error)
+	CreateCustomerPortalSession(ctx context.Context, in *CustomerPortalRequest, opts ...grpc.CallOption) (*RedirectResponse, error)
 }
 
 type paymentServiceClient struct {
@@ -49,10 +49,10 @@ func (c *paymentServiceClient) Checkout(ctx context.Context, in *CheckoutRequest
 	return out, nil
 }
 
-func (c *paymentServiceClient) GetCustomerPortal(ctx context.Context, in *CustomerPortalRequest, opts ...grpc.CallOption) (*RedirectResponse, error) {
+func (c *paymentServiceClient) CreateCustomerPortalSession(ctx context.Context, in *CustomerPortalRequest, opts ...grpc.CallOption) (*RedirectResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RedirectResponse)
-	err := c.cc.Invoke(ctx, PaymentService_GetCustomerPortal_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, PaymentService_CreateCustomerPortalSession_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func (c *paymentServiceClient) GetCustomerPortal(ctx context.Context, in *Custom
 // for forward compatibility.
 type PaymentServiceServer interface {
 	Checkout(context.Context, *CheckoutRequest) (*RedirectResponse, error)
-	GetCustomerPortal(context.Context, *CustomerPortalRequest) (*RedirectResponse, error)
+	CreateCustomerPortalSession(context.Context, *CustomerPortalRequest) (*RedirectResponse, error)
 	mustEmbedUnimplementedPaymentServiceServer()
 }
 
@@ -78,8 +78,8 @@ type UnimplementedPaymentServiceServer struct{}
 func (UnimplementedPaymentServiceServer) Checkout(context.Context, *CheckoutRequest) (*RedirectResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Checkout not implemented")
 }
-func (UnimplementedPaymentServiceServer) GetCustomerPortal(context.Context, *CustomerPortalRequest) (*RedirectResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCustomerPortal not implemented")
+func (UnimplementedPaymentServiceServer) CreateCustomerPortalSession(context.Context, *CustomerPortalRequest) (*RedirectResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCustomerPortalSession not implemented")
 }
 func (UnimplementedPaymentServiceServer) mustEmbedUnimplementedPaymentServiceServer() {}
 func (UnimplementedPaymentServiceServer) testEmbeddedByValue()                        {}
@@ -120,20 +120,20 @@ func _PaymentService_Checkout_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PaymentService_GetCustomerPortal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PaymentService_CreateCustomerPortalSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CustomerPortalRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PaymentServiceServer).GetCustomerPortal(ctx, in)
+		return srv.(PaymentServiceServer).CreateCustomerPortalSession(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PaymentService_GetCustomerPortal_FullMethodName,
+		FullMethod: PaymentService_CreateCustomerPortalSession_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PaymentServiceServer).GetCustomerPortal(ctx, req.(*CustomerPortalRequest))
+		return srv.(PaymentServiceServer).CreateCustomerPortalSession(ctx, req.(*CustomerPortalRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -150,8 +150,8 @@ var PaymentService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _PaymentService_Checkout_Handler,
 		},
 		{
-			MethodName: "GetCustomerPortal",
-			Handler:    _PaymentService_GetCustomerPortal_Handler,
+			MethodName: "CreateCustomerPortalSession",
+			Handler:    _PaymentService_CreateCustomerPortalSession_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

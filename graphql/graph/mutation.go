@@ -172,3 +172,29 @@ func (resolver *mutationResolver) CreateOrder(ctx context.Context, in OrderInput
 		Products:   orderedProducts,
 	}, nil
 }
+
+func (resolver *mutationResolver) CreateCustomerPortalSession(ctx context.Context, credentials *CustomerPortalSessionInput) (*RedirectResponse, error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	UrlWithSession, err := resolver.server.paymentClient.CreateCustomerPortalSession(ctx, int64(credentials.AccountID), credentials.Email, credentials.Name)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	return &RedirectResponse{URL: UrlWithSession}, nil
+}
+
+func (resolver *mutationResolver) Checkout(ctx context.Context, details *CheckoutInput) (*RedirectResponse, error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	UrlWithCheckoutSession, err := resolver.server.paymentClient.CreateCheckoutSession(ctx, details.OrderID,
+		details.AccountID, details.Email, details.Name, details.RedirectURL, details.Price, details.Currency)
+
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	return &RedirectResponse{URL: UrlWithCheckoutSession}, nil
+}

@@ -28,6 +28,16 @@ func NewPostgresRepository(databaseURL string) (Repository, error) {
 		return nil, err
 	}
 
+	err = db.AutoMigrate(&models.Customer{})
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.AutoMigrate(&models.Transaction{})
+	if err != nil {
+		return nil, err
+	}
+
 	sqlDB, err := db.DB()
 	if err != nil {
 		return nil, err

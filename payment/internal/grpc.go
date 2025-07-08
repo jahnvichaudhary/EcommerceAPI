@@ -34,14 +34,14 @@ func (s *grpcServer) Checkout(ctx context.Context, request *pb.CheckoutRequest) 
 	}, nil
 }
 
-func (s *grpcServer) GetCustomerPortal(ctx context.Context, request *pb.CustomerPortalRequest) (*pb.RedirectResponse, error) {
+func (s *grpcServer) CreateCustomerPortalSession(ctx context.Context, request *pb.CustomerPortalRequest) (*pb.RedirectResponse, error) {
 	customer, err := s.service.FindOrCreateCustomer(ctx, request.UserId, *request.Email, *request.Name)
 
 	if err != nil {
 		return nil, err
 	}
 
-	link, err := s.service.GetCustomerPortal(ctx, customer)
+	link, err := s.service.CreateCustomerPortalSession(ctx, customer)
 
 	if err != nil {
 		return nil, err

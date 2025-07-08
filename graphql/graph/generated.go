@@ -60,12 +60,14 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateOrder   func(childComplexity int, order OrderInput) int
-		CreateProduct func(childComplexity int, product CreateProductInput) int
-		DeleteProduct func(childComplexity int, id string) int
-		Login         func(childComplexity int, account LoginInput) int
-		Register      func(childComplexity int, account RegisterInput) int
-		UpdateProduct func(childComplexity int, product UpdateProductInput) int
+		Checkout                    func(childComplexity int, details *CheckoutInput) int
+		CreateCustomerPortalSession func(childComplexity int, credentials *CustomerPortalSessionInput) int
+		CreateOrder                 func(childComplexity int, order OrderInput) int
+		CreateProduct               func(childComplexity int, product CreateProductInput) int
+		DeleteProduct               func(childComplexity int, id string) int
+		Login                       func(childComplexity int, account LoginInput) int
+		Register                    func(childComplexity int, account RegisterInput) int
+		UpdateProduct               func(childComplexity int, product UpdateProductInput) int
 	}
 
 	Order struct {
@@ -95,6 +97,10 @@ type ComplexityRoot struct {
 		Accounts func(childComplexity int, pagination *PaginationInput, id *string) int
 		Product  func(childComplexity int, pagination *PaginationInput, query *string, id *string, viewedProductsIds []*string, byAccountID *bool) int
 	}
+
+	RedirectResponse struct {
+		URL func(childComplexity int) int
+	}
 }
 
 type AccountResolver interface {
@@ -107,6 +113,8 @@ type MutationResolver interface {
 	UpdateProduct(ctx context.Context, product UpdateProductInput) (*Product, error)
 	DeleteProduct(ctx context.Context, id string) (*bool, error)
 	CreateOrder(ctx context.Context, order OrderInput) (*Order, error)
+	CreateCustomerPortalSession(ctx context.Context, credentials *CustomerPortalSessionInput) (*RedirectResponse, error)
+	Checkout(ctx context.Context, details *CheckoutInput) (*RedirectResponse, error)
 }
 type QueryResolver interface {
 	Accounts(ctx context.Context, pagination *PaginationInput, id *string) ([]*Account, error)
@@ -166,6 +174,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AuthResponse.Token(childComplexity), true
+
+	case "Mutation.checkout":
+		if e.complexity.Mutation.Checkout == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_checkout_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.Checkout(childComplexity, args["details"].(*CheckoutInput)), true
+
+	case "Mutation.createCustomerPortalSession":
+		if e.complexity.Mutation.CreateCustomerPortalSession == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createCustomerPortalSession_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateCustomerPortalSession(childComplexity, args["credentials"].(*CustomerPortalSessionInput)), true
 
 	case "Mutation.createOrder":
 		if e.complexity.Mutation.CreateOrder == nil {
@@ -361,6 +393,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Product(childComplexity, args["pagination"].(*PaginationInput), args["query"].(*string), args["id"].(*string), args["viewedProductsIds"].([]*string), args["byAccountId"].(*bool)), true
 
+	case "RedirectResponse.url":
+		if e.complexity.RedirectResponse.URL == nil {
+			break
+		}
+
+		return e.complexity.RedirectResponse.URL(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -369,7 +408,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputCheckoutInput,
 		ec.unmarshalInputCreateProductInput,
+		ec.unmarshalInputCustomerPortalSessionInput,
 		ec.unmarshalInputLoginInput,
 		ec.unmarshalInputOrderInput,
 		ec.unmarshalInputOrderedProductInput,
@@ -491,6 +532,62 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_checkout_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_checkout_argsDetails(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["details"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_checkout_argsDetails(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*CheckoutInput, error) {
+	if _, ok := rawArgs["details"]; !ok {
+		var zeroVal *CheckoutInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("details"))
+	if tmp, ok := rawArgs["details"]; ok {
+		return ec.unmarshalOCheckoutInput2ᚖgithubᚗcomᚋrasadovᚋEcommerceAPIᚋgraphqlᚐCheckoutInput(ctx, tmp)
+	}
+
+	var zeroVal *CheckoutInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createCustomerPortalSession_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_createCustomerPortalSession_argsCredentials(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["credentials"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_createCustomerPortalSession_argsCredentials(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*CustomerPortalSessionInput, error) {
+	if _, ok := rawArgs["credentials"]; !ok {
+		var zeroVal *CustomerPortalSessionInput
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("credentials"))
+	if tmp, ok := rawArgs["credentials"]; ok {
+		return ec.unmarshalOCustomerPortalSessionInput2ᚖgithubᚗcomᚋrasadovᚋEcommerceAPIᚋgraphqlᚐCustomerPortalSessionInput(ctx, tmp)
+	}
+
+	var zeroVal *CustomerPortalSessionInput
+	return zeroVal, nil
+}
 
 func (ec *executionContext) field_Mutation_createOrder_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
@@ -1563,6 +1660,118 @@ func (ec *executionContext) fieldContext_Mutation_createOrder(ctx context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_createCustomerPortalSession(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createCustomerPortalSession(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateCustomerPortalSession(rctx, fc.Args["credentials"].(*CustomerPortalSessionInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*RedirectResponse)
+	fc.Result = res
+	return ec.marshalORedirectResponse2ᚖgithubᚗcomᚋrasadovᚋEcommerceAPIᚋgraphqlᚐRedirectResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createCustomerPortalSession(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "url":
+				return ec.fieldContext_RedirectResponse_url(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RedirectResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createCustomerPortalSession_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_checkout(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_checkout(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().Checkout(rctx, fc.Args["details"].(*CheckoutInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*RedirectResponse)
+	fc.Result = res
+	return ec.marshalORedirectResponse2ᚖgithubᚗcomᚋrasadovᚋEcommerceAPIᚋgraphqlᚐRedirectResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_checkout(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "url":
+				return ec.fieldContext_RedirectResponse_url(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type RedirectResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_checkout_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Order_id(ctx context.Context, field graphql.CollectedField, obj *Order) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Order_id(ctx, field)
 	if err != nil {
@@ -2449,6 +2658,50 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RedirectResponse_url(ctx context.Context, field graphql.CollectedField, obj *RedirectResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RedirectResponse_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RedirectResponse_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RedirectResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4405,6 +4658,75 @@ func (ec *executionContext) fieldContext___Type_isOneOf(_ context.Context, field
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputCheckoutInput(ctx context.Context, obj any) (CheckoutInput, error) {
+	var it CheckoutInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"accountId", "email", "name", "redirectUrl", "price", "currency", "orderId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "accountId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountID = data
+		case "email":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "redirectUrl":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("redirectUrl"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RedirectURL = data
+		case "price":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Price = data
+		case "currency":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("currency"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Currency = data
+		case "orderId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderId"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OrderID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateProductInput(ctx context.Context, obj any) (CreateProductInput, error) {
 	var it CreateProductInput
 	asMap := map[string]any{}
@@ -4440,6 +4762,47 @@ func (ec *executionContext) unmarshalInputCreateProductInput(ctx context.Context
 				return it, err
 			}
 			it.Price = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputCustomerPortalSessionInput(ctx context.Context, obj any) (CustomerPortalSessionInput, error) {
+	var it CustomerPortalSessionInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"accountId", "email", "name"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "accountId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountID = data
+		case "email":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
 		}
 	}
 
@@ -4839,6 +5202,14 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createOrder(ctx, field)
 			})
+		case "createCustomerPortalSession":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createCustomerPortalSession(ctx, field)
+			})
+		case "checkout":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_checkout(ctx, field)
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5105,6 +5476,45 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var redirectResponseImplementors = []string{"RedirectResponse"}
+
+func (ec *executionContext) _RedirectResponse(ctx context.Context, sel ast.SelectionSet, obj *RedirectResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, redirectResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RedirectResponse")
+		case "url":
+			out.Values[i] = ec._RedirectResponse_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -6078,6 +6488,22 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
+func (ec *executionContext) unmarshalOCheckoutInput2ᚖgithubᚗcomᚋrasadovᚋEcommerceAPIᚋgraphqlᚐCheckoutInput(ctx context.Context, v any) (*CheckoutInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputCheckoutInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOCustomerPortalSessionInput2ᚖgithubᚗcomᚋrasadovᚋEcommerceAPIᚋgraphqlᚐCustomerPortalSessionInput(ctx context.Context, v any) (*CustomerPortalSessionInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputCustomerPortalSessionInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalOOrder2ᚖgithubᚗcomᚋrasadovᚋEcommerceAPIᚋgraphqlᚐOrder(ctx context.Context, sel ast.SelectionSet, v *Order) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -6106,6 +6532,13 @@ func (ec *executionContext) marshalOProduct2ᚖgithubᚗcomᚋrasadovᚋEcommerc
 		return graphql.Null
 	}
 	return ec._Product(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalORedirectResponse2ᚖgithubᚗcomᚋrasadovᚋEcommerceAPIᚋgraphqlᚐRedirectResponse(ctx context.Context, sel ast.SelectionSet, v *RedirectResponse) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._RedirectResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2ᚕᚖstring(ctx context.Context, v any) ([]*string, error) {

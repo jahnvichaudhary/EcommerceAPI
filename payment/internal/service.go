@@ -10,7 +10,7 @@ import (
 )
 
 type Service interface {
-	GetCustomerPortal(ctx context.Context,
+	CreateCustomerPortalSession(ctx context.Context,
 		customer *models.Customer) (string, error)
 	FindOrCreateCustomer(ctx context.Context,
 		userId int64,
@@ -44,7 +44,7 @@ func (d *paymentService) GetCheckoutURL(ctx context.Context,
 	return d.client.CreateCheckoutLink(ctx, email, name, redirect, price, currency)
 }
 
-func (d *paymentService) GetCustomerPortal(ctx context.Context, customer *models.Customer) (string, error) {
+func (d *paymentService) CreateCustomerPortalSession(ctx context.Context, customer *models.Customer) (string, error) {
 	customerPortalLink, err := d.client.CreateCustomerSession(ctx, customer.CustomerId)
 	if err != nil {
 		return "", err
