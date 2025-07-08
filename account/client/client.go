@@ -6,6 +6,7 @@ import (
 	"github.com/rasadov/EcommerceAPI/account/proto/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"log"
 )
 
@@ -39,7 +40,7 @@ func (client *Client) Register(ctx context.Context, name, email, password string
 	if err != nil {
 		return "", err
 	}
-	return response.Token, nil
+	return response.Value, nil
 }
 
 func (client *Client) Login(ctx context.Context, email, password string) (string, error) {
@@ -50,13 +51,15 @@ func (client *Client) Login(ctx context.Context, email, password string) (string
 	if err != nil {
 		return "", err
 	}
-	return response.Token, nil
+	return response.Value, nil
 }
 
 func (client *Client) GetAccount(ctx context.Context, Id string) (*models.Account, error) {
 	r, err := client.service.GetAccount(
 		ctx,
-		&pb.GetAccountRequest{Id: Id},
+		&wrapperspb.StringValue{
+			Value: Id,
+		},
 	)
 	if err != nil {
 		return nil, err

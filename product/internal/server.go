@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"log"
 	"net"
 
@@ -32,8 +33,8 @@ func ListenGRPC(s Service, port int) error {
 	return serv.Serve(lis)
 }
 
-func (s *grpcServer) GetProduct(ctx context.Context, r *pb.ProductByIdRequest) (*pb.ProductResponse, error) {
-	p, err := s.service.GetProduct(ctx, r.Id)
+func (s *grpcServer) GetProduct(ctx context.Context, r *wrapperspb.StringValue) (*pb.ProductResponse, error) {
+	p, err := s.service.GetProduct(ctx, r.Value)
 	if err != nil {
 		return nil, err
 	}

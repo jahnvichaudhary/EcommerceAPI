@@ -6,6 +6,7 @@ import (
 	"github.com/rasadov/EcommerceAPI/account/proto/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"net"
 )
 
@@ -28,28 +29,28 @@ func ListenGRPC(service Service, port int) error {
 	return serv.Serve(lis)
 }
 
-func (server *grpcServer) Register(ctx context.Context, request *pb.RegisterRequest) (*pb.AuthResponse, error) {
+func (server *grpcServer) Register(ctx context.Context, request *pb.RegisterRequest) (*wrapperspb.StringValue, error) {
 	token, err := server.service.Register(ctx, request.Name, request.Email, request.Password)
 	if err != nil {
 		return nil, err
 	}
-	return &pb.AuthResponse{
-		Token: token,
+	return &wrapperspb.StringValue{
+		Value: token,
 	}, nil
 }
 
-func (server *grpcServer) Login(ctx context.Context, request *pb.LoginRequest) (*pb.AuthResponse, error) {
+func (server *grpcServer) Login(ctx context.Context, request *pb.LoginRequest) (*wrapperspb.StringValue, error) {
 	token, err := server.service.Login(ctx, request.Email, request.Password)
 	if err != nil {
 		return nil, err
 	}
-	return &pb.AuthResponse{
-		Token: token,
+	return &wrapperspb.StringValue{
+		Value: token,
 	}, nil
 }
 
-func (server *grpcServer) GetAccount(ctx context.Context, r *pb.GetAccountRequest) (*pb.AccountResponse, error) {
-	a, err := server.service.GetAccount(ctx, r.Id)
+func (server *grpcServer) GetAccount(ctx context.Context, r *wrapperspb.StringValue) (*pb.AccountResponse, error) {
+	a, err := server.service.GetAccount(ctx, r.Value)
 	if err != nil {
 		return nil, err
 	}

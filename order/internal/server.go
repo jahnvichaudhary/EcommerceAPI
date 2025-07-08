@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"log"
 	"net"
 )
@@ -121,8 +122,8 @@ func (server *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRe
 	}, nil
 }
 
-func (server *grpcServer) GetOrdersForAccount(ctx context.Context, request *pb.GetOrdersForAccountRequest) (*pb.GetOrdersForAccountResponse, error) {
-	accountOrders, err := server.service.GetOrdersForAccount(ctx, request.AccountId)
+func (server *grpcServer) GetOrdersForAccount(ctx context.Context, request *wrapperspb.StringValue) (*pb.GetOrdersForAccountResponse, error) {
+	accountOrders, err := server.service.GetOrdersForAccount(ctx, request.Value)
 	if err != nil {
 		log.Println(err)
 		return nil, err

@@ -1,5 +1,6 @@
 syntax = "proto3";
 import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
 
 package pb;
 
@@ -20,6 +21,13 @@ message CreateProductRequest {
   int64  accountId = 4;
 }
 
+message GetProductsRequest {
+  uint64 skip = 1;
+  uint64 take = 2;
+  repeated string ids = 3;
+  string query = 4;
+}
+
 message UpdateProductRequest {
   string id = 1;
   string name = 2;
@@ -33,17 +41,6 @@ message DeleteProductRequest {
   int64 accountId = 2;
 }
 
-message ProductByIdRequest {
-  string id = 1;
-}
-
-message GetProductsRequest {
-  uint64 skip = 1;
-  uint64 take = 2;
-  repeated string ids = 3;
-  string query = 4;
-}
-
 message ProductResponse {
   Product product = 1;
 }
@@ -54,7 +51,7 @@ message ProductsResponse {
 
 service ProductService {
   rpc PostProduct (CreateProductRequest) returns (ProductResponse) {}
-  rpc GetProduct (ProductByIdRequest) returns (ProductResponse) {}
+  rpc GetProduct (google.protobuf.StringValue) returns (ProductResponse) {}
   rpc GetProducts (GetProductsRequest) returns (ProductsResponse) {}
   rpc UpdateProduct (UpdateProductRequest) returns (ProductResponse) {}
   rpc DeleteProduct (DeleteProductRequest) returns (google.protobuf.Empty) {}

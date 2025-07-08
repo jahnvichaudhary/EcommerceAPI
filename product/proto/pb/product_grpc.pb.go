@@ -12,6 +12,7 @@ import (
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -32,7 +33,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProductServiceClient interface {
 	PostProduct(ctx context.Context, in *CreateProductRequest, opts ...grpc.CallOption) (*ProductResponse, error)
-	GetProduct(ctx context.Context, in *ProductByIdRequest, opts ...grpc.CallOption) (*ProductResponse, error)
+	GetProduct(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ProductResponse, error)
 	GetProducts(ctx context.Context, in *GetProductsRequest, opts ...grpc.CallOption) (*ProductsResponse, error)
 	UpdateProduct(ctx context.Context, in *UpdateProductRequest, opts ...grpc.CallOption) (*ProductResponse, error)
 	DeleteProduct(ctx context.Context, in *DeleteProductRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -56,7 +57,7 @@ func (c *productServiceClient) PostProduct(ctx context.Context, in *CreateProduc
 	return out, nil
 }
 
-func (c *productServiceClient) GetProduct(ctx context.Context, in *ProductByIdRequest, opts ...grpc.CallOption) (*ProductResponse, error) {
+func (c *productServiceClient) GetProduct(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ProductResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ProductResponse)
 	err := c.cc.Invoke(ctx, ProductService_GetProduct_FullMethodName, in, out, cOpts...)
@@ -101,7 +102,7 @@ func (c *productServiceClient) DeleteProduct(ctx context.Context, in *DeleteProd
 // for forward compatibility.
 type ProductServiceServer interface {
 	PostProduct(context.Context, *CreateProductRequest) (*ProductResponse, error)
-	GetProduct(context.Context, *ProductByIdRequest) (*ProductResponse, error)
+	GetProduct(context.Context, *wrapperspb.StringValue) (*ProductResponse, error)
 	GetProducts(context.Context, *GetProductsRequest) (*ProductsResponse, error)
 	UpdateProduct(context.Context, *UpdateProductRequest) (*ProductResponse, error)
 	DeleteProduct(context.Context, *DeleteProductRequest) (*emptypb.Empty, error)
@@ -118,7 +119,7 @@ type UnimplementedProductServiceServer struct{}
 func (UnimplementedProductServiceServer) PostProduct(context.Context, *CreateProductRequest) (*ProductResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PostProduct not implemented")
 }
-func (UnimplementedProductServiceServer) GetProduct(context.Context, *ProductByIdRequest) (*ProductResponse, error) {
+func (UnimplementedProductServiceServer) GetProduct(context.Context, *wrapperspb.StringValue) (*ProductResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProduct not implemented")
 }
 func (UnimplementedProductServiceServer) GetProducts(context.Context, *GetProductsRequest) (*ProductsResponse, error) {
@@ -170,7 +171,7 @@ func _ProductService_PostProduct_Handler(srv interface{}, ctx context.Context, d
 }
 
 func _ProductService_GetProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ProductByIdRequest)
+	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -182,7 +183,7 @@ func _ProductService_GetProduct_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: ProductService_GetProduct_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProductServiceServer).GetProduct(ctx, req.(*ProductByIdRequest))
+		return srv.(ProductServiceServer).GetProduct(ctx, req.(*wrapperspb.StringValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }

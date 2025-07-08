@@ -6,6 +6,7 @@ import (
 	"github.com/rasadov/EcommerceAPI/order/proto/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"log"
 	"time"
 )
@@ -68,8 +69,8 @@ func (client *Client) PostOrder(
 }
 
 func (client *Client) GetOrdersForAccount(ctx context.Context, accountID string) ([]models.Order, error) {
-	r, err := client.service.GetOrdersForAccount(ctx, &pb.GetOrdersForAccountRequest{
-		AccountId: accountID,
+	r, err := client.service.GetOrdersForAccount(ctx, &wrapperspb.StringValue{
+		Value: accountID,
 	})
 	if err != nil {
 		log.Println(err)

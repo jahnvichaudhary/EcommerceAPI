@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "google/protobuf/wrappers.proto";
 
 package pb;
 
@@ -25,14 +26,6 @@ message AccountResponse {
   Account account = 1;
 }
 
-message AuthResponse {
-  string token = 1;
-}
-
-message GetAccountRequest {
-  string id = 1;
-}
-
 message GetAccountsRequest {
   uint64 skip = 1;
   uint64 take = 2;
@@ -43,11 +36,11 @@ message GetAccountsResponse {
 }
 
 service AccountService {
-  rpc Register (RegisterRequest) returns (AuthResponse){
+  rpc Register (RegisterRequest) returns (google.protobuf.StringValue){
   }
-  rpc Login (LoginRequest) returns (AuthResponse){
+  rpc Login (LoginRequest) returns (google.protobuf.StringValue){
   }
-  rpc GetAccount (GetAccountRequest) returns (AccountResponse){
+  rpc GetAccount (google.protobuf.StringValue) returns (AccountResponse){
   }
   rpc GetAccounts (GetAccountsRequest) returns (GetAccountsResponse){
   }
