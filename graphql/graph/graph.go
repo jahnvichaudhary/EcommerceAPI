@@ -6,7 +6,7 @@ import (
 
 	account "github.com/rasadov/EcommerceAPI/account/client"
 	order "github.com/rasadov/EcommerceAPI/order/client"
-	"github.com/rasadov/EcommerceAPI/recommender"
+	recommender "github.com/rasadov/EcommerceAPI/recommender/client"
 )
 
 type Server struct {

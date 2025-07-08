@@ -26,25 +26,25 @@ type Service interface {
 	HandlePaymentWebhook(ctx context.Context, w http.ResponseWriter, r *http.Request) (*models.Transaction, error)
 }
 
-type dodoPaymentService struct {
+type paymentService struct {
 	client            PaymentClient
 	paymentRepository Repository
 }
 
 func NewPaymentService(client PaymentClient, paymentRepository Repository) Service {
-	return &dodoPaymentService{client: client, paymentRepository: paymentRepository}
+	return &paymentService{client: client, paymentRepository: paymentRepository}
 }
 
 // GetCheckoutURL - returns url to check out page, productId and error.
 // Called after creating product and registering productId with order
-func (d *dodoPaymentService) GetCheckoutURL(ctx context.Context,
+func (d *paymentService) GetCheckoutURL(ctx context.Context,
 	email, name, redirect string,
 	price int64,
 	currency dodopayments.Currency) (checkoutURL string, productId string, err error) {
 	return d.client.CreateCheckoutLink(ctx, email, name, redirect, price, currency)
 }
 
-func (d *dodoPaymentService) GetCustomerPortal(ctx context.Context, customer *models.Customer) (string, error) {
+func (d *paymentService) GetCustomerPortal(ctx context.Context, customer *models.Customer) (string, error) {
 	customerPortalLink, err := d.client.CreateCustomerSession(ctx, customer.CustomerId)
 	if err != nil {
 		return "", err
@@ -52,7 +52,7 @@ func (d *dodoPaymentService) GetCustomerPortal(ctx context.Context, customer *mo
 	return customerPortalLink, nil
 }
 
-func (d *dodoPaymentService) FindOrCreateCustomer(ctx context.Context, userId int64, email, name string) (*models.Customer, error) {
+func (d *paymentService) FindOrCreateCustomer(ctx context.Context, userId int64, email, name string) (*models.Customer, error) {
 	existingCustomer, err := d.paymentRepository.GetCustomerByUserID(ctx, userId)
 
 	if err == nil {
@@ -74,7 +74,7 @@ func (d *dodoPaymentService) FindOrCreateCustomer(ctx context.Context, userId in
 	return customer, err
 }
 
-func (d *dodoPaymentService) RegisterTransaction(ctx context.Context,
+func (d *paymentService) RegisterTransaction(ctx context.Context,
 	orderId, userId, price int64,
 	currency dodopayments.Currency,
 	customerId, productId string) error {
@@ -90,7 +90,7 @@ func (d *dodoPaymentService) RegisterTransaction(ctx context.Context,
 	return d.paymentRepository.RegisterTransaction(ctx, transaction)
 }
 
-func (d *dodoPaymentService) HandlePaymentWebhook(ctx context.Context, w http.ResponseWriter, r *http.Request) (*models.Transaction, error) {
+func (d *paymentService) HandlePaymentWebhook(ctx context.Context, w http.ResponseWriter, r *http.Request) (*models.Transaction, error) {
 	updatedTransaction, err := d.client.HandleWebhook(w, r)
 	if err != nil {
 		return nil, err

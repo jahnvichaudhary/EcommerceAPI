@@ -2,11 +2,11 @@ package client
 
 import (
 	"context"
-	"google.golang.org/grpc"
-	"log"
-
 	"github.com/rasadov/EcommerceAPI/product/models"
 	"github.com/rasadov/EcommerceAPI/product/proto/pb"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"log"
 )
 
 type Client struct {
@@ -15,7 +15,7 @@ type Client struct {
 }
 
 func NewClient(url string) (*Client, error) {
-	conn, err := grpc.Dial(url, grpc.WithInsecure())
+	conn, err := grpc.NewClient(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
