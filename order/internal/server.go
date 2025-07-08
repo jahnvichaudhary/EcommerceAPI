@@ -10,6 +10,7 @@ import (
 	product "github.com/rasadov/EcommerceAPI/product/client"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 	"net"
 )
@@ -180,4 +181,15 @@ func (server *grpcServer) GetOrdersForAccount(ctx context.Context, request *pb.G
 		orders = append(orders, encodedOrder)
 	}
 	return &pb.GetOrdersForAccountResponse{Orders: orders}, nil
+}
+
+func (server *grpcServer) UpdateOrderStatus(ctx context.Context, request *pb.UpdateOrderStatusRequest) (*emptypb.Empty, error) {
+	err := server.service.UpdateOrderStatus(ctx, request.OrderId, request.Status)
+
+	if err != nil {
+		log.Println("Error updating order status", err)
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }

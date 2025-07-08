@@ -33,11 +33,14 @@ type WebhookPayload struct {
 func (s *WebhookServer) HandlePaymentWebhook(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	_, err := s.service.HandlePaymentWebhook(ctx, w, r)
+	transaction, err := s.service.HandlePaymentWebhook(ctx, w, r)
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
 
-	//	TODO: Inform order microservice
+	err = s.orderClient.UpdateOrderStatus(ctx, transaction.OrderId, transaction.Status)
+	if err != nil {
+		log.Println(err.Error())
+	}
 }

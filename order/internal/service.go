@@ -14,6 +14,7 @@ import (
 type Service interface {
 	PostOrder(ctx context.Context, accountID string, totalPrice float64, products []*models.OrderedProduct) (*models.Order, error)
 	GetOrdersForAccount(ctx context.Context, accountID string) ([]models.Order, error)
+	UpdateOrderStatus(ctx context.Context, orderId int64, status string) error
 }
 
 type orderService struct {
@@ -67,4 +68,8 @@ func (service orderService) PostOrder(ctx context.Context, accountID string, tot
 
 func (service orderService) GetOrdersForAccount(ctx context.Context, accountID string) ([]models.Order, error) {
 	return service.repository.GetOrdersForAccount(ctx, accountID)
+}
+
+func (service orderService) UpdateOrderStatus(ctx context.Context, orderId int64, status string) error {
+	return service.repository.UpdateOrderStatus(ctx, orderId, status)
 }

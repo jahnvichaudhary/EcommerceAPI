@@ -2,6 +2,9 @@ package internal
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -98,13 +101,25 @@ func (d *dodoClient) CreateCustomerSession(ctx context.Context, customerId strin
 	return customerPortal.Link, nil
 }
 
+func (d *dodoClient) verifyWebhookSignature(signature string, payload []byte) bool {
+	h := hmac.New(sha256.New, []byte(config.DodoWebhookSecret))
+	h.Write(payload)
+	expectedSignature := hex.EncodeToString(h.Sum(nil))
+
+	return hmac.Equal([]byte(signature), []byte(expectedSignature))
+}
+
 func (d *dodoClient) HandleWebhook(w http.ResponseWriter, r *http.Request) (*models.Transaction, error) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return nil, errors.New("method not allowed")
 	}
 
-	// TODO: Verify webhook signature if your payment provider uses one
+	webhookSignature := r.Header.Get("webhook-signature")
+	if !d.verifyWebhookSignature(webhookSignature, []byte(config.DodoWebhookSecret)) {
+		http.Error(w, "Invalid Webhook Signature", http.StatusBadRequest)
+		return nil, errors.New("invalid Webhook Signature")
+	}
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {

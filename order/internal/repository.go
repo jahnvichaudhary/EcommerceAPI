@@ -12,6 +12,7 @@ type Repository interface {
 	Close()
 	PutOrder(ctx context.Context, order *models.Order) error
 	GetOrdersForAccount(ctx context.Context, accountId string) ([]models.Order, error)
+	UpdateOrderStatus(ctx context.Context, orderId int64, status string) error
 }
 
 type postgresRepository struct {
@@ -92,4 +93,10 @@ func (repository *postgresRepository) GetOrdersForAccount(ctx context.Context, a
 		return nil, err
 	}
 	return orders, nil
+}
+
+func (repository *postgresRepository) UpdateOrderStatus(ctx context.Context, orderId int64, status string) error {
+	return repository.db.WithContext(ctx).Table("orders o").
+		Where("id = ?", orderId).
+		Update("status", status).Error
 }
