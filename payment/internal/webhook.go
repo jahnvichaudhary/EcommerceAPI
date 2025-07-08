@@ -2,12 +2,10 @@ package internal
 
 import (
 	"context"
-	"encoding/json"
 	order "github.com/rasadov/EcommerceAPI/order/client"
-	"github.com/rasadov/EcommerceAPI/payment/models"
-	"io"
 	"log"
 	"net/http"
+	"time"
 )
 
 type WebhookServer struct {
@@ -33,59 +31,13 @@ type WebhookPayload struct {
 }
 
 func (s *WebhookServer) HandlePaymentWebhook(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	// TODO: Verify webhook signature if your payment provider uses one
-
-	body, err := io.ReadAll(r.Body)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	_, err := s.service.HandlePaymentWebhook(ctx, w, r)
 	if err != nil {
-		http.Error(w, "Failed to read request body", http.StatusBadRequest)
-		return
-	}
-	defer r.Body.Close()
-
-	// Parse webhook payload
-	var payload WebhookPayload
-
-	if err := json.Unmarshal(body, &payload); err != nil {
-		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+		log.Println(err.Error())
 		return
 	}
 
-	var productId string
-	for _, p := range payload.Data.ProductCart {
-		productId = p.ProductID
-	}
-
-	// Process the webhook based on event type
-	ctx := context.Background()
-	switch payload.Type {
-	case "payment.succeeded":
-		// Save transaction details in db
-		err = s.service.ProcessPayment(ctx, payload.Data.Customer.CustomerID,
-			productId, payload.Data.PaymentId, models.Success)
-		if err != nil {
-			log.Println(err)
-		}
-		// TODO: Inform order microservice
-	case "payment.failed":
-		// Save transaction details in db
-		err = s.service.ProcessPayment(ctx, payload.Data.Customer.CustomerID,
-			productId, payload.Data.PaymentId, models.Failed)
-		// TODO: Inform order microservice
-	default:
-		log.Printf("Unhandled webhook event type: %s", payload.Type)
-	}
-
-	if err != nil {
-		log.Printf("Error processing webhook: %v", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	// Return a 200 OK to acknowledge receipt of the webhook
-	w.WriteHeader(http.StatusOK)
+	//	TODO: Inform order microservice
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/rasadov/EcommerceAPI/payment/models"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 type Service interface {
@@ -22,7 +23,7 @@ type Service interface {
 		orderId, userId, price int64,
 		currency dodopayments.Currency,
 		customerId, productId string) error
-	ProcessPayment(ctx context.Context, customerId, productId, paymentId string, status models.TransactionStatus) error
+	HandlePaymentWebhook(ctx context.Context, w http.ResponseWriter, r *http.Request) (*models.Transaction, error)
 }
 
 type dodoPaymentService struct {
@@ -89,6 +90,24 @@ func (d *dodoPaymentService) RegisterTransaction(ctx context.Context,
 	return d.paymentRepository.RegisterTransaction(ctx, transaction)
 }
 
-func (d *dodoPaymentService) ProcessPayment(ctx context.Context, customerId, productId, paymentId string, status models.TransactionStatus) error {
-	return nil
+func (d *dodoPaymentService) HandlePaymentWebhook(ctx context.Context, w http.ResponseWriter, r *http.Request) (*models.Transaction, error) {
+	updatedTransaction, err := d.client.HandleWebhook(w, r)
+	if err != nil {
+		return nil, err
+	}
+
+	transaction, err := d.paymentRepository.GetTransactionByProductID(ctx, updatedTransaction.ProductId)
+	if err != nil {
+		return nil, err
+	}
+
+	transaction.PaymentId = updatedTransaction.PaymentId
+	transaction.Status = updatedTransaction.Status
+
+	err = d.paymentRepository.UpdateTransaction(ctx, transaction)
+	if err != nil {
+		return nil, err
+	}
+
+	return transaction, nil
 }

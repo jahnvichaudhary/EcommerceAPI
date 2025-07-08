@@ -2,11 +2,16 @@ package internal
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/option"
 	"github.com/rasadov/EcommerceAPI/payment/config"
 	"github.com/rasadov/EcommerceAPI/payment/models"
+	"io"
+	"log"
+	"net/http"
 )
 
 type PaymentClient interface {
@@ -15,6 +20,7 @@ type PaymentClient interface {
 		email, name, redirect string, price int64,
 		currency dodopayments.Currency) (checkoutURL string, productId string, err error)
 	CreateCustomerSession(ctx context.Context, customerId string) (string, error)
+	HandleWebhook(w http.ResponseWriter, r *http.Request) (*models.Transaction, error)
 }
 
 func NewDodoClient(apiKey string, testMode bool) PaymentClient {
@@ -90,4 +96,53 @@ func (d *dodoClient) CreateCustomerSession(ctx context.Context, customerId strin
 		return "", err
 	}
 	return customerPortal.Link, nil
+}
+
+func (d *dodoClient) HandleWebhook(w http.ResponseWriter, r *http.Request) (*models.Transaction, error) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return nil, errors.New("method not allowed")
+	}
+
+	// TODO: Verify webhook signature if your payment provider uses one
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		return nil, err
+	}
+	defer r.Body.Close()
+
+	// Parse webhook payload
+	var payload WebhookPayload
+
+	if err := json.Unmarshal(body, &payload); err != nil {
+		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+		return nil, err
+	}
+
+	var productId string
+	for _, p := range payload.Data.ProductCart {
+		productId = p.ProductID
+	}
+
+	transaction := &models.Transaction{
+		CustomerId: payload.Data.Customer.CustomerID,
+		ProductId:  productId,
+		PaymentId:  payload.Data.PaymentId,
+	}
+
+	// Process the webhook based on event type
+	switch payload.Type {
+	case "payment.succeeded":
+		transaction.Status = string(models.Success)
+	case "payment.failed":
+		transaction.Status = string(models.Failed)
+	default:
+		log.Printf("Unhandled webhook event type: %s", payload.Type)
+	}
+
+	// Return a 200 OK to acknowledge receipt of the webhook
+	w.WriteHeader(http.StatusOK)
+	return transaction, nil
 }

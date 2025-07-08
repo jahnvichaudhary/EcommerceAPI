@@ -15,6 +15,7 @@ type Repository interface {
 	SaveCustomer(ctx context.Context, customer *models.Customer) error
 	GetTransactionByProductID(ctx context.Context, productId string) (*models.Transaction, error)
 	RegisterTransaction(ctx context.Context, transaction *models.Transaction) error
+	UpdateTransaction(ctx context.Context, transaction *models.Transaction) error
 }
 
 type postgresRepository struct {
@@ -74,9 +75,11 @@ func (repository *postgresRepository) SaveCustomer(ctx context.Context, customer
 }
 
 func (repository *postgresRepository) GetTransactionByProductID(ctx context.Context, productId string) (*models.Transaction, error) {
-	var transaction models.Transaction
+	transaction := models.Transaction{
+		ProductId: productId,
+	}
 
-	err := repository.db.WithContext(ctx).First(&transaction, "product_id = ?", productId).Error
+	err := repository.db.WithContext(ctx).First(&transaction).Error
 	if err != nil {
 		return nil, err
 	}
@@ -87,6 +90,6 @@ func (repository *postgresRepository) RegisterTransaction(ctx context.Context, t
 	return repository.db.WithContext(ctx).Create(&transaction).Error
 }
 
-func (repository *postgresRepository) UpdateTransactionStatus(ctx context.Context, transaction *models.Transaction) error {
-	return repository.db.WithContext(ctx).Model(&transaction).Update("status", transaction.Status).Error
+func (repository *postgresRepository) UpdateTransaction(ctx context.Context, transaction *models.Transaction) error {
+	return repository.db.WithContext(ctx).Save(&transaction).Error
 }
