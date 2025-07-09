@@ -54,10 +54,10 @@ func (client *Client) Login(ctx context.Context, email, password string) (string
 	return response.Value, nil
 }
 
-func (client *Client) GetAccount(ctx context.Context, Id string) (*models.Account, error) {
+func (client *Client) GetAccount(ctx context.Context, Id uint64) (*models.Account, error) {
 	r, err := client.service.GetAccount(
 		ctx,
-		&wrapperspb.StringValue{
+		&wrapperspb.UInt64Value{
 			Value: Id,
 		},
 	)
@@ -65,7 +65,7 @@ func (client *Client) GetAccount(ctx context.Context, Id string) (*models.Accoun
 		return nil, err
 	}
 	return &models.Account{
-		ID:    uint(r.Account.GetId()),
+		ID:    r.Account.GetId(),
 		Name:  r.Account.GetName(),
 		Email: r.Account.GetEmail(),
 	}, nil
@@ -82,7 +82,7 @@ func (client *Client) GetAccounts(ctx context.Context, skip, take uint64) ([]mod
 	var accounts []models.Account
 	for _, a := range r.Accounts {
 		accounts = append(accounts, models.Account{
-			ID:    uint(a.GetId()),
+			ID:    a.GetId(),
 			Name:  a.GetName(),
 			Email: a.GetEmail(),
 		})

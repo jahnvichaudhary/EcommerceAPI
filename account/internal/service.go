@@ -13,7 +13,7 @@ import (
 type Service interface {
 	Register(ctx context.Context, name, email, password string) (string, error)
 	Login(ctx context.Context, email, password string) (string, error)
-	GetAccount(ctx context.Context, id string) (*models.Account, error)
+	GetAccount(ctx context.Context, id uint64) (*models.Account, error)
 	GetAccounts(ctx context.Context, skip uint64, take uint64) ([]*models.Account, error)
 }
 
@@ -63,7 +63,7 @@ func (service accountService) Login(ctx context.Context, email, password string)
 	return "", err
 }
 
-func (service accountService) GetAccount(ctx context.Context, id string) (*models.Account, error) {
+func (service accountService) GetAccount(ctx context.Context, id uint64) (*models.Account, error) {
 	return service.repository.GetAccountByID(ctx, id)
 }
 

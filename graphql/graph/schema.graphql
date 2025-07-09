@@ -1,7 +1,7 @@
 scalar Time
 
 type Account {
-    id: String!
+    id: Int!
     name: String!
     email: String!
     orders: [Order!]!
@@ -16,7 +16,7 @@ type Product {
 }
 
 type Order {
-    id: String!
+    id: Int!
     createdAt: Time!
     totalPrice: Float!
     products: [OrderedProduct!]!
@@ -104,6 +104,6 @@ type Mutation {
 }
 
 type Query{
-    accounts(pagination: PaginationInput, id: String): [Account!]!
+    accounts(pagination: PaginationInput, id: Int): [Account!]!
     product(pagination: PaginationInput, query: String, id: String, viewedProductsIds: [String], byAccountId: Boolean): [Product!]!
 }

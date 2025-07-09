@@ -31,7 +31,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OrderServiceClient interface {
 	PostOrder(ctx context.Context, in *PostOrderRequest, opts ...grpc.CallOption) (*PostOrderResponse, error)
-	GetOrdersForAccount(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*GetOrdersForAccountResponse, error)
+	GetOrdersForAccount(ctx context.Context, in *wrapperspb.UInt64Value, opts ...grpc.CallOption) (*GetOrdersForAccountResponse, error)
 	UpdateOrderStatus(ctx context.Context, in *UpdateOrderStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -53,7 +53,7 @@ func (c *orderServiceClient) PostOrder(ctx context.Context, in *PostOrderRequest
 	return out, nil
 }
 
-func (c *orderServiceClient) GetOrdersForAccount(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*GetOrdersForAccountResponse, error) {
+func (c *orderServiceClient) GetOrdersForAccount(ctx context.Context, in *wrapperspb.UInt64Value, opts ...grpc.CallOption) (*GetOrdersForAccountResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetOrdersForAccountResponse)
 	err := c.cc.Invoke(ctx, OrderService_GetOrdersForAccount_FullMethodName, in, out, cOpts...)
@@ -78,7 +78,7 @@ func (c *orderServiceClient) UpdateOrderStatus(ctx context.Context, in *UpdateOr
 // for forward compatibility.
 type OrderServiceServer interface {
 	PostOrder(context.Context, *PostOrderRequest) (*PostOrderResponse, error)
-	GetOrdersForAccount(context.Context, *wrapperspb.StringValue) (*GetOrdersForAccountResponse, error)
+	GetOrdersForAccount(context.Context, *wrapperspb.UInt64Value) (*GetOrdersForAccountResponse, error)
 	UpdateOrderStatus(context.Context, *UpdateOrderStatusRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedOrderServiceServer()
 }
@@ -93,7 +93,7 @@ type UnimplementedOrderServiceServer struct{}
 func (UnimplementedOrderServiceServer) PostOrder(context.Context, *PostOrderRequest) (*PostOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PostOrder not implemented")
 }
-func (UnimplementedOrderServiceServer) GetOrdersForAccount(context.Context, *wrapperspb.StringValue) (*GetOrdersForAccountResponse, error) {
+func (UnimplementedOrderServiceServer) GetOrdersForAccount(context.Context, *wrapperspb.UInt64Value) (*GetOrdersForAccountResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrdersForAccount not implemented")
 }
 func (UnimplementedOrderServiceServer) UpdateOrderStatus(context.Context, *UpdateOrderStatusRequest) (*emptypb.Empty, error) {
@@ -139,7 +139,7 @@ func _OrderService_PostOrder_Handler(srv interface{}, ctx context.Context, dec f
 }
 
 func _OrderService_GetOrdersForAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(wrapperspb.StringValue)
+	in := new(wrapperspb.UInt64Value)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -151,7 +151,7 @@ func _OrderService_GetOrdersForAccount_Handler(srv interface{}, ctx context.Cont
 		FullMethod: OrderService_GetOrdersForAccount_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).GetOrdersForAccount(ctx, req.(*wrapperspb.StringValue))
+		return srv.(OrderServiceServer).GetOrdersForAccount(ctx, req.(*wrapperspb.UInt64Value))
 	}
 	return interceptor(ctx, in, info, handler)
 }

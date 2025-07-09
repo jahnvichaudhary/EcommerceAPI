@@ -122,7 +122,7 @@ func (server *grpcServer) PostOrder(ctx context.Context, request *pb.PostOrderRe
 	}, nil
 }
 
-func (server *grpcServer) GetOrdersForAccount(ctx context.Context, request *wrapperspb.StringValue) (*pb.GetOrdersForAccountResponse, error) {
+func (server *grpcServer) GetOrdersForAccount(ctx context.Context, request *wrapperspb.UInt64Value) (*pb.GetOrdersForAccountResponse, error) {
 	accountOrders, err := server.service.GetOrdersForAccount(ctx, request.Value)
 	if err != nil {
 		log.Println(err)

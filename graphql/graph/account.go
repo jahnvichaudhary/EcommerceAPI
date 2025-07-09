@@ -3,12 +3,15 @@ package graph
 import (
 	"context"
 	"log"
-	"strconv"
 	"time"
 )
 
 type accountResolver struct {
 	server *Server
+}
+
+func (resolver *accountResolver) ID(ctx context.Context, obj *Account) (int, error) {
+	return int(obj.ID), nil
 }
 
 func (resolver *accountResolver) Orders(ctx context.Context, obj *Account) ([]*Order, error) {
@@ -34,7 +37,7 @@ func (resolver *accountResolver) Orders(ctx context.Context, obj *Account) ([]*O
 			})
 		}
 		orders = append(orders, &Order{
-			ID:         strconv.Itoa(int(order.ID)),
+			ID:         int(order.ID),
 			CreatedAt:  order.CreatedAt,
 			TotalPrice: order.TotalPrice,
 			Products:   products,

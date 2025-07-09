@@ -12,7 +12,7 @@ type Repository interface {
 	Close()
 	PutAccount(ctx context.Context, a models.Account) (*models.Account, error)
 	GetAccountByEmail(ctx context.Context, email string) (*models.Account, error)
-	GetAccountByID(ctx context.Context, id string) (*models.Account, error)
+	GetAccountByID(ctx context.Context, id uint64) (*models.Account, error)
 	ListAccounts(ctx context.Context, skip uint64, take uint64) ([]*models.Account, error)
 }
 
@@ -73,7 +73,7 @@ func (repository *postgresRepository) GetAccountByEmail(ctx context.Context, ema
 	return &account, nil
 }
 
-func (repository *postgresRepository) GetAccountByID(ctx context.Context, id string) (*models.Account, error) {
+func (repository *postgresRepository) GetAccountByID(ctx context.Context, id uint64) (*models.Account, error) {
 	var account models.Account
 	if err := repository.db.WithContext(ctx).First(&account, "id = ?", id).Error; err != nil {
 		return nil, err

@@ -49,7 +49,7 @@ func (server *grpcServer) Login(ctx context.Context, request *pb.LoginRequest) (
 	}, nil
 }
 
-func (server *grpcServer) GetAccount(ctx context.Context, r *wrapperspb.StringValue) (*pb.AccountResponse, error) {
+func (server *grpcServer) GetAccount(ctx context.Context, r *wrapperspb.UInt64Value) (*pb.AccountResponse, error) {
 	a, err := server.service.GetAccount(ctx, r.Value)
 	if err != nil {
 		return nil, err

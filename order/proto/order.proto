@@ -17,7 +17,7 @@ message ProductInfo {
 message Order {
   uint64 id = 1;
   bytes createdAt = 2;
-  string accountId = 3;
+  uint64 accountId = 3;
   double totalPrice = 4;
   repeated ProductInfo products = 5;
 }
@@ -28,7 +28,7 @@ message OrderProduct {
 }
 
 message PostOrderRequest {
-  string accountId = 1;
+  uint64 accountId = 1;
   repeated OrderProduct products = 3;
 }
 
@@ -48,7 +48,7 @@ message UpdateOrderStatusRequest {
 service OrderService {
   rpc PostOrder (PostOrderRequest) returns (PostOrderResponse) {
   }
-  rpc GetOrdersForAccount (google.protobuf.StringValue) returns (GetOrdersForAccountResponse) {
+  rpc GetOrdersForAccount (google.protobuf.UInt64Value) returns (GetOrdersForAccountResponse) {
   }
   rpc UpdateOrderStatus(UpdateOrderStatusRequest) returns (google.protobuf.Empty) {
   }

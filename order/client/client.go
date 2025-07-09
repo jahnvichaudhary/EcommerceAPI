@@ -34,7 +34,7 @@ func (client *Client) Close() {
 
 func (client *Client) PostOrder(
 	ctx context.Context,
-	accountID string,
+	accountID uint64,
 	products []*models.OrderedProduct,
 ) (*models.Order, error) {
 	var protoProducts []*pb.OrderProduct
@@ -68,8 +68,8 @@ func (client *Client) PostOrder(
 	}, nil
 }
 
-func (client *Client) GetOrdersForAccount(ctx context.Context, accountID string) ([]models.Order, error) {
-	r, err := client.service.GetOrdersForAccount(ctx, &wrapperspb.StringValue{
+func (client *Client) GetOrdersForAccount(ctx context.Context, accountID uint64) ([]models.Order, error) {
+	r, err := client.service.GetOrdersForAccount(ctx, &wrapperspb.UInt64Value{
 		Value: accountID,
 	})
 	if err != nil {

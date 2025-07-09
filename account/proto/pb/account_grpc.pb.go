@@ -32,7 +32,7 @@ const (
 type AccountServiceClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
-	GetAccount(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*AccountResponse, error)
+	GetAccount(ctx context.Context, in *wrapperspb.UInt64Value, opts ...grpc.CallOption) (*AccountResponse, error)
 	GetAccounts(ctx context.Context, in *GetAccountsRequest, opts ...grpc.CallOption) (*GetAccountsResponse, error)
 }
 
@@ -64,7 +64,7 @@ func (c *accountServiceClient) Login(ctx context.Context, in *LoginRequest, opts
 	return out, nil
 }
 
-func (c *accountServiceClient) GetAccount(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*AccountResponse, error) {
+func (c *accountServiceClient) GetAccount(ctx context.Context, in *wrapperspb.UInt64Value, opts ...grpc.CallOption) (*AccountResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AccountResponse)
 	err := c.cc.Invoke(ctx, AccountService_GetAccount_FullMethodName, in, out, cOpts...)
@@ -90,7 +90,7 @@ func (c *accountServiceClient) GetAccounts(ctx context.Context, in *GetAccountsR
 type AccountServiceServer interface {
 	Register(context.Context, *RegisterRequest) (*wrapperspb.StringValue, error)
 	Login(context.Context, *LoginRequest) (*wrapperspb.StringValue, error)
-	GetAccount(context.Context, *wrapperspb.StringValue) (*AccountResponse, error)
+	GetAccount(context.Context, *wrapperspb.UInt64Value) (*AccountResponse, error)
 	GetAccounts(context.Context, *GetAccountsRequest) (*GetAccountsResponse, error)
 	mustEmbedUnimplementedAccountServiceServer()
 }
@@ -108,7 +108,7 @@ func (UnimplementedAccountServiceServer) Register(context.Context, *RegisterRequ
 func (UnimplementedAccountServiceServer) Login(context.Context, *LoginRequest) (*wrapperspb.StringValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedAccountServiceServer) GetAccount(context.Context, *wrapperspb.StringValue) (*AccountResponse, error) {
+func (UnimplementedAccountServiceServer) GetAccount(context.Context, *wrapperspb.UInt64Value) (*AccountResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccount not implemented")
 }
 func (UnimplementedAccountServiceServer) GetAccounts(context.Context, *GetAccountsRequest) (*GetAccountsResponse, error) {
@@ -172,7 +172,7 @@ func _AccountService_Login_Handler(srv interface{}, ctx context.Context, dec fun
 }
 
 func _AccountService_GetAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(wrapperspb.StringValue)
+	in := new(wrapperspb.UInt64Value)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -184,7 +184,7 @@ func _AccountService_GetAccount_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: AccountService_GetAccount_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountServiceServer).GetAccount(ctx, req.(*wrapperspb.StringValue))
+		return srv.(AccountServiceServer).GetAccount(ctx, req.(*wrapperspb.UInt64Value))
 	}
 	return interceptor(ctx, in, info, handler)
 }

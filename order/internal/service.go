@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/IBM/sarama"
 	"log"
-	"strconv"
 	"time"
 
 	"github.com/rasadov/EcommerceAPI/order/models"
@@ -12,8 +11,8 @@ import (
 )
 
 type Service interface {
-	PostOrder(ctx context.Context, accountID string, totalPrice float64, products []*models.OrderedProduct) (*models.Order, error)
-	GetOrdersForAccount(ctx context.Context, accountID string) ([]models.Order, error)
+	PostOrder(ctx context.Context, accountID uint64, totalPrice float64, products []*models.OrderedProduct) (*models.Order, error)
+	GetOrdersForAccount(ctx context.Context, accountID uint64) ([]models.Order, error)
 	UpdateOrderStatus(ctx context.Context, orderId uint64, status string) error
 }
 
@@ -30,7 +29,7 @@ func (service orderService) Producer() sarama.AsyncProducer {
 	return service.producer
 }
 
-func (service orderService) PostOrder(ctx context.Context, accountID string, totalPrice float64, products []*models.OrderedProduct) (*models.Order, error) {
+func (service orderService) PostOrder(ctx context.Context, accountID uint64, totalPrice float64, products []*models.OrderedProduct) (*models.Order, error) {
 	order := models.Order{
 		AccountID:  accountID,
 		TotalPrice: totalPrice,
@@ -44,7 +43,6 @@ func (service orderService) PostOrder(ctx context.Context, accountID string, tot
 
 	// Send to recommendation service
 	go func() {
-		accountIdInt, err := strconv.Atoi(accountID)
 		if err != nil {
 			log.Println("Failed to convert account ID to int:", err)
 			return
@@ -53,7 +51,7 @@ func (service orderService) PostOrder(ctx context.Context, accountID string, tot
 			err = utils.SendMessageToRecommender(service, models.Event{
 				Type: "purchase",
 				EventData: models.EventData{
-					AccountId: accountIdInt,
+					AccountId: int(accountID),
 					ProductId: product.ID,
 				},
 			}, "interaction_events")
@@ -66,7 +64,7 @@ func (service orderService) PostOrder(ctx context.Context, accountID string, tot
 	return &order, nil
 }
 
-func (service orderService) GetOrdersForAccount(ctx context.Context, accountID string) ([]models.Order, error) {
+func (service orderService) GetOrdersForAccount(ctx context.Context, accountID uint64) ([]models.Order, error) {
 	return service.repository.GetOrdersForAccount(ctx, accountID)
 }
 

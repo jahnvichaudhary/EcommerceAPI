@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"log"
-	"strconv"
 	"time"
 
 	"github.com/rasadov/EcommerceAPI/pkg/auth"
@@ -17,19 +16,19 @@ type queryResolver struct {
 func (resolver *queryResolver) Accounts(
 	ctx context.Context,
 	pagination *PaginationInput,
-	id *string,
+	id *int,
 ) ([]*Account, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
 	if id != nil {
-		res, err := resolver.server.accountClient.GetAccount(ctx, *id)
+		res, err := resolver.server.accountClient.GetAccount(ctx, uint64(*id))
 		if err != nil {
 			log.Println(err)
 			return nil, err
 		}
 		return []*Account{{
-			ID:    strconv.Itoa(int(res.ID)),
+			ID:    uint64(res.ID),
 			Name:  res.Name,
 			Email: res.Email,
 		}}, nil
@@ -48,7 +47,7 @@ func (resolver *queryResolver) Accounts(
 	var accounts []*Account
 	for _, account := range accountList {
 		account := &Account{
-			ID:    strconv.Itoa(int(account.ID)),
+			ID:    uint64(account.ID),
 			Name:  account.Name,
 			Email: account.Email,
 		}

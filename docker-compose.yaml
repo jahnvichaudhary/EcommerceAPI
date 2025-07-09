@@ -158,7 +158,7 @@ services:
     container_name: kafka-like-zookeeper
     image: docker.io/bitnami/zookeeper:3.8
     ports:
-      - "2182:2181"
+      - "21850:2181"
     volumes:
       - "zookeeper-volume:/bitnami"
     environment:

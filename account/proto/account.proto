@@ -40,7 +40,7 @@ service AccountService {
   }
   rpc Login (LoginRequest) returns (google.protobuf.StringValue){
   }
-  rpc GetAccount (google.protobuf.StringValue) returns (AccountResponse){
+  rpc GetAccount (google.protobuf.UInt64Value) returns (AccountResponse){
   }
   rpc GetAccounts (GetAccountsRequest) returns (GetAccountsResponse){
   }

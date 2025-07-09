@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"log"
-	"strconv"
 	"time"
 
 	"github.com/rasadov/EcommerceAPI/order/models"
@@ -143,12 +142,12 @@ func (resolver *mutationResolver) CreateOrder(ctx context.Context, in OrderInput
 		})
 	}
 
-	accountId := auth.GetUserId(ctx, true)
-	if accountId == "" {
+	accountId, err := auth.GetUserIdInt(ctx, true)
+	if err != nil {
 		return nil, errors.New("unauthorized")
 	}
 
-	postOrder, err := resolver.server.orderClient.PostOrder(ctx, accountId, products)
+	postOrder, err := resolver.server.orderClient.PostOrder(ctx, uint64(accountId), products)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -166,7 +165,7 @@ func (resolver *mutationResolver) CreateOrder(ctx context.Context, in OrderInput
 	}
 
 	return &Order{
-		ID:         strconv.Itoa(int(postOrder.ID)),
+		ID:         int(postOrder.ID),
 		CreatedAt:  postOrder.CreatedAt,
 		TotalPrice: postOrder.TotalPrice,
 		Products:   orderedProducts,

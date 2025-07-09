@@ -6,7 +6,7 @@ type Order struct {
 	ID            uint `gorm:"primaryKey;autoIncrement"`
 	CreatedAt     time.Time
 	TotalPrice    float64
-	AccountID     string
+	AccountID     uint64
 	Status        string
 	ProductsInfos []ProductsInfo    `gorm:"foreignKey:OrderID"`
 	Products      []*OrderedProduct `gorm:"-"`

@@ -10,7 +10,7 @@ import (
 type Repository interface {
 	Close()
 	PutOrder(ctx context.Context, order *models.Order) error
-	GetOrdersForAccount(ctx context.Context, accountId string) ([]models.Order, error)
+	GetOrdersForAccount(ctx context.Context, accountId uint64) ([]models.Order, error)
 	UpdateOrderStatus(ctx context.Context, orderId uint64, status string) error
 }
 
@@ -73,7 +73,7 @@ func (repository *postgresRepository) PutOrder(ctx context.Context, order *model
 	return nil
 }
 
-func (repository *postgresRepository) GetOrdersForAccount(ctx context.Context, accountId string) ([]models.Order, error) {
+func (repository *postgresRepository) GetOrdersForAccount(ctx context.Context, accountId uint64) ([]models.Order, error) {
 	var orders []models.Order
 	err := repository.db.WithContext(ctx).
 		Table("orders o").
