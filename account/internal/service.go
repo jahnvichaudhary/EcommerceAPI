@@ -45,7 +45,7 @@ func (service accountService) Register(ctx context.Context, name, email, passwor
 	if err != nil {
 		return "", err
 	}
-	token, err := service.authService.GenerateToken(strconv.Itoa(int(account.ID)))
+	token, err := auth.GenerateToken(strconv.Itoa(int(account.ID)))
 	if err != nil {
 		return "", err
 	}
@@ -55,7 +55,7 @@ func (service accountService) Register(ctx context.Context, name, email, passwor
 func (service accountService) Login(ctx context.Context, email, password string) (string, error) {
 	account, err := service.repository.GetAccountByEmail(ctx, email)
 	if err == nil && utils.VerifyPassword(password, account.Password) {
-		token, err := service.authService.GenerateToken(strconv.Itoa(int(account.ID)))
+		token, err := auth.GenerateToken(strconv.Itoa(int(account.ID)))
 		if err == nil {
 			return token, nil
 		}

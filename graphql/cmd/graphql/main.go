@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rasadov/EcommerceAPI/graphql/config"
 	"github.com/rasadov/EcommerceAPI/graphql/graph"
-	"github.com/rasadov/EcommerceAPI/pkg/auth"
 	"github.com/rasadov/EcommerceAPI/pkg/middleware"
 	"log"
 )
@@ -32,7 +31,7 @@ func main() {
 		})
 	})
 	engine.POST("/graphql",
-		middleware.AuthorizeJWT(auth.NewJwtService(config.SecretKey, config.Issuer)),
+		middleware.AuthorizeJWT(),
 		gin.WrapH(srv),
 	)
 	engine.GET("/playground", gin.WrapH(playground.Handler("Playground", "/graphql")))

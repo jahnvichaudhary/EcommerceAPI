@@ -8,7 +8,7 @@ import (
 	"github.com/rasadov/EcommerceAPI/pkg/auth"
 )
 
-func AuthorizeJWT(jwtService auth.AuthService) gin.HandlerFunc {
+func AuthorizeJWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authCookie, err := c.Cookie("token")
 		if err != nil || authCookie == "" {
@@ -17,7 +17,7 @@ func AuthorizeJWT(jwtService auth.AuthService) gin.HandlerFunc {
 			return
 		}
 
-		token, err := jwtService.ValidateToken(authCookie)
+		token, err := auth.ValidateToken(authCookie)
 		if err != nil {
 			c.Set("userID", "")
 			c.Next()
