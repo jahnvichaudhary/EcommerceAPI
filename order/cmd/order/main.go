@@ -5,6 +5,8 @@ import (
 	"github.com/rasadov/EcommerceAPI/order/config"
 	"github.com/rasadov/EcommerceAPI/order/internal"
 	"github.com/tinrab/retry"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"log"
 	"time"
 )
@@ -24,7 +26,11 @@ func main() {
 	}(producer)
 
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
-		repository, err = internal.NewPostgresRepository(config.DatabaseUrl)
+		db, err := gorm.Open(postgres.Open(config.DatabaseUrl), &gorm.Config{})
+		if err != nil {
+			log.Println(err)
+		}
+		repository, err = internal.NewPostgresRepository(db)
 		if err != nil {
 			log.Println(err)
 		}

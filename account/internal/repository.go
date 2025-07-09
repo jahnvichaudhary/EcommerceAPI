@@ -4,7 +4,6 @@ import (
 	"context"
 	_ "github.com/lib/pq"
 	"github.com/rasadov/EcommerceAPI/account/models"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
 )
@@ -21,17 +20,7 @@ type postgresRepository struct {
 	db *gorm.DB
 }
 
-func NewPostgresRepository(databaseURL string) (Repository, error) {
-	db, err := gorm.Open(postgres.Open(databaseURL), &gorm.Config{})
-	if err != nil {
-		return nil, err
-	}
-
-	err = db.AutoMigrate(&models.Account{})
-	if err != nil {
-		return nil, err
-	}
-
+func NewPostgresRepository(db *gorm.DB) (Repository, error) {
 	sqlDB, err := db.DB()
 	if err != nil {
 		return nil, err

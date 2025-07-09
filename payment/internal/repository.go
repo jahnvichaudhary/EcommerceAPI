@@ -3,7 +3,6 @@ package internal
 import (
 	"context"
 	"github.com/rasadov/EcommerceAPI/payment/models"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
 )
@@ -22,13 +21,8 @@ type postgresRepository struct {
 	db *gorm.DB
 }
 
-func NewPostgresRepository(databaseURL string) (Repository, error) {
-	db, err := gorm.Open(postgres.Open(databaseURL), &gorm.Config{})
-	if err != nil {
-		return nil, err
-	}
-
-	err = db.AutoMigrate(&models.Customer{})
+func NewPostgresRepository(db *gorm.DB) (Repository, error) {
+	err := db.AutoMigrate(&models.Customer{})
 	if err != nil {
 		return nil, err
 	}
