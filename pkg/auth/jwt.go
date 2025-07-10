@@ -9,17 +9,12 @@ import (
 	"github.com/rasadov/EcommerceAPI/account/config"
 )
 
-type AuthService interface {
-	GenerateToken(userID string) (string, error)
-	ValidateToken(token string) (*jwt.Token, error)
-}
-
 type JWTCustomClaims struct {
-	UserID string `json:"user_id"`
+	UserID uint64 `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(userID string) (string, error) {
+func GenerateToken(userID uint64) (string, error) {
 	claims := &JWTCustomClaims{
 		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{

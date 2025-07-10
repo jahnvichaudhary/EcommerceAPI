@@ -6,7 +6,7 @@ import (
 	"github.com/IBM/sarama"
 	"log"
 
-	"github.com/rasadov/EcommerceAPI/pkg/utils"
+	"github.com/rasadov/EcommerceAPI/pkg/kafka"
 	"github.com/rasadov/EcommerceAPI/product/models"
 )
 
@@ -48,7 +48,7 @@ func (service productService) PostProduct(ctx context.Context, name, description
 	}
 
 	go func() {
-		err = utils.SendMessageToRecommender(service, models.Event{
+		err = kafka.SendMessageToRecommender(service, models.Event{
 			Type: "product_created",
 			Data: models.EventData{
 				ID:          &product.ID,
@@ -73,7 +73,7 @@ func (service productService) GetProduct(ctx context.Context, id string) (*model
 	}
 
 	go func() {
-		err = utils.SendMessageToRecommender(service, models.Event{
+		err = kafka.SendMessageToRecommender(service, models.Event{
 			Type: "product_retrieved",
 			Data: models.EventData{
 				ID:        &product.ID,
@@ -122,7 +122,7 @@ func (service productService) UpdateProduct(ctx context.Context, id, name, descr
 	}
 
 	go func() {
-		err = utils.SendMessageToRecommender(service, models.Event{
+		err = kafka.SendMessageToRecommender(service, models.Event{
 			Type: "product_updated",
 			Data: models.EventData{
 				ID:          &updatedProduct.ID,
@@ -149,7 +149,7 @@ func (service productService) DeleteProduct(ctx context.Context, productId strin
 	}
 
 	go func() {
-		err = utils.SendMessageToRecommender(service, models.Event{
+		err = kafka.SendMessageToRecommender(service, models.Event{
 			Type: "product_deleted",
 			Data: models.EventData{
 				ID: &product.ID,

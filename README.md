@@ -29,6 +29,7 @@ The system comprises several microservices:
 - **Account** (Go): Manages user accounts, authentication, and authorization.
 - **Product** (Go): CRUD for products; indexes product data in **Elasticsearch**.
 - **Order** (Go): Handles order creation and persistence; publishes events to Kafka.
+- **Payment** (Go): Handles payment operations and sends updates to order microservice
 - **Recommender** (Python): Consumes Kafka events and builds product recommendations.
 - **API Gateway** (Go): A GraphQL service exposing a unified API for front-end clients.
 
@@ -49,6 +50,7 @@ Below is a high-level overview of the system architecture:
     - `Product client` → `Product server` → `ElasticSearch`
     - `Order client` → `Order server` → `Postgres` + Kafka  
       (also communicates with Product service via gRPC)
+    - `Payment client` → `Payment service` → `payment provider` + `Postgres`
     - `Recommender client` → `Recommender server` (Python) → `Postgres (Replica)`
 
 - **Event Flow**:
@@ -105,12 +107,16 @@ Before running the project, ensure you have the following installed:
 To build and start all services using Docker Compose, run:
 
 ```bash
-  docker-compose up --build
+# Step 1: Build the base image
+docker compose build base
+
+# Step 2: Build and start all services
+docker compose up -d --build```
 ```
 
 This will start:
 
-- Go microservices (`account`, `order`, `product`, `graphql`)
+- Go microservices (`account`, `order`, `product`, `payment`, `graphql`)
 - Python-based `recommender` service
 - Databases: PostgreSQL, Elasticsearch
 - Kafka + Zookeeper

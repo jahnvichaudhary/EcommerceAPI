@@ -1,8 +1,4 @@
-FROM golang:1.23-alpine3.20 AS build
-RUN apk --no-cache add gcc g++ make ca-certificates
-WORKDIR /go/src/github.com/akhilsharma90/go-graphql-microservice
-COPY go.mod go.sum ./
-RUN go mod download
+FROM rasadov/ecommerce-base:latest AS build
 COPY account account
 COPY product product
 COPY order order

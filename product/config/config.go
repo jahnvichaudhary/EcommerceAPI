@@ -9,5 +9,5 @@ var (
 
 func init() {
 	DatabaseURL = os.Getenv("DATABASE_URL")
-	BootstrapServers = os.Getenv("BOOTSTRAP_SERVERS")
+	BootstrapServers = os.Getenv("KAFKA_BOOTSTRAP_SERVERS")
 }

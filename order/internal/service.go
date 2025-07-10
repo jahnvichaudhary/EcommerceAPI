@@ -3,11 +3,10 @@ package internal
 import (
 	"context"
 	"github.com/IBM/sarama"
+	"github.com/rasadov/EcommerceAPI/order/models"
+	"github.com/rasadov/EcommerceAPI/pkg/kafka"
 	"log"
 	"time"
-
-	"github.com/rasadov/EcommerceAPI/order/models"
-	"github.com/rasadov/EcommerceAPI/pkg/utils"
 )
 
 type Service interface {
@@ -48,7 +47,7 @@ func (service orderService) PostOrder(ctx context.Context, accountID uint64, tot
 			return
 		}
 		for _, product := range products {
-			err = utils.SendMessageToRecommender(service, models.Event{
+			err = kafka.SendMessageToRecommender(service, models.Event{
 				Type: "purchase",
 				EventData: models.EventData{
 					AccountId: int(accountID),

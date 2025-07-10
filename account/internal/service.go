@@ -4,10 +4,8 @@ import (
 	"context"
 	"errors"
 	"github.com/rasadov/EcommerceAPI/account/models"
-	"strconv"
-
 	"github.com/rasadov/EcommerceAPI/pkg/auth"
-	"github.com/rasadov/EcommerceAPI/pkg/utils"
+	"github.com/rasadov/EcommerceAPI/pkg/crypt"
 )
 
 type Service interface {
@@ -18,12 +16,11 @@ type Service interface {
 }
 
 type accountService struct {
-	repository  Repository
-	authService auth.AuthService
+	repository Repository
 }
 
-func NewService(r Repository, j auth.AuthService) Service {
-	return &accountService{r, j}
+func NewService(r Repository) Service {
+	return &accountService{r}
 }
 
 func (service accountService) Register(ctx context.Context, name, email, password string) (string, error) {
@@ -32,7 +29,7 @@ func (service accountService) Register(ctx context.Context, name, email, passwor
 		return "", errors.New("account already exists")
 	}
 
-	hashedPass, err := utils.HashPassword(password)
+	hashedPass, err := crypt.HashPassword(password)
 	if err != nil {
 		return "", err
 	}
@@ -45,7 +42,7 @@ func (service accountService) Register(ctx context.Context, name, email, passwor
 	if err != nil {
 		return "", err
 	}
-	token, err := auth.GenerateToken(strconv.Itoa(int(account.ID)))
+	token, err := auth.GenerateToken(account.ID)
 	if err != nil {
 		return "", err
 	}
@@ -54,13 +51,19 @@ func (service accountService) Register(ctx context.Context, name, email, passwor
 
 func (service accountService) Login(ctx context.Context, email, password string) (string, error) {
 	account, err := service.repository.GetAccountByEmail(ctx, email)
-	if err == nil && utils.VerifyPassword(password, account.Password) {
-		token, err := auth.GenerateToken(strconv.Itoa(int(account.ID)))
-		if err == nil {
-			return token, nil
-		}
+	if err != nil {
+		return "", err
 	}
-	return "", err
+	err = crypt.VerifyPassword(password, account.Password)
+	if err != nil {
+		return "", err
+	}
+
+	token, err := auth.GenerateToken(account.ID)
+	if err != nil {
+		return "", err
+	}
+	return token, nil
 }
 
 func (service accountService) GetAccount(ctx context.Context, id uint64) (*models.Account, error) {

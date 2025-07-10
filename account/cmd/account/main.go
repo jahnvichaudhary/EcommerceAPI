@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/rasadov/EcommerceAPI/account/config"
 	"github.com/rasadov/EcommerceAPI/account/internal"
-	"github.com/rasadov/EcommerceAPI/pkg/auth"
 	"github.com/tinrab/retry"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -26,8 +25,7 @@ func main() {
 		return
 	})
 	defer repository.Close()
-	jwtService := auth.NewJwtService(config.SecretKey, config.Issuer)
 	log.Println("Listening on port 8080...")
-	service := internal.NewService(repository, jwtService)
+	service := internal.NewService(repository)
 	log.Fatal(internal.ListenGRPC(service, 8080))
 }

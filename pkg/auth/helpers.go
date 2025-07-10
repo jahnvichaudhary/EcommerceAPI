@@ -10,7 +10,15 @@ import (
 )
 
 func GetUserId(ctx context.Context, abort bool) string {
-	accountId, ok := ctx.Value("userID").(string)
+	userId, err := GetUserIdInt(ctx, abort)
+	if err != nil {
+		return ""
+	}
+	return strconv.Itoa(userId)
+}
+
+func GetUserIdInt(ctx context.Context, abort bool) (int, error) {
+	accountId, ok := ctx.Value("userID").(uint64)
 	log.Println("userID", accountId)
 	if !ok {
 		if abort {
@@ -19,19 +27,7 @@ func GetUserId(ctx context.Context, abort bool) string {
 				"error": "Unauthorized",
 			})
 		}
-		return ""
+		return 0, errors.New("UserId not found in context")
 	}
-	return accountId
-}
-
-func GetUserIdInt(ctx context.Context, abort bool) (int, error) {
-	idString := GetUserId(ctx, abort)
-	log.Println("userID", idString)
-	if idString != "" {
-		idInt, err := strconv.ParseInt(idString, 10, 64)
-		if err == nil {
-			return int(idInt), nil
-		}
-	}
-	return 0, errors.New("some error happened")
+	return int(accountId), nil
 }

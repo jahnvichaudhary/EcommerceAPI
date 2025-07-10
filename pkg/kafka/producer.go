@@ -1,4 +1,4 @@
-package utils
+package kafka
 
 import (
 	"encoding/json"
