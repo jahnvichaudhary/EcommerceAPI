@@ -2,13 +2,14 @@ package client
 
 import (
 	"context"
+	"log"
+	"time"
+
 	"github.com/rasadov/EcommerceAPI/order/models"
 	"github.com/rasadov/EcommerceAPI/order/proto/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/wrapperspb"
-	"log"
-	"time"
 )
 
 type Client struct {
@@ -58,7 +59,10 @@ func (client *Client) PostOrder(
 	// Create response order
 	newOrder := r.Order
 	newOrderCreatedAt := time.Time{}
-	newOrderCreatedAt.UnmarshalBinary(newOrder.CreatedAt)
+	err = newOrderCreatedAt.UnmarshalBinary(newOrder.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
 	return &models.Order{
 		ID:         uint(r.Order.GetId()),
 		CreatedAt:  newOrderCreatedAt,
@@ -86,7 +90,10 @@ func (client *Client) GetOrdersForAccount(ctx context.Context, accountID uint64)
 			AccountID:  orderProto.AccountId,
 		}
 		newOrder.CreatedAt = time.Time{}
-		newOrder.CreatedAt.UnmarshalBinary(orderProto.CreatedAt)
+		err = newOrder.CreatedAt.UnmarshalBinary(orderProto.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
 
 		var products []*models.OrderedProduct
 		for _, p := range orderProto.Products {

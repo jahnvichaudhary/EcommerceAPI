@@ -2,14 +2,15 @@ package internal
 
 import (
 	"fmt"
-	order "github.com/rasadov/EcommerceAPI/order/client"
-	"github.com/rasadov/EcommerceAPI/payment/proto/pb"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 	"log"
 	"net"
 	"net/http"
 	"sync"
+
+	order "github.com/rasadov/EcommerceAPI/order/client"
+	"github.com/rasadov/EcommerceAPI/payment/proto/pb"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 // StartServers runs both gRPC and HTTP webhook servers concurrently

@@ -1,11 +1,12 @@
 package main
 
 import (
+	"log"
+	"time"
+
 	"github.com/IBM/sarama"
 	"github.com/rasadov/EcommerceAPI/product/config"
 	"github.com/tinrab/retry"
-	"log"
-	"time"
 
 	"github.com/rasadov/EcommerceAPI/product/internal"
 )

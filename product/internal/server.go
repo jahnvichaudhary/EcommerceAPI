@@ -3,12 +3,13 @@ package internal
 import (
 	"context"
 	"fmt"
+	"log"
+	"net"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
-	"log"
-	"net"
 
 	"github.com/rasadov/EcommerceAPI/product/models"
 	"github.com/rasadov/EcommerceAPI/product/proto/pb"
@@ -47,7 +48,7 @@ func (s *grpcServer) GetProduct(ctx context.Context, r *wrapperspb.StringValue) 
 }
 
 func (s *grpcServer) GetProducts(ctx context.Context, r *pb.GetProductsRequest) (*pb.ProductsResponse, error) {
-	var res []models.Product
+	var res []*models.Product
 	var err error
 	if r.Query != "" {
 		res, err = s.service.SearchProducts(ctx, r.Query, r.Skip, r.Take)

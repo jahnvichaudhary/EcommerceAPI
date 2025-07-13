@@ -3,10 +3,11 @@ package tests
 import (
 	"context"
 	"fmt"
-	"github.com/rasadov/EcommerceAPI/account/internal"
 	"log"
 	"testing"
 	"time"
+
+	"github.com/rasadov/EcommerceAPI/account/internal"
 
 	"github.com/rasadov/EcommerceAPI/account/models"
 	"github.com/stretchr/testify/assert"

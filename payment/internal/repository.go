@@ -2,9 +2,10 @@ package internal
 
 import (
 	"context"
+	"log"
+
 	"github.com/rasadov/EcommerceAPI/payment/models"
 	"gorm.io/gorm"
-	"log"
 )
 
 type Repository interface {

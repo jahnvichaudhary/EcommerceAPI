@@ -2,15 +2,16 @@ package internal
 
 import (
 	"context"
+	"log"
+
 	"github.com/rasadov/EcommerceAPI/order/models"
 	"gorm.io/gorm"
-	"log"
 )
 
 type Repository interface {
 	Close()
 	PutOrder(ctx context.Context, order *models.Order) error
-	GetOrdersForAccount(ctx context.Context, accountId uint64) ([]models.Order, error)
+	GetOrdersForAccount(ctx context.Context, accountId uint64) ([]*models.Order, error)
 	UpdateOrderStatus(ctx context.Context, orderId uint64, status string) error
 }
 
@@ -30,6 +31,9 @@ func NewPostgresRepository(db *gorm.DB) (Repository, error) {
 	}
 
 	err = db.AutoMigrate(&models.Order{}, &models.ProductsInfo{})
+	if err != nil {
+		return nil, err
+	}
 
 	return &postgresRepository{db}, nil
 }
@@ -73,8 +77,8 @@ func (repository *postgresRepository) PutOrder(ctx context.Context, order *model
 	return nil
 }
 
-func (repository *postgresRepository) GetOrdersForAccount(ctx context.Context, accountId uint64) ([]models.Order, error) {
-	var orders []models.Order
+func (repository *postgresRepository) GetOrdersForAccount(ctx context.Context, accountId uint64) ([]*models.Order, error) {
+	var orders []*models.Order
 	err := repository.db.WithContext(ctx).
 		Table("orders o").
 		Select("o.id, o.created_at, o.account_id, o.total_price::money::numeric::float8, op.product_id, op.quantity").

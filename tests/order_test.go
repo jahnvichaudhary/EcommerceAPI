@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // 4) Create an order with 2 products
@@ -48,7 +49,7 @@ func Test04CreateOrder(t *testing.T) {
 	assert.True(t, len(productList) >= 2, "need at least 2 products to create an order")
 
 	// 4) Pick 2 random products
-	rand.Seed(time.Now().UnixNano())
+	rand.New(rand.NewSource(time.Now().UnixNano()))
 	rand.Shuffle(len(productList), func(i, j int) {
 		productList[i], productList[j] = productList[j], productList[i]
 	})

@@ -2,10 +2,11 @@ package internal
 
 import (
 	"context"
+	"log"
+
 	_ "github.com/lib/pq"
 	"github.com/rasadov/EcommerceAPI/account/models"
 	"gorm.io/gorm"
-	"log"
 )
 
 type Repository interface {

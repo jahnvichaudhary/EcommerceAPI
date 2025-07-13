@@ -3,14 +3,15 @@ package tests
 import (
 	"context"
 	"errors"
+	"log"
+	"testing"
+
 	"github.com/rasadov/EcommerceAPI/account/internal"
 	"github.com/rasadov/EcommerceAPI/account/models"
 	"github.com/rasadov/EcommerceAPI/pkg/auth"
 	"github.com/rasadov/EcommerceAPI/pkg/crypt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"log"
-	"testing"
 )
 
 // MockRepository implements the Repository interface for testing
@@ -54,7 +55,6 @@ func TestAccountService_Register(t *testing.T) {
 		password := "password123"
 		hashedPassword, _ := crypt.HashPassword(password)
 		account := &models.Account{ID: 1, Name: name, Email: email, Password: hashedPassword}
-		token := "jwt-token"
 
 		mockRepo.On("GetAccountByEmail", ctx, email).Return((*models.Account)(nil), errors.New("not found")).Once()
 		mockRepo.On("PutAccount", ctx, mock.AnythingOfType("models.Account")).Return(account, nil).Once()

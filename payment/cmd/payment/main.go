@@ -1,13 +1,14 @@
 package main
 
 import (
+	"log"
+	"time"
+
 	"github.com/rasadov/EcommerceAPI/payment/config"
 	"github.com/rasadov/EcommerceAPI/payment/internal"
 	"github.com/tinrab/retry"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
-	"time"
 )
 
 func main() {

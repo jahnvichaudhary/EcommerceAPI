@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"gopkg.in/olivere/elastic.v5"
 	"log"
+
+	"gopkg.in/olivere/elastic.v5"
 
 	"github.com/rasadov/EcommerceAPI/product/models"
 )
@@ -18,10 +19,10 @@ type Repository interface {
 	Close()
 	PutProduct(ctx context.Context, p *models.Product) error
 	GetProductById(ctx context.Context, id string) (*models.Product, error)
-	ListProducts(ctx context.Context, skip, take uint64) ([]models.Product, error)
-	ListProductsWithIDs(ctx context.Context, ids []string) ([]models.Product, error)
-	SearchProducts(ctx context.Context, query string, skip, take uint64) ([]models.Product, error)
-	UpdateProduct(ctx context.Context, updatedProduct models.Product) error
+	ListProducts(ctx context.Context, skip, take uint64) ([]*models.Product, error)
+	ListProductsWithIDs(ctx context.Context, ids []string) ([]*models.Product, error)
+	SearchProducts(ctx context.Context, query string, skip, take uint64) ([]*models.Product, error)
+	UpdateProduct(ctx context.Context, updatedProduct *models.Product) error
 	DeleteProduct(ctx context.Context, productId string) error
 }
 
@@ -83,7 +84,7 @@ func (r *elasticRepository) GetProductById(ctx context.Context, id string) (*mod
 	}, nil
 }
 
-func (r *elasticRepository) ListProducts(ctx context.Context, skip, take uint64) ([]models.Product, error) {
+func (r *elasticRepository) ListProducts(ctx context.Context, skip, take uint64) ([]*models.Product, error) {
 	res, err := r.client.Search().
 		Index("catalog").
 		Type("product").
@@ -95,11 +96,11 @@ func (r *elasticRepository) ListProducts(ctx context.Context, skip, take uint64)
 		log.Println(err)
 		return nil, err
 	}
-	var products []models.Product
+	var products []*models.Product
 	for _, hit := range res.Hits.Hits {
 		product := models.ProductDocument{}
 		if err = json.Unmarshal(*hit.Source, &product); err == nil {
-			products = append(products, models.Product{
+			products = append(products, &models.Product{
 				ID:          hit.Id,
 				Name:        product.Name,
 				Description: product.Description,
@@ -110,7 +111,7 @@ func (r *elasticRepository) ListProducts(ctx context.Context, skip, take uint64)
 	return products, err
 }
 
-func (r *elasticRepository) ListProductsWithIDs(ctx context.Context, ids []string) ([]models.Product, error) {
+func (r *elasticRepository) ListProductsWithIDs(ctx context.Context, ids []string) ([]*models.Product, error) {
 	var items []*elastic.MultiGetItem
 	for _, id := range ids {
 		items = append(items, elastic.NewMultiGetItem().
@@ -126,11 +127,11 @@ func (r *elasticRepository) ListProductsWithIDs(ctx context.Context, ids []strin
 		return nil, err
 	}
 
-	var products []models.Product
+	var products []*models.Product
 	for _, doc := range res.Docs {
 		product := models.ProductDocument{}
 		if err = json.Unmarshal(*doc.Source, &product); err == nil {
-			products = append(products, models.Product{
+			products = append(products, &models.Product{
 				ID:          doc.Id,
 				Name:        product.Name,
 				Description: product.Description,
@@ -141,7 +142,7 @@ func (r *elasticRepository) ListProductsWithIDs(ctx context.Context, ids []strin
 	return products, err
 }
 
-func (r *elasticRepository) SearchProducts(ctx context.Context, query string, skip, take uint64) ([]models.Product, error) {
+func (r *elasticRepository) SearchProducts(ctx context.Context, query string, skip, take uint64) ([]*models.Product, error) {
 	res, err := r.client.Search().
 		Index("catalog").
 		Type("product").
@@ -153,11 +154,11 @@ func (r *elasticRepository) SearchProducts(ctx context.Context, query string, sk
 		log.Println(err)
 		return nil, err
 	}
-	var products []models.Product
+	var products []*models.Product
 	for _, hit := range res.Hits.Hits {
 		product := models.ProductDocument{}
 		if err = json.Unmarshal(*hit.Source, &product); err == nil {
-			products = append(products, models.Product{
+			products = append(products, &models.Product{
 				ID:          hit.Id,
 				Name:        product.Name,
 				Description: product.Description,
@@ -168,7 +169,7 @@ func (r *elasticRepository) SearchProducts(ctx context.Context, query string, sk
 	return products, err
 }
 
-func (r *elasticRepository) UpdateProduct(ctx context.Context, updatedProduct models.Product) error {
+func (r *elasticRepository) UpdateProduct(ctx context.Context, updatedProduct *models.Product) error {
 	_, err := r.client.Update().
 		Index("catalog").
 		Type("product").

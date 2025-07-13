@@ -3,8 +3,9 @@ package internal
 import (
 	"context"
 	"errors"
-	"github.com/IBM/sarama"
 	"log"
+
+	"github.com/IBM/sarama"
 
 	"github.com/rasadov/EcommerceAPI/pkg/kafka"
 	"github.com/rasadov/EcommerceAPI/product/models"
@@ -13,9 +14,9 @@ import (
 type Service interface {
 	PostProduct(ctx context.Context, name, description string, price float64, accountId int) (*models.Product, error)
 	GetProduct(ctx context.Context, id string) (*models.Product, error)
-	GetProducts(ctx context.Context, skip, take uint64) ([]models.Product, error)
-	GetProductsWithIDs(ctx context.Context, ids []string) ([]models.Product, error)
-	SearchProducts(ctx context.Context, query string, skip, take uint64) ([]models.Product, error)
+	GetProducts(ctx context.Context, skip, take uint64) ([]*models.Product, error)
+	GetProductsWithIDs(ctx context.Context, ids []string) ([]*models.Product, error)
+	SearchProducts(ctx context.Context, query string, skip, take uint64) ([]*models.Product, error)
 	UpdateProduct(ctx context.Context, id, name, description string, price float64, accountId int) (*models.Product, error)
 	DeleteProduct(ctx context.Context, productId string, accountId int) error
 	Producer() sarama.AsyncProducer
@@ -88,15 +89,15 @@ func (service productService) GetProduct(ctx context.Context, id string) (*model
 	return product, nil
 }
 
-func (service productService) GetProducts(ctx context.Context, skip, take uint64) ([]models.Product, error) {
+func (service productService) GetProducts(ctx context.Context, skip, take uint64) ([]*models.Product, error) {
 	return service.repo.ListProducts(ctx, skip, take)
 }
 
-func (service productService) GetProductsWithIDs(ctx context.Context, ids []string) ([]models.Product, error) {
+func (service productService) GetProductsWithIDs(ctx context.Context, ids []string) ([]*models.Product, error) {
 	return service.repo.ListProductsWithIDs(ctx, ids)
 }
 
-func (service productService) SearchProducts(ctx context.Context, query string, skip, take uint64) ([]models.Product, error) {
+func (service productService) SearchProducts(ctx context.Context, query string, skip, take uint64) ([]*models.Product, error) {
 	return service.repo.SearchProducts(ctx, query, skip, take)
 }
 
@@ -109,12 +110,12 @@ func (service productService) UpdateProduct(ctx context.Context, id, name, descr
 		return nil, errors.New("unauthorized")
 	}
 
-	updatedProduct := models.Product{
-		id,
-		name,
-		description,
-		price,
-		accountId,
+	updatedProduct := &models.Product{
+		ID:          id,
+		Name:        name,
+		Description: description,
+		Price:       price,
+		AccountID:   accountId,
 	}
 	err = service.repo.UpdateProduct(ctx, updatedProduct)
 	if err != nil {
@@ -137,7 +138,7 @@ func (service productService) UpdateProduct(ctx context.Context, id, name, descr
 		}
 	}()
 
-	return &updatedProduct, nil
+	return updatedProduct, nil
 }
 func (service productService) DeleteProduct(ctx context.Context, productId string, accountId int) error {
 	product, err := service.repo.GetProductById(ctx, productId)

@@ -2,8 +2,9 @@ package kafka
 
 import (
 	"encoding/json"
-	"github.com/IBM/sarama"
 	"log"
+
+	"github.com/IBM/sarama"
 )
 
 var done = make(chan bool)

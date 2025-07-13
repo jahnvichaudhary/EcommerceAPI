@@ -3,10 +3,12 @@ package auth
 import (
 	"context"
 	"errors"
-	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/rasadov/EcommerceAPI/pkg/contextkeys"
 )
 
 func GetUserId(ctx context.Context, abort bool) string {
@@ -18,11 +20,10 @@ func GetUserId(ctx context.Context, abort bool) string {
 }
 
 func GetUserIdInt(ctx context.Context, abort bool) (int, error) {
-	accountId, ok := ctx.Value("userID").(uint64)
-	log.Println("userID", accountId)
+	accountId, ok := ctx.Value(contextkeys.UserIDKey).(uint64)
 	if !ok {
 		if abort {
-			ginContext, _ := ctx.Value("GinContextKey").(*gin.Context)
+			ginContext, _ := ctx.Value(contextkeys.UserIDKey).(*gin.Context)
 			ginContext.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": "Unauthorized",
 			})

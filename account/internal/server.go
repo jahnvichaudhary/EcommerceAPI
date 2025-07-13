@@ -3,11 +3,12 @@ package internal
 import (
 	"context"
 	"fmt"
+	"net"
+
 	"github.com/rasadov/EcommerceAPI/account/proto/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/types/known/wrapperspb"
-	"net"
 )
 
 type grpcServer struct {

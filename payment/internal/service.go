@@ -3,10 +3,11 @@ package internal
 import (
 	"context"
 	"errors"
+	"net/http"
+
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/rasadov/EcommerceAPI/payment/models"
 	"gorm.io/gorm"
-	"net/http"
 )
 
 type Service interface {

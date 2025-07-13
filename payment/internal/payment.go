@@ -8,13 +8,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"log"
+	"net/http"
+
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/option"
 	"github.com/rasadov/EcommerceAPI/payment/config"
 	"github.com/rasadov/EcommerceAPI/payment/models"
-	"io"
-	"log"
-	"net/http"
 )
 
 type PaymentClient interface {

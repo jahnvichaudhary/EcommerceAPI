@@ -2,10 +2,11 @@ package client
 
 import (
 	"context"
+	"log"
+
 	"github.com/rasadov/EcommerceAPI/payment/proto/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"log"
 )
 
 type Client struct {

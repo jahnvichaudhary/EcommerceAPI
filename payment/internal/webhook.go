@@ -2,10 +2,11 @@ package internal
 
 import (
 	"context"
-	order "github.com/rasadov/EcommerceAPI/order/client"
 	"log"
 	"net/http"
 	"time"
+
+	order "github.com/rasadov/EcommerceAPI/order/client"
 )
 
 type WebhookServer struct {

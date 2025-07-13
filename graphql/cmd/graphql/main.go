@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -8,7 +10,6 @@ import (
 	"github.com/rasadov/EcommerceAPI/graphql/config"
 	"github.com/rasadov/EcommerceAPI/graphql/graph"
 	"github.com/rasadov/EcommerceAPI/pkg/middleware"
-	"log"
 )
 
 func main() {

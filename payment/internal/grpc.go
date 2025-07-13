@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+
 	"github.com/dodopayments/dodopayments-go"
 	order "github.com/rasadov/EcommerceAPI/order/client"
 	"github.com/rasadov/EcommerceAPI/payment/proto/pb"
@@ -22,10 +23,12 @@ func (s *grpcServer) Checkout(ctx context.Context, request *pb.CheckoutRequest) 
 	currency := dodopayments.Currency(request.Currency)
 
 	checkoutUrl, productId, err := s.service.GetCheckoutURL(ctx, request.Email, request.Name, request.RedirectURL, request.PriceCents, currency)
+	if err != nil {
+		return nil, err
+	}
 
 	// We will use these transaction on webhooks
 	err = s.service.RegisterTransaction(ctx, request.OrderId, request.UserId, request.PriceCents, currency, customer.CustomerId, productId)
-
 	if err != nil {
 		return nil, err
 	}
